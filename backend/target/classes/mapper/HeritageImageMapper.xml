@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.henan.heritage.mapper.HeritageImageMapper">
+    <select id="selectByHeritageId" resultType="com.henan.heritage.entity.HeritageImage">
+        SELECT * FROM heritage_image WHERE heritage_id = #{heritageId} ORDER BY sort ASC
+    </select>
+    <select id="selectById" resultType="com.henan.heritage.entity.HeritageImage">
+        SELECT * FROM heritage_image WHERE id = #{id}
+    </select>
+    <insert id="insert" parameterType="com.henan.heritage.entity.HeritageImage">
+        INSERT INTO heritage_image (heritage_id, image_url, sort, create_time) VALUES (#{heritageId}, #{imageUrl}, #{sort}, NOW())
+    </insert>
+    <update id="update" parameterType="com.henan.heritage.entity.HeritageImage">
+        UPDATE heritage_image SET heritage_id = #{heritageId}, image_url = #{imageUrl}, sort = #{sort} WHERE id = #{id}
+    </update>
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM heritage_image WHERE id = #{id}
+    </delete>
+</mapper>

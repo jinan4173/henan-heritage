@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.henan.heritage.mapper.NewsMapper">
+
+    <resultMap id="newsResultMap" type="com.henan.heritage.entity.News">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="coverImage" column="cover_image"/>
+        <result property="status" column="status"/>
+        <result property="createdAt" column="create_time"/>
+        <result property="updatedAt" column="update_time"/>
+    </resultMap>
+
+    <select id="selectList" parameterType="java.lang.Integer" resultMap="newsResultMap">
+        SELECT * FROM news
+        <where>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectById" parameterType="java.lang.Long" resultMap="newsResultMap">
+        SELECT * FROM news WHERE id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="com.henan.heritage.entity.News">
+        INSERT INTO news (title, content, cover_image, status, create_time, update_time)
+        VALUES (#{title}, #{content}, #{coverImage}, #{status}, NOW(), NOW())
+    </insert>
+
+    <update id="update" parameterType="com.henan.heritage.entity.News">
+        UPDATE news
+        SET title = #{title},
+            content = #{content},
+            cover_image = #{coverImage},
+            status = #{status},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM news WHERE id = #{id}
+    </delete>
+
+    <select id="count" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM news
+    </select>
+
+</mapper>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.henan.heritage.mapper.CultureNewsMapper">
+    <resultMap id="CultureNewsResult" type="com.henan.heritage.entity.CultureNews">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="coverImage" column="cover_image"/>
+        <result property="date" column="date"/>
+        <result property="type" column="type"/>
+        <result property="status" column="status"/>
+        <result property="createdAt" column="create_time"/>
+        <result property="updatedAt" column="update_time"/>
+    </resultMap>
+
+    <select id="selectList" resultMap="CultureNewsResult">
+        SELECT * FROM culture_news
+        WHERE 1=1
+        <if test="type != null">
+            AND type = #{type}
+        </if>
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectById" resultMap="CultureNewsResult">
+        SELECT * FROM culture_news WHERE id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="com.henan.heritage.entity.CultureNews">
+        INSERT INTO culture_news (title, content, cover_image, date, type, status, create_time, update_time) 
+        VALUES (#{title}, #{content}, #{coverImage}, #{date}, #{type}, #{status}, NOW(), NOW())
+    </insert>
+
+    <update id="update" parameterType="com.henan.heritage.entity.CultureNews">
+        UPDATE culture_news SET 
+            title = #{title}, 
+            content = #{content}, 
+            cover_image = #{coverImage}, 
+            date = #{date}, 
+            type = #{type}, 
+            status = #{status}, 
+            update_time = NOW() 
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM culture_news WHERE id = #{id}
+    </delete>
+    
+    <select id="count" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM culture_news
+        WHERE 1=1
+        <if test="type != null">
+            AND type = #{type}
+        </if>
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+    </select>
+</mapper>
