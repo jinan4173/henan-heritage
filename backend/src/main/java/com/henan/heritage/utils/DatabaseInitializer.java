@@ -33,11 +33,48 @@ public class DatabaseInitializer implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         try {
-            System.out.println("跳过数据库初始化...");
-            // 不执行数据库初始化操作
+            System.out.println("========================================");
+            System.out.println("开始数据库初始化...");
+            
+            // 检查数据库连接
+            System.out.println("检查数据库连接...");
+            int count = jdbcTemplate.queryForObject("SELECT 1", Integer.class);
+            System.out.println("数据库连接正常!");
+            
+            // 清空heritage_item表数据
+            System.out.println("清空heritage_item表数据...");
+            int deleteCount = jdbcTemplate.update("DELETE FROM heritage_item");
+            System.out.println("成功删除 " + deleteCount + " 条记录");
+            System.out.println("heritage_item表数据清空完成!");
+            
+            // 执行表结构创建脚本
+            System.out.println("执行表结构创建脚本...");
+            executeSqlScript("classpath:data/create_tables.sql");
+            
+            // 执行初始数据脚本
+            System.out.println("执行初始数据脚本...");
+            executeSqlScript("classpath:data/init_data.sql");
+            
+            // 执行更新数据脚本
+            System.out.println("执行更新数据脚本...");
+            executeSqlScript("classpath:data/update_data.sql");
+            
+            // 执行导入数据脚本
+            System.out.println("执行导入数据脚本...");
+            executeSqlScript("classpath:data/import_heritage_items.sql");
+            
+            // 验证导入结果
+            System.out.println("验证导入结果...");
+            int heritageCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM heritage_item", Integer.class);
+            System.out.println("heritage_item表中共有 " + heritageCount + " 条记录");
+            
+            System.out.println("数据库初始化完成!");
+            System.out.println("========================================");
         } catch (Exception e) {
+            System.err.println("========================================");
             System.err.println("数据库初始化失败: " + e.getMessage());
             e.printStackTrace();
+            System.err.println("========================================");
         }
     }
 

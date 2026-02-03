@@ -76,10 +76,10 @@
           <el-input v-model="formData.email" placeholder="请输入邮箱"></el-input>
         </el-form-item>
         <el-form-item label="管理员" prop="isAdmin">
-          <el-switch v-model="formData.isAdmin" active-value="1" inactive-value="0"></el-switch>
+          <el-switch v-model="formData.isAdmin" :active-value="1" :inactive-value="0"></el-switch>
         </el-form-item>
         <el-form-item label="状态" prop="status">
-          <el-switch v-model="formData.status" active-value="1" inactive-value="0"></el-switch>
+          <el-switch v-model="formData.status" :active-value="1" :inactive-value="0"></el-switch>
         </el-form-item>
       </el-form>
       <template #footer>

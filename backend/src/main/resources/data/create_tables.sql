@@ -35,27 +35,26 @@ CREATE TABLE IF NOT EXISTS user (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 4. 非遗项目表(heritage_item)
-CREATE TABLE IF NOT EXISTS heritage_item (
+-- 先删除旧表（如果存在）
+DROP TABLE IF EXISTS heritage_item;
+
+-- 重新创建表，只保留用户指定的字段
+CREATE TABLE heritage_item (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '项目ID',
     serial_number INT COMMENT '序号',
-    project_serial_number VARCHAR(50) COMMENT '项目序号',
-    project_code VARCHAR(50) COMMENT '编号',
-    title VARCHAR(100) NOT NULL COMMENT '名称',
-    description TEXT COMMENT '项目描述',
+    region_id BIGINT COMMENT '地区ID',
+    region_name VARCHAR(50) COMMENT '地区',
+    category_id BIGINT COMMENT '分类ID',
     category_name VARCHAR(100) COMMENT '类别',
-    announcement_time VARCHAR(50) COMMENT '公布时间',
-    project_type VARCHAR(50) COMMENT '类型',
+    title VARCHAR(100) NOT NULL COMMENT '项目名称',
     declaration_region VARCHAR(255) COMMENT '申报地区或单位',
     protection_unit VARCHAR(255) COMMENT '保护单位',
-    category_id BIGINT COMMENT '分类ID',
-    region_id BIGINT COMMENT '地区ID',
+    description TEXT COMMENT '项目介绍',
     cover_image VARCHAR(255) COMMENT '封面图片URL',
     video_url VARCHAR(255) COMMENT '视频URL',
     status TINYINT DEFAULT 1 COMMENT '状态: 1-启用, 0-禁用',
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    FOREIGN KEY (category_id) REFERENCES heritage_category(id),
-    FOREIGN KEY (region_id) REFERENCES region(id)
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 5. 文化资讯表(culture_news)

@@ -22,8 +22,15 @@
       <el-table-column prop="name" label="姓名" width="120" />
       <el-table-column prop="gender" label="性别" width="80" />
       <el-table-column prop="nation" label="民族" width="100" />
-      <el-table-column prop="project" label="项目" width="180" />
+      <el-table-column prop="title" label="项目" width="180" />
       <el-table-column prop="category" label="类别" width="120" />
+      <el-table-column prop="status" label="状态" width="100">
+        <template #default="scope">
+          <el-tag :type="scope.row.status === 1 ? 'success' : 'danger'">
+            {{ scope.row.status === 1 ? '启用' : '禁用' }}
+          </el-tag>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" width="200">
         <template #default="scope">
           <el-button size="small" type="primary" @click="handleEdit(scope.row)">编辑</el-button>
@@ -60,11 +67,21 @@
         <el-form-item label="民族" prop="nation">
           <el-input v-model="formData.nation" placeholder="请输入民族" />
         </el-form-item>
-        <el-form-item label="项目" prop="project">
-          <el-input v-model="formData.project" placeholder="请输入项目名称" />
+        <el-form-item label="项目" prop="title">
+          <el-input v-model="formData.title" placeholder="请输入项目" />
         </el-form-item>
         <el-form-item label="类别" prop="category">
-          <el-input v-model="formData.category" placeholder="请输入类别" />
+          <el-select v-model="formData.category" placeholder="请选择类别">
+            <el-option
+              v-for="category in categories"
+              :key="category.id"
+              :label="category.name"
+              :value="category.name"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="状态" prop="status">
+          <el-switch v-model="formData.status" :active-value="1" :inactive-value="0" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -92,17 +109,38 @@ const dialogTitle = ref('')
 const formData = ref({})
 const formRef = ref(null)
 
+// 类别列表
+const categories = ref([])
+
+
+
 const rules = {
   name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
   gender: [{ required: true, message: '请选择性别', trigger: 'change' }],
   nation: [{ required: true, message: '请输入民族', trigger: 'blur' }],
-  project: [{ required: true, message: '请输入项目名称', trigger: 'blur' }],
-  category: [{ required: true, message: '请输入类别', trigger: 'blur' }]
+  title: [{ required: true, message: '请输入项目', trigger: 'blur' }],
+  category: [{ required: true, message: '请选择类别', trigger: 'change' }]
 }
 
 onMounted(() => {
   loadInheritors()
+  loadCategories()
 })
+
+// 加载类别列表
+const loadCategories = async () => {
+  try {
+    const response = await api.get('/heritage/categories')
+    if (response.success) {
+      categories.value = response.data || []
+    }
+  } catch (error) {
+    console.error('加载类别数据失败:', error)
+    categories.value = []
+  }
+}
+
+
 
 const loadInheritors = async () => {
   try {
@@ -158,8 +196,9 @@ const handleAdd = () => {
     name: '',
     gender: '',
     nation: '',
-    project: '',
-    category: ''
+    title: '',
+    category: '',
+    status: 1
   }
   dialogVisible.value = true
 }

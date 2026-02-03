@@ -21,7 +21,7 @@
               <span class="hero-id">编号: {{ String(heritageItem.id).padStart(4, '0') }}</span>
             </div>
           </div>
-          <img :src="heritageItem.coverImage || 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=traditional%20Chinese%20culture%20heritage%20intangible%20cultural%20heritage%20elegant%20artistic&image_size=landscape'" :alt="heritageItem.title" class="hero-image" />
+          <img :src="heritageItem.coverImage || getDefaultCover(heritageItem)" :alt="heritageItem.title" class="hero-image" />
         </div>
 
         <!-- 基本信息卡片 -->
@@ -62,7 +62,7 @@
             <h2>项目介绍</h2>
           </div>
           <div class="section-content">
-            <p v-if="heritageItem.projectIntroduction" class="description-text">{{ heritageItem.projectIntroduction }}</p>
+            <p v-if="heritageItem.description" class="description-text">{{ heritageItem.description }}</p>
             <p v-else class="empty-text">暂无项目介绍</p>
           </div>
         </div>
@@ -426,6 +426,22 @@ const playVideo = (videoUrl) => {
       // 移除自动播放，让用户手动点击播放
     }
   }
+}
+
+// 为没有封面图片的项目生成独特的默认封面
+const getDefaultCover = (item) => {
+  // 构建基于项目信息的prompt
+  let prompt = `traditional Chinese culture heritage ${encodeURIComponent(item.title)}`
+  if (item.categoryName) {
+    prompt += ` ${encodeURIComponent(item.categoryName)}`
+  }
+  if (item.regionName) {
+    prompt += ` ${encodeURIComponent(item.regionName)}`
+  }
+  prompt += ` elegant artistic traditional style high quality landscape`
+  
+  // 构建图片生成API URL，使用landscape尺寸适合详情页的横幅布局
+  return `https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=${prompt}&image_size=landscape`
 }
 </script>
 

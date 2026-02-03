@@ -21,10 +21,31 @@
     <el-table :data="filteredHeritageItems" style="width: 100%" border>
       <el-table-column label="序号" width="80">
         <template #default="scope">
-          {{ (currentPage - 1) * pageSize + scope.$index + 1 }}
+          {{ scope.row.serialNumber || ((currentPage - 1) * pageSize + scope.$index + 1) }}
         </template>
       </el-table-column>
-      <el-table-column prop="title" label="项目名称" />
+      <el-table-column label="封面" width="100">
+        <template #default="scope">
+          <el-image
+            :src="scope.row.coverImage || getDefaultCover(scope.row)"
+            :preview-src-list="[scope.row.coverImage || getDefaultCover(scope.row)]"
+            fit="cover"
+            style="width: 80px; height: 80px; border-radius: 4px"
+          />
+        </template>
+      </el-table-column>
+      <el-table-column prop="regionName" label="地区" width="120" />
+      <el-table-column prop="categoryName" label="类别" width="150" />
+      <el-table-column prop="title" label="项目名称" min-width="180" />
+      <el-table-column prop="declarationRegion" label="申报地区或单位" min-width="150" />
+      <el-table-column prop="protectionUnit" label="保护单位" min-width="150" />
+      <el-table-column prop="status" label="状态" width="100">
+        <template #default="scope">
+          <el-tag :type="scope.row.status === 1 ? 'success' : 'danger'">
+            {{ scope.row.status === 1 ? '启用' : '禁用' }}
+          </el-tag>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" width="200" fixed="right">
         <template #default="scope">
           <el-button type="primary" size="small" @click="handleEdit(scope.row)">
@@ -56,37 +77,91 @@
       :title="dialogTitle"
       width="800px"
     >
-      <el-form :model="formData" :rules="rules" ref="formRef" label-width="100px">
+      <el-form :model="formData" :rules="rules" ref="formRef" label-width="120px">
         <el-form-item label="项目名称" prop="title">
           <el-input v-model="formData.title" placeholder="请输入项目名称" />
         </el-form-item>
 
-        <el-form-item label="封面图片" prop="coverImage">
-          <el-upload
-            class="upload-demo"
-            action=""
-            :auto-upload="false"
-            :on-change="handleCoverUpload"
-            :limit="1"
-            list-type="picture"
-          >
-            <el-button type="primary">
-              <el-icon><Upload /></el-icon> 上传封面
-            </el-button>
-          </el-upload>
-          <el-input v-model="formData.coverImage" placeholder="封面图片路径" style="margin-top: 10px" />
+
+
+        <el-form-item label="序号" prop="serialNumber">
+          <el-input v-model="formData.serialNumber" placeholder="请输入序号" />
         </el-form-item>
 
-        <el-form-item label="项目介绍" prop="projectIntroduction">
+        <el-form-item label="类别" prop="categoryId">
+          <el-select v-model="formData.categoryId" placeholder="请选择类别">
+            <el-option
+              v-for="category in categories"
+              :key="category.id"
+              :label="category.name"
+              :value="category.id"
+            />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="地区" prop="regionId">
+          <el-select v-model="formData.regionId" placeholder="请选择地区">
+            <el-option
+              v-for="region in regions"
+              :key="region.id"
+              :label="region.name"
+              :value="region.id"
+            />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="保护单位" prop="protectionUnit">
+          <el-input v-model="formData.protectionUnit" placeholder="请输入保护单位" />
+        </el-form-item>
+
+        <el-form-item label="申报地区或单位" prop="declarationRegion">
+          <el-input v-model="formData.declarationRegion" placeholder="请输入申报地区或单位" />
+        </el-form-item>
+
+        <el-form-item label="封面图片" prop="coverImage">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px">
+            <el-upload
+              class="upload-demo"
+              action=""
+              :auto-upload="false"
+              :on-change="handleCoverUpload"
+              :limit="1"
+              list-type="picture"
+            >
+              <el-button type="primary">
+                <el-icon><Upload /></el-icon> 上传封面
+              </el-button>
+            </el-upload>
+            <el-button type="success" @click="generateCover">
+              <el-icon><Picture /></el-icon> 生成封面
+            </el-button>
+          </div>
+          <!-- 预览生成的封面图片 -->
+          <div v-if="formData.coverImage" class="cover-preview">
+            <el-image
+              :src="formData.coverImage"
+              fit="cover"
+              style="width: 200px; height: 150px; border-radius: 8px; margin-bottom: 10px"
+            />
+          </div>
+          <el-input v-model="formData.coverImage" placeholder="封面图片路径" />
+        </el-form-item>
+
+        <el-form-item label="视频URL" prop="videoUrl">
+          <el-input v-model="formData.videoUrl" placeholder="请输入视频URL" />
+        </el-form-item>
+
+        <el-form-item label="项目介绍" prop="description">
           <el-input
-            v-model="formData.projectIntroduction"
+            v-model="formData.description"
             type="textarea"
             :rows="5"
             placeholder="请输入项目介绍"
           />
         </el-form-item>
+
         <el-form-item label="状态" prop="status">
-          <el-switch v-model="formData.status" active-value="1" inactive-value="0" />
+          <el-switch v-model="formData.status" :active-value="1" :inactive-value="0" />
         </el-form-item>
         
         <!-- 多媒体文件管理 -->
@@ -140,8 +215,8 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { heritageApi } from '../../api/heritage'
 import { imageApi } from '../../api/image'
 import api from '../../api/index.js'
-import { ElTable, ElTableColumn, ElButton, ElDialog, ElForm, ElFormItem, ElInput, ElSelect, ElOption, ElUpload, ElSwitch, ElPagination, ElIcon } from 'element-plus'
-import { Plus, Upload, Delete } from '@element-plus/icons-vue'
+import { ElTable, ElTableColumn, ElButton, ElDialog, ElForm, ElFormItem, ElInput, ElSelect, ElOption, ElUpload, ElSwitch, ElPagination, ElIcon, ElImage } from 'element-plus'
+import { Plus, Upload, Delete, Picture } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
 const heritageItems = ref([])
@@ -156,17 +231,28 @@ const formRef = ref(null)
 // 媒体文件列表
 const mediaList = ref([])
 
+// 分类和地区列表
+const categories = ref([])
+const regions = ref([])
+
 const formData = reactive({
   id: '',
+  serialNumber: '',
   title: '',
+  description: '',
+  declarationRegion: '',
+  protectionUnit: '',
+  categoryId: '',
+  regionId: '',
+  regionName: '',
+  categoryName: '',
   coverImage: '',
-  projectIntroduction: '',
+  videoUrl: '',
   status: 1
 })
 
 const rules = {
-  title: [{ required: true, message: '请输入项目名称', trigger: 'blur' }],
-  projectIntroduction: [{ required: true, message: '请输入项目介绍', trigger: 'blur' }]
+  title: [{ required: true, message: '请输入项目名称', trigger: 'blur' }]
 }
 
 // 过滤后的遗产项目列表
@@ -177,7 +263,35 @@ const filteredHeritageItems = computed(() => {
 onMounted(() => {
   loadData()
   loadTotalCount()
+  loadCategories()
+  loadRegions()
 })
+
+// 加载分类列表
+const loadCategories = async () => {
+  try {
+    const response = await api.get('/heritage/categories')
+    if (response.success) {
+      categories.value = response.data || []
+    }
+  } catch (error) {
+    console.error('加载分类数据失败:', error)
+    categories.value = []
+  }
+}
+
+// 加载地区列表
+const loadRegions = async () => {
+  try {
+    const response = await api.get('/heritage/regions')
+    if (response.success) {
+      regions.value = response.data || []
+    }
+  } catch (error) {
+    console.error('加载地区数据失败:', error)
+    regions.value = []
+  }
+}
 
 const loadData = async () => {
   try {
@@ -252,9 +366,17 @@ const handleAdd = () => {
   formRef.value?.resetFields()
   Object.assign(formData, {
     id: '',
+    serialNumber: '',
     title: '',
+    description: '',
+    declarationRegion: '',
+    protectionUnit: '',
+    categoryId: '',
+    regionId: '',
+    regionName: '',
+    categoryName: '',
     coverImage: '',
-    projectIntroduction: '',
+    videoUrl: '',
     status: 1
   })
   // 重置媒体文件列表
@@ -318,6 +440,21 @@ const handleSave = async () => {
   await formRef.value.validate(async (valid) => {
     if (valid) {
       try {
+        // 根据选择的categoryId和regionId自动填充categoryName和regionName
+        if (formData.categoryId) {
+          const selectedCategory = categories.value.find(cat => cat.id === formData.categoryId)
+          if (selectedCategory) {
+            formData.categoryName = selectedCategory.name
+          }
+        }
+        
+        if (formData.regionId) {
+          const selectedRegion = regions.value.find(reg => reg.id === formData.regionId)
+          if (selectedRegion) {
+            formData.regionName = selectedRegion.name
+          }
+        }
+        
         let res
         let heritageId = formData.id
         
@@ -381,6 +518,50 @@ const handleCoverUpload = async (file) => {
     console.error('上传失败:', error)
     ElMessage.error('上传失败')
   }
+}
+
+// 生成封面图片
+const generateCover = async () => {
+  if (!formData.title) {
+    ElMessage.warning('请先输入项目名称')
+    return
+  }
+  
+  try {
+    ElMessage.info('正在生成封面图片，请稍候...')
+    
+    // 构建图片生成的prompt，使用更简洁的描述
+    let prompt = `traditional Chinese culture heritage ${encodeURIComponent(formData.title)} elegant artistic`
+    
+    // 构建图片生成API URL
+    const imageUrl = `https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=${prompt}&image_size=portrait_4_3`
+    
+    console.log('生成封面图片的URL:', imageUrl)
+    
+    // 直接设置图片URL，不进行fetch验证，因为fetch可能会遇到CORS问题
+    formData.coverImage = imageUrl
+    ElMessage.success('封面图片生成成功')
+    console.log('封面图片生成成功，URL:', imageUrl)
+  } catch (error) {
+    console.error('生成封面失败:', error)
+    ElMessage.error('生成封面失败，请重试')
+  }
+}
+
+// 为没有封面图片的项目生成独特的默认封面
+const getDefaultCover = (item) => {
+  // 构建基于项目信息的prompt
+  let prompt = `traditional Chinese culture heritage ${encodeURIComponent(item.title)}`
+  if (item.categoryName) {
+    prompt += ` ${encodeURIComponent(item.categoryName)}`
+  }
+  if (item.regionName) {
+    prompt += ` ${encodeURIComponent(item.regionName)}`
+  }
+  prompt += ` elegant artistic traditional style high quality`
+  
+  // 构建图片生成API URL，使用square尺寸用于后台管理页面
+  return `https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=${prompt}&image_size=square`
 }
 
 const handleSizeChange = (size) => {

@@ -130,6 +130,14 @@ public class HeritageItemServiceImpl implements HeritageItemService {
     }
 
     @Override
+    public List<Map<String, Object>> getCategoryStatistics() {
+        System.out.println("获取分类非遗项目统计");
+        List<Map<String, Object>> statistics = heritageItemMapper.selectCategoryStatistics();
+        System.out.println("获取到 " + statistics.size() + " 个分类的统计数据");
+        return statistics;
+    }
+
+    @Override
     public void saveMedia(HeritageMedia media) {
         System.out.println("保存媒体资源: " + media);
         heritageMediaService.save(media);

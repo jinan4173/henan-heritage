@@ -14,4 +14,5 @@ public interface HeritageItemMapper {
     void delete(Long id);
     long count();
     List<Map<String, Object>> selectCityStatistics();
+    List<Map<String, Object>> selectCategoryStatistics();
 }

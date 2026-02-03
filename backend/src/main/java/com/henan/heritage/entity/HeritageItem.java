@@ -7,23 +7,19 @@ import java.util.Date;
 public class HeritageItem {
     private Long id;
     private Integer serialNumber; // 序号
-    private String projectSerialNumber; // 项目序号
-    private String projectCode; // 编号
-    private String title; // 名称
-    private String description;
+    private Long regionId; // 地区ID
+    private String regionName; // 地区
+    private Long categoryId; // 类别ID
     private String categoryName; // 类别
-    private String announcementTime; // 公布时间
-    private String projectType; // 类型
+    private String title; // 项目名称
     private String declarationRegion; // 申报地区或单位
     private String protectionUnit; // 保护单位
-    private Long categoryId;
-    private Long regionId;
-    private String coverImage;
-    private String videoUrl;
-    private String projectIntroduction; // 项目介绍
-    private Integer status;
-    private Date createdAt;
-    private Date updatedAt;
+    private String description; // 项目介绍
+    private String coverImage; // 封面图片URL
+    private String videoUrl; // 视频URL
+    private Integer status; // 状态: 1-启用, 0-禁用
+    private Date createTime; // 创建时间
+    private Date updateTime; // 更新时间
     // 关联属性
     private HeritageCategory category;
     private Region region;

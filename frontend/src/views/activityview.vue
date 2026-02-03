@@ -37,7 +37,8 @@ const loadActivities = async () => {
   try {
     const response = await api.get('/culture-news/list', { params: { type: 2 } })
     if (response.success) {
-      activities.value = response.data
+      // 只显示状态为1的活动
+      activities.value = (response.data || []).filter(item => item.status === 1)
     }
   } catch (error) {
     console.error('加载活动失败:', error)

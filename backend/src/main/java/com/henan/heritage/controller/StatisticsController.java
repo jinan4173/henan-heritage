@@ -26,4 +26,15 @@ public class StatisticsController {
             return Map.of("success", false, "message", "获取地市统计数据失败: " + e.getMessage());
         }
     }
+
+    @GetMapping("/category")
+    public Map<String, Object> categoryStatistics() {
+        try {
+            List<Map<String, Object>> statistics = heritageItemService.getCategoryStatistics();
+            return Map.of("success", true, "data", statistics);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Map.of("success", false, "message", "获取分类统计数据失败: " + e.getMessage());
+        }
+    }
 }

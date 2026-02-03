@@ -92,19 +92,9 @@ const router = createRouter({
         },
 
         {
-          path: 'activity',
-          name: 'adminActivity',
-          component: () => import('../views/admin/AdminActivityView.vue')
-        },
-        {
-          path: 'news',
-          name: 'adminNews',
-          component: () => import('../views/admin/AdminNewsView.vue')
-        },
-        {
-          path: 'notice',
-          name: 'adminNotice',
-          component: () => import('../views/admin/AdminNoticeView.vue')
+          path: 'content',
+          name: 'adminContent',
+          component: () => import('../views/admin/AdminContentManageView.vue')
         },
         {
           path: 'inheritor',

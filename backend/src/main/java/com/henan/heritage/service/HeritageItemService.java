@@ -15,6 +15,7 @@ public interface HeritageItemService {
     void delete(Long id);
     long count();
     List<Map<String, Object>> getCityStatistics();
+    List<Map<String, Object>> getCategoryStatistics();
     
     // 媒体资源相关方法
     void saveMedia(HeritageMedia media);

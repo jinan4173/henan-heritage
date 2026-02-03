@@ -50,8 +50,9 @@ const loadInheritors = async () => {
       }
     })
     if (response.success) {
-      inheritorList.value = response.data
-      total.value = response.total || 0
+      // 只显示状态为1的传承人
+      inheritorList.value = (response.data || []).filter(item => item.status === 1)
+      total.value = inheritorList.value.length
     }
   } catch (error) {
     console.error('加载传承人失败:', error)

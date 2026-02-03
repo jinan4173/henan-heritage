@@ -37,7 +37,8 @@ const loadNews = async () => {
   try {
     const response = await api.get('/culture-news/list', { params: { type: 1 } })
     if (response.success) {
-      newsList.value = response.data
+      // 只显示状态为1的新闻
+      newsList.value = (response.data || []).filter(item => item.status === 1)
     }
   } catch (error) {
     console.error('加载新闻失败:', error)

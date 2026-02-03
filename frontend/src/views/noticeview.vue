@@ -34,7 +34,8 @@ const loadNotices = async () => {
   try {
     const response = await api.get('/culture-news/list', { params: { type: 3 } })
     if (response.success) {
-      notices.value = response.data
+      // 只显示状态为1的公告
+      notices.value = (response.data || []).filter(item => item.status === 1)
     }
   } catch (error) {
     console.error('加载公告失败:', error)

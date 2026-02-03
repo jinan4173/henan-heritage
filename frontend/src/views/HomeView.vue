@@ -20,6 +20,27 @@
       </el-carousel>
     </div>
 
+    <!-- 河南非遗地图分布 -->
+    <div class="map-section">
+      <!-- 地图和统计卡片布局 -->
+      <div class="map-and-stats">
+        <!-- 地图容器 -->
+        <div id="henanMap" class="map-container"></div>
+        
+        <!-- 分类统计卡片 -->
+        <div class="stats-container">
+          <div 
+            v-for="(item, index) in categoryStatistics" 
+            :key="index"
+            class="stat-card"
+          >
+            <div class="stat-number">{{ item.count }}</div>
+            <div class="stat-name">{{ item.name }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- 热门非遗项目 -->
     <div class="hot-heritage">
       <h2>热门非遗项目</h2>
@@ -31,7 +52,7 @@
           @click="goToDetail(item.id)"
         >
           <div class="heritage-image">
-            <img :src="item.coverImage" :alt="item.title" />
+            <img :src="item.coverImage || getDefaultCover(item)" :alt="item.title" />
           </div>
           <div class="heritage-info">
             <h3>{{ item.title }}</h3>
@@ -61,6 +82,7 @@ import { useRouter } from 'vue-router'
 import { heritageApi } from '../api/heritage'
 import api from '../api/index.js'
 import { ElSelect, ElOption, ElPagination, ElCarousel, ElCarouselItem } from 'element-plus'
+import * as echarts from 'echarts'
 
 const router = useRouter()
 const heritageItems = ref([])
@@ -76,6 +98,12 @@ const regions = ref([])
 const currentPage = ref(1)
 const pageSize = ref(9) // 每页9项，三行三列
 const total = ref(0)
+
+// 地图相关
+const henanGeoJson = ref(null)
+const mapChart = ref(null)
+const categoryStatistics = ref([])
+const cityStatistics = ref([])
 
 const welcomeMessage = computed(() => {
   try {
@@ -125,9 +153,15 @@ onMounted(() => {
   loadCarouselData()
   loadCategories()
   loadRegions()
+  loadData()
+  window.addEventListener('resize', handleResize)
 })
 
 onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+  if (mapChart.value) {
+    mapChart.value.dispose()
+  }
 })
 
 const loadData = async () => {
@@ -148,6 +182,13 @@ const loadData = async () => {
       heritageItems.value = []
       total.value = 0
     }
+    
+    // 加载地图相关数据
+    console.log('开始加载地图相关数据...')
+    // 加载分类统计数据
+    await loadCategoryStatistics()
+    // 加载地市统计数据
+    await loadCityStatistics()
   } catch (error) {
     console.error('加载数据失败:', error)
     heritageItems.value = []
@@ -179,8 +220,9 @@ const loadCarouselData = async () => {
       const data = await response.json()
       console.log('轮播图数据:', data)
       if (data && data.success) {
-        carouselList.value = data.data || []
-        console.log('轮播图列表:', carouselList.value)
+        // 过滤出状态为1的轮播图
+        carouselList.value = (data.data || []).filter(item => item.status === 1)
+        console.log('过滤后的轮播图列表:', carouselList.value)
       } else {
         console.error('轮播图数据加载失败:', data)
         carouselList.value = []
@@ -195,6 +237,399 @@ const loadCarouselData = async () => {
   }
 }
 
+// 加载分类统计数据
+const loadCategoryStatistics = async () => {
+  try {
+    console.log('开始加载分类统计数据...')
+    // 从后端API获取分类统计数据
+    const response = await fetch('http://localhost:8081/api/statistics/category')
+    console.log('分类统计API响应:', response)
+    if (response.ok) {
+      const data = await response.json()
+      console.log('分类统计数据:', data)
+      if (data && data.success && Array.isArray(data.data)) {
+        categoryStatistics.value = data.data
+        console.log('分类统计数据加载完成:', categoryStatistics.value)
+      } else {
+        console.warn('分类统计数据格式不正确，显示空数据')
+        categoryStatistics.value = []
+      }
+    } else {
+      console.error('获取分类统计数据失败:', response.status)
+      categoryStatistics.value = []
+    }
+  } catch (error) {
+    console.error('加载分类统计数据失败:', error)
+    categoryStatistics.value = []
+  }
+}
+
+// 加载地市统计数据
+const loadCityStatistics = async () => {
+  try {
+    // 从后端API获取地市统计数据
+    console.log('开始加载地市统计数据...')
+    const response = await fetch('http://localhost:8081/api/statistics/city')
+    console.log('地市统计API响应:', response)
+    if (response.ok) {
+      const data = await response.json()
+      console.log('地市统计数据:', data)
+      // 确保cityStatistics.value是一个数组
+      if (data && data.success && Array.isArray(data.data)) {
+        cityStatistics.value = data.data
+        // 初始化地图
+        setTimeout(async () => {
+          await initMap()
+        }, 100)
+      } else {
+        console.warn('地市统计数据格式不正确，显示空数据')
+        cityStatistics.value = []
+      }
+    } else {
+      console.error('获取地市统计数据失败:', response.status)
+      cityStatistics.value = []
+    }
+  } catch (error) {
+    console.error('加载地市统计数据失败:', error)
+    cityStatistics.value = []
+  }
+}
+
+
+
+// 初始化地图
+const initMap = async () => {
+  console.log('开始初始化地图...')
+  const mapContainer = document.getElementById('henanMap')
+  console.log('地图容器:', mapContainer)
+  if (!mapContainer) {
+    console.error('地图容器不存在')
+    return
+  }
+  console.log('地图容器尺寸:', mapContainer.offsetWidth, 'x', mapContainer.offsetHeight)
+
+  // 销毁现有实例
+  if (mapChart.value) {
+    console.log('销毁现有地图实例')
+    mapChart.value.dispose()
+  }
+
+  // 创建ECharts实例
+  try {
+    console.log('创建ECharts实例')
+    mapChart.value = echarts.init(mapContainer)
+    console.log('ECharts实例创建成功')
+  } catch (error) {
+    console.error('ECharts实例创建失败:', error)
+    return
+  }
+
+  // 加载并注册地图
+  try {
+    console.log('开始加载地图数据...')
+    if (!henanGeoJson.value) {
+      const response = await fetch('/src/assets/json/henan.geojson')
+      if (!response.ok) {
+        throw new Error('Failed to load map data')
+      }
+      henanGeoJson.value = await response.json()
+      console.log('地图数据加载成功')
+    }
+    console.log('地图数据类型:', typeof henanGeoJson.value)
+    console.log('地图数据结构:', henanGeoJson.value.type)
+    echarts.registerMap('henan', henanGeoJson.value)
+    console.log('地图注册成功')
+  } catch (error) {
+    console.error('地图注册失败:', error)
+    return
+  }
+
+  // 准备地图数据 - 使用各城市数据
+  const mapData = cityStatistics.value.map(item => {
+    const cityData = {
+      name: item.city,
+      value: item.count
+    };
+    
+    // 为特定城市添加自定义标签位置
+    if (item.city === '安阳市') {
+      cityData.label = {
+        position: 'top',
+        offset: [0, -200] // 向上偏移10像素
+      };
+    } else if (item.city === '濮阳市') {
+      cityData.label = {
+        position: 'left',
+        offset: [-1000, 0] // 向左偏移10像素
+      };
+    }
+    
+    return cityData;
+  })
+
+  console.log('地图数据:', mapData)
+
+  // 配置选项
+  const option = {
+    tooltip: {
+      trigger: 'item',
+      formatter: '{b}<br/>非遗项目数量: {c}项'
+    },
+    toolbox: {
+      feature: {
+        restore: {},
+        saveAsImage: {}
+      }
+    },
+    series: [
+      {
+        name: '非遗项目数量',
+        type: 'map',
+        map: 'henan',
+        data: mapData,
+        label: {
+          show: true,
+          fontSize: 12,
+          color: '#666',
+          // 自定义标签位置
+          formatter: '{b}'
+        },
+        itemStyle: {
+          areaColor: '#f0f9ff',
+          borderColor: '#91d5ff',
+          borderWidth: 1
+        },
+        emphasis: {
+          label: {
+            show: true,
+            color: '#333',
+            fontWeight: 'bold'
+          },
+          itemStyle: {
+            areaColor: '#ffd666'
+          }
+        },
+        // 河南省地图缩放和中心点 - 调整为更合适的视图
+        zoom: 1.2,
+        center: [113.8, 33.8],
+        // 启用缩放和拖拽功能
+        roam: true,
+        // 使用 labelLayout 函数调整标签位置
+        labelLayout: function(params) {
+          // 计算城市中心位置
+          const centerX = params.rect.x + params.rect.width / 2;
+          const centerY = params.rect.y + params.rect.height / 2;
+          
+          // 为特定城市调整标签位置，避免重叠
+          switch (params.name) {
+            case '安阳市':
+              // 安阳市标签调整
+              return {
+                x: centerX - 30,
+                y: centerY - 40,
+                align: 'center',
+                verticalAlign: 'middle'
+              };
+            case '鹤壁市':
+              // 鹤壁市标签调整
+              return {
+                x: centerX + 10,
+                y: centerY + 20,
+                align: 'center',
+                verticalAlign: 'middle'
+              };
+            case '新乡市':
+              // 新乡市标签调整
+              return {
+                x: centerX + 15,
+                y: centerY - 10,
+                align: 'center',
+                verticalAlign: 'middle'
+              };
+            case '濮阳市':
+              // 濮阳市标签调整
+              return {
+                x: centerX - 5,
+                y: centerY - 15,
+                align: 'center',
+                verticalAlign: 'middle'
+              };
+            case '郑州市':
+              // 郑州市标签调整
+              return {
+                x: centerX,
+                y: centerY + 10,
+                align: 'center',
+                verticalAlign: 'middle'
+              };
+            case '开封市':
+              // 开封市标签调整
+              return {
+                x: centerX + 10,
+                y: centerY - 5,
+                align: 'center',
+                verticalAlign: 'middle'
+              };
+            case '洛阳市':
+              // 洛阳市标签调整
+              return {
+                x: centerX - 15,
+                y: centerY,
+                align: 'center',
+                verticalAlign: 'middle'
+              };
+            case '平顶山市':
+              // 平顶山市标签调整
+              return {
+                x: centerX + 10,
+                y: centerY + 5,
+                align: 'center',
+                verticalAlign: 'middle'
+              };
+            case '南阳市':
+              // 南阳市标签调整
+              return {
+                x: centerX - 10,
+                y: centerY,
+                align: 'center',
+                verticalAlign: 'middle'
+              };
+            case '信阳市':
+              // 信阳市标签调整
+              return {
+                x: centerX + 10,
+                y: centerY,
+                align: 'center',
+                verticalAlign: 'middle'
+              };
+            case '周口市':
+              // 周口市标签调整
+              return {
+                x: centerX + 5,
+                y: centerY - 10,
+                align: 'center',
+                verticalAlign: 'middle'
+              };
+            case '驻马店市':
+              // 驻马店市标签调整
+              return {
+                x: centerX,
+                y: centerY + 10,
+                align: 'center',
+                verticalAlign: 'middle'
+              };
+            case '商丘市':
+              // 商丘市标签调整
+              return {
+                x: centerX + 15,
+                y: centerY,
+                align: 'center',
+                verticalAlign: 'middle'
+              };
+            case '许昌市':
+              // 许昌市标签调整
+              return {
+                x: centerX,
+                y: centerY - 10,
+                align: 'center',
+                verticalAlign: 'middle'
+              };
+            case '漯河市':
+              // 漯河市标签调整
+              return {
+                x: centerX,
+                y: centerY + 15,
+                align: 'center',
+                verticalAlign: 'middle'
+              };
+            case '三门峡市':
+              // 三门峡市标签调整
+              return {
+                x: centerX - 20,
+                y: centerY,
+                align: 'center',
+                verticalAlign: 'middle'
+              };
+            case '焦作市':
+              // 焦作市标签调整
+              return {
+                x: centerX + 15,
+                y: centerY,
+                align: 'center',
+                verticalAlign: 'middle'
+              };
+            case '济源市':
+              // 济源市标签调整
+              return {
+                x: centerX - 10,
+                y: centerY - 10,
+                align: 'center',
+                verticalAlign: 'middle'
+              };
+            default:
+              // 其他城市使用默认中心位置
+              return {
+                x: centerX,
+                y: centerY,
+                align: 'center',
+                verticalAlign: 'middle'
+              };
+          }
+        }
+      }
+    ]
+  }
+
+  // 如果有数据，添加visualMap
+  if (mapData.length > 0) {
+    const maxValue = Math.max(...mapData.map(item => item.value))
+    option.visualMap = {
+      type: 'continuous',
+      min: 0,
+      max: maxValue,
+      left: 'left',
+      bottom: 'bottom',
+      text: ['高', '低'],
+      calculable: true,
+      inRange: {
+        color: ['#e0f7fa', '#b2ebf2', '#80deea', '#4dd0e1', '#26c6da', '#00bcd4', '#00acc1', '#0097a7', '#00838f', '#006064']
+      }
+    }
+  }
+
+  // 设置选项
+  try {
+    console.log('设置地图选项')
+    mapChart.value.setOption(option)
+    console.log('地图配置成功')
+  } catch (error) {
+    console.error('地图配置失败:', error)
+  }
+}
+
+// 处理窗口大小变化
+const handleResize = () => {
+  if (mapChart.value) {
+    mapChart.value.resize()
+  }
+}
+
+// 为没有封面图片的项目生成独特的默认封面
+const getDefaultCover = (item) => {
+  // 构建基于项目信息的prompt
+  let prompt = `traditional Chinese culture heritage ${encodeURIComponent(item.title)}`
+  if (item.categoryName) {
+    prompt += ` ${encodeURIComponent(item.categoryName)}`
+  }
+  if (item.regionName) {
+    prompt += ` ${encodeURIComponent(item.regionName)}`
+  }
+  prompt += ` elegant artistic traditional style high quality`
+  
+  // 构建图片生成API URL
+  return `https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=${prompt}&image_size=portrait_4_3`
+}
+
 
 </script>
 
@@ -203,6 +638,74 @@ const loadCarouselData = async () => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+}
+
+/* 地图样式 */
+.map-section {
+  margin-bottom: 50px;
+}
+
+.map-section h2 {
+  font-size: 1.8rem;
+  margin-bottom: 30px;
+  color: #2B2B2B;
+  text-align: center;
+}
+
+.map-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.map-and-stats {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+}
+
+.map-container {
+  flex: 1;
+  height: 550px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+}
+
+.stats-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  width: 300px;
+}
+
+.stat-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  padding: 20px;
+  color: white;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+}
+
+.stat-number {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.stat-name {
+  font-size: 0.9rem;
+  opacity: 0.9;
 }
 
 .banner {

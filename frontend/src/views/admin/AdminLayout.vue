@@ -27,17 +27,9 @@
             <el-icon><UserFilled /></el-icon>
             <span>传承人管理</span>
           </el-menu-item>
-          <el-menu-item index="/admin/news">
-            <el-icon><Reading /></el-icon>
-            <span>文化资讯管理</span>
-          </el-menu-item>
-          <el-menu-item index="/admin/activity">
-            <el-icon><Tickets /></el-icon>
-            <span>活动管理</span>
-          </el-menu-item>
-          <el-menu-item index="/admin/notice">
-            <el-icon><Bell /></el-icon>
-            <span>公告管理</span>
+          <el-menu-item index="/admin/content">
+            <el-icon><Document /></el-icon>
+            <span>内容管理</span>
           </el-menu-item>
           <el-menu-item index="/admin/user">
             <el-icon><User /></el-icon>
@@ -68,9 +60,7 @@ import {
   House,
   Collection,
   UserFilled,
-  Reading,
-  Tickets,
-  Bell,
+  Document,
   User,
   Picture
 } from '@element-plus/icons-vue'

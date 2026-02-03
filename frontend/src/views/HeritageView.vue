@@ -3,50 +3,6 @@
     <div class="container">
       <h1>河南省非物质文化遗产</h1>
 
-      <!-- 河南非遗地图分布 -->
-      <div class="map-section">
-        <!-- 选择器 -->
-        <div class="map-controls">
-          <el-select v-model="selectedRegion" placeholder="请选择地域" style="margin-right: 20px; width: 150px;">
-            <el-option label="全部" value="" />
-            <el-option 
-              v-for="region in regions" 
-              :key="region.id"
-              :label="region.name" 
-              :value="region.id"
-            />
-          </el-select>
-
-          <el-select v-model="selectedCategory" placeholder="请选择分类" style="width: 150px;">
-            <el-option label="全部" value="" />
-            <el-option 
-              v-for="category in categories" 
-              :key="category.id"
-              :label="category.name" 
-              :value="category.id"
-            />
-          </el-select>
-        </div>
-        
-        <!-- 地图和统计卡片布局 -->
-        <div class="map-and-stats">
-          <!-- 地图容器 -->
-          <div id="henanMap" class="map-container"></div>
-          
-          <!-- 分类统计卡片 -->
-          <div class="stats-container">
-            <div 
-              v-for="(item, index) in categoryStatistics" 
-              :key="index"
-              class="stat-card"
-            >
-              <div class="stat-number">{{ item.count }}</div>
-              <div class="stat-name">{{ item.name }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- 分类和地区导航 -->
       <div class="nav-container">
         <!-- 分类导航 -->
@@ -94,7 +50,7 @@
               @click="goToDetail(item.id)"
             >
               <div class="card-image">
-                <img :src="item.coverImage" :alt="item.title" />
+                <img :src="item.coverImage || getDefaultCover(item)" :alt="item.title" />
               </div>
               <div class="card-content">
                 <div class="card-header">
@@ -165,7 +121,6 @@ import { useRouter, useRoute } from 'vue-router'
 import { heritageApi } from '../api/heritage'
 import api from '../api/index.js'
 import { ElTabs, ElTabPane, ElSelect, ElOption, ElEmpty, ElTable, ElTableColumn, ElButton, ElPagination } from 'element-plus'
-import * as echarts from 'echarts'
 
 const router = useRouter()
 const route = useRoute()
@@ -185,8 +140,6 @@ const regions = ref([])
 const currentPage = ref(1)
 const pageSize = ref(12) // 每页12项，四行三列
 const total = ref(0)
-
-
 
 // 加载分类数据
 const loadCategories = async () => {
@@ -219,20 +172,6 @@ const currentInheritorPage = ref(1)
 const inheritorPageSize = ref(20) // 每页20个传承人
 const inheritorTotal = ref(0)
 
-// 存储地图数据
-const henanGeoJson = ref(null)
-
-// 地图控制数据
-const selectedRegion = ref('')
-const selectedCategory = ref('')
-const mapChart = ref(null)
-
-// 分类统计数据
-const categoryStatistics = ref([])
-
-// 地图相关
-const cityStatistics = ref([])
-
 onMounted(() => {
   if (route.query.categoryId) {
     categoryId.value = parseInt(route.query.categoryId)
@@ -247,14 +186,9 @@ onMounted(() => {
   loadCategories()
   loadRegions()
   loadData()
-  window.addEventListener('resize', handleResize)
 })
 
 onUnmounted(() => {
-  window.removeEventListener('resize', handleResize)
-  if (mapChart.value) {
-    mapChart.value.dispose()
-  }
 })
 
 watch(() => route.query, () => {
@@ -277,12 +211,6 @@ const loadData = async () => {
     await loadHeritageItems()
     console.log('加载传承人数据...')
     await loadInheritors()
-    // 加载地市统计数据
-    console.log('加载地市统计数据...')
-    await loadCityStatistics()
-    // 加载分类统计数据
-    console.log('加载分类统计数据...')
-    await loadCategoryStatistics()
     console.log('数据加载完成')
   } catch (error) {
     console.error('加载数据失败:', error)
@@ -296,8 +224,9 @@ const loadHeritageItems = async () => {
     if (categoryId.value || regionId.value) {
       res = await heritageApi.filter(categoryId.value, regionId.value, 1)
       if (res && res.success) {
-        heritageItems.value = res.data || []
-        total.value = res.data?.length || 0
+        // 只显示状态为1的项目
+        heritageItems.value = (res.data || []).filter(item => item.status === 1)
+        total.value = heritageItems.value.length
       } else {
         heritageItems.value = []
         total.value = 0
@@ -305,8 +234,9 @@ const loadHeritageItems = async () => {
     } else {
       res = await heritageApi.list(null, currentPage.value, pageSize.value)
       if (res && res.success) {
-        heritageItems.value = res.data || []
-        total.value = res.total || 0
+        // 只显示状态为1的项目
+        heritageItems.value = (res.data || []).filter(item => item.status === 1)
+        total.value = heritageItems.value.length
       } else {
         heritageItems.value = []
         total.value = 0
@@ -386,289 +316,21 @@ const viewInheritorDetail = (row) => {
   router.push(`/inheritor/${row.id}`)
 }
 
-// 加载分类统计数据
-const loadCategoryStatistics = async () => {
-  try {
-    // 从后端API获取分类统计数据
-    const response = await fetch('/api/statistics/category')
-    if (response.ok) {
-      const data = await response.json()
-      console.log('分类统计数据:', data)
-      // 确保categoryStatistics.value是一个数组
-      if (data && data.data && Array.isArray(data.data)) {
-        categoryStatistics.value = data.data
-      } else {
-        categoryStatistics.value = []
-      }
-    } else {
-      console.error('获取分类统计数据失败:', response.status)
-      // 使用模拟数据作为回退
-      categoryStatistics.value = [
-        { name: '民间文学', count: 121 },
-        { name: '传统音乐', count: 105 },
-        { name: '传统舞蹈', count: 162 },
-        { name: '传统戏剧', count: 216 },
-        { name: '传统技艺', count: 482 },
-        { name: '传统美术', count: 243 },
-        { name: '传统医药', count: 166 },
-        { name: '曲艺', count: 85 },
-        { name: '民俗', count: 67 },
-        { name: '传统体育、游艺与杂技', count: 129 }
-      ]
-    }
-  } catch (error) {
-    console.error('加载分类统计数据失败:', error)
-    // 使用模拟数据作为回退
-    categoryStatistics.value = [
-      { name: '民间文学', count: 121 },
-      { name: '传统音乐', count: 105 },
-      { name: '传统舞蹈', count: 162 },
-      { name: '传统戏剧', count: 216 },
-      { name: '传统技艺', count: 482 },
-      { name: '传统美术', count: 243 },
-      { name: '传统医药', count: 166 },
-      { name: '曲艺', count: 85 },
-      { name: '民俗', count: 67 },
-      { name: '传统体育、游艺与杂技', count: 129 }
-    ]
+// 为没有封面图片的项目生成独特的默认封面
+const getDefaultCover = (item) => {
+  // 构建基于项目信息的prompt
+  let prompt = `traditional Chinese culture heritage ${encodeURIComponent(item.title)}`
+  if (item.categoryName) {
+    prompt += ` ${encodeURIComponent(item.categoryName)}`
   }
+  if (item.regionName) {
+    prompt += ` ${encodeURIComponent(item.regionName)}`
+  }
+  prompt += ` elegant artistic traditional style high quality`
+  
+  // 构建图片生成API URL
+  return `https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=${prompt}&image_size=portrait_4_3`
 }
-
-// 加载地市统计数据
-const loadCityStatistics = async () => {
-  try {
-    // 从后端API获取地市统计数据
-    const response = await fetch('/api/statistics/city')
-    if (response.ok) {
-      const data = await response.json()
-      console.log('地市统计数据:', data)
-      // 确保cityStatistics.value是一个数组
-      if (data && data.data && Array.isArray(data.data)) {
-        cityStatistics.value = data.data
-      } else {
-        cityStatistics.value = []
-      }
-      // 初始化地图
-      setTimeout(async () => {
-        await initMap()
-      }, 100)
-    } else {
-      console.error('获取地市统计数据失败:', response.status)
-      // 使用模拟数据
-      await useMockData()
-    }
-  } catch (error) {
-    console.error('加载地市统计数据失败:', error)
-    // 使用模拟数据
-    await useMockData()
-  }
-}
-
-// 使用模拟数据
-const useMockData = async () => {
-  cityStatistics.value = [
-    {
-      city: '郑州',
-      count: 25
-    },
-    {
-      city: '开封',
-      count: 18
-    },
-    {
-      city: '洛阳',
-      count: 32
-    },
-    {
-      city: '平顶山',
-      count: 15
-    },
-    {
-      city: '安阳',
-      count: 20
-    },
-    {
-      city: '鹤壁',
-      count: 8
-    },
-    {
-      city: '新乡',
-      count: 16
-    },
-    {
-      city: '焦作',
-      count: 14
-    },
-    {
-      city: '濮阳',
-      count: 12
-    },
-    {
-      city: '许昌',
-      count: 10
-    },
-    {
-      city: '漯河',
-      count: 7
-    },
-    {
-      city: '三门峡',
-      count: 9
-    },
-    {
-      city: '南阳',
-      count: 22
-    },
-    {
-      city: '商丘',
-      count: 13
-    },
-    {
-      city: '信阳',
-      count: 17
-    },
-    {
-      city: '周口',
-      count: 19
-    },
-    {
-      city: '驻马店',
-      count: 11
-    }
-  ]
-  await initMap()
-}
-
-// 初始化地图
-const initMap = async () => {
-  console.log('开始初始化地图...')
-  const mapContainer = document.getElementById('henanMap')
-  console.log('地图容器:', mapContainer)
-  if (!mapContainer) {
-    console.error('地图容器不存在')
-    return
-  }
-  console.log('地图容器尺寸:', mapContainer.offsetWidth, 'x', mapContainer.offsetHeight)
-
-  // 销毁现有实例
-  if (mapChart.value) {
-    console.log('销毁现有地图实例')
-    mapChart.value.dispose()
-  }
-
-  // 创建ECharts实例
-  try {
-    console.log('创建ECharts实例')
-    mapChart.value = echarts.init(mapContainer)
-    console.log('ECharts实例创建成功')
-  } catch (error) {
-    console.error('ECharts实例创建失败:', error)
-    return
-  }
-
-  // 加载并注册地图
-  try {
-    console.log('开始加载地图数据...')
-    if (!henanGeoJson.value) {
-      const response = await fetch('/src/assets/json/henan.geojson')
-      if (!response.ok) {
-        throw new Error('Failed to load map data')
-      }
-      henanGeoJson.value = await response.json()
-      console.log('地图数据加载成功')
-    }
-    console.log('地图数据类型:', typeof henanGeoJson.value)
-    console.log('地图数据结构:', henanGeoJson.value.type)
-    echarts.registerMap('henan', henanGeoJson.value)
-    console.log('地图注册成功')
-  } catch (error) {
-    console.error('地图注册失败:', error)
-    return
-  }
-
-  // 准备地图数据 - 使用各城市数据
-  const mapData = cityStatistics.value.map(item => ({
-    name: item.city,
-    value: item.count
-  }))
-
-  console.log('地图数据:', mapData)
-
-  // 配置选项
-  const option = {
-    tooltip: {
-      trigger: 'item',
-      formatter: '{b}<br/>非遗项目数量: {c}项'
-    },
-    series: [
-      {
-        name: '非遗项目数量',
-        type: 'map',
-        map: 'henan',
-        data: mapData,
-        label: {
-          show: true,
-          fontSize: 12,
-          color: '#666'
-        },
-        itemStyle: {
-          areaColor: '#e6f7fa',
-          borderColor: '#333',
-          borderWidth: 1
-        },
-        emphasis: {
-          label: {
-            show: true,
-            color: '#333'
-          },
-          itemStyle: {
-            areaColor: '#ffcc80'
-          }
-        },
-        // 河南省地图缩放和中心点 - 进一步向上调整，减少上方空白
-        zoom: 0.9,
-        center: [113.9, 34.3]
-      }
-    ]
-  }
-
-  // 如果有数据，添加visualMap
-  if (mapData.length > 0) {
-    const maxValue = Math.max(...mapData.map(item => item.value))
-    option.visualMap = {
-      type: 'continuous',
-      min: 0,
-      max: maxValue,
-      left: 'left',
-      bottom: 'bottom',
-      text: ['高', '低'],
-      calculable: true,
-      inRange: {
-        color: ['#e0f7fa', '#b2ebf2', '#80deea', '#4dd0e1', '#26c6da', '#00bcd4', '#00acc1', '#0097a7', '#00838f', '#006064']
-      }
-    }
-  }
-
-  // 设置选项
-  try {
-    console.log('设置地图选项')
-    mapChart.value.setOption(option)
-    console.log('地图配置成功')
-  } catch (error) {
-    console.error('地图配置失败:', error)
-  }
-}
-
-// 处理窗口大小变化
-const handleResize = () => {
-  if (mapChart.value) {
-    mapChart.value.resize()
-  }
-}
-
-
-
-
 </script>
 
 <style scoped>
@@ -680,71 +342,6 @@ const handleResize = () => {
   max-width: 1200px;
   margin: 0 auto;
 }
-
-/* 地图样式 */
-.map-section {
-  margin-bottom: 50px;
-}
-
-.map-section h2 {
-  font-size: 1.8rem;
-  margin-bottom: 30px;
-  color: #2B2B2B;
-  text-align: center;
-}
-
-.map-controls {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 30px;
-}
-
-.map-and-stats {
-  display: flex;
-  gap: 30px;
-  align-items: flex-start;
-}
-
-.map-container {
-  flex: 1;
-  height: 550px;
-  overflow: hidden;
-}
-
-.stats-container {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
-  width: 300px;
-}
-
-.stat-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 12px;
-  padding: 20px;
-  color: white;
-  text-align: center;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
-}
-
-.stat-card:hover {
-  transform: translateY(-5px);
-}
-
-.stat-number {
-  font-size: 1.8rem;
-  font-weight: bold;
-  margin-bottom: 8px;
-}
-
-.stat-name {
-  font-size: 0.9rem;
-  opacity: 0.9;
-}
-
-
 
 .container h1 {
   font-size: 2rem;
@@ -970,19 +567,11 @@ const handleResize = () => {
   .container {
     max-width: 1000px;
   }
-  
-  .map-container {
-    height: 500px;
-  }
 }
 
 @media (max-width: 1200px) {
   .container {
     max-width: 900px;
-  }
-  
-  .map-container {
-    height: 450px;
   }
   
   .heritage-grid {
@@ -992,19 +581,11 @@ const handleResize = () => {
   .container h1 {
     font-size: 1.8rem;
   }
-  
-  .map-section h2 {
-    font-size: 1.6rem;
-  }
 }
 
 @media (max-width: 992px) {
   .container {
     max-width: 750px;
-  }
-  
-  .map-container {
-    height: 400px;
   }
   
   .filter-container {
@@ -1061,14 +642,6 @@ const handleResize = () => {
     font-size: 0.9rem;
   }
   
-  .map-container {
-    height: 350px;
-  }
-  
-  .map-section h2 {
-    font-size: 1.5rem;
-  }
-  
   .nav-content {
     flex-direction: column;
     align-items: flex-start;
@@ -1110,10 +683,6 @@ const handleResize = () => {
   
   .meta-item {
     font-size: 0.8rem;
-  }
-  
-  .map-container {
-    height: 300px;
   }
   
   .heritage-view {
