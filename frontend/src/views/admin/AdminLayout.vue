@@ -27,9 +27,17 @@
             <el-icon><UserFilled /></el-icon>
             <span>传承人管理</span>
           </el-menu-item>
-          <el-menu-item index="/admin/content">
+          <el-menu-item index="/admin/news">
             <el-icon><Document /></el-icon>
-            <span>内容管理</span>
+            <span>文化资讯管理</span>
+          </el-menu-item>
+          <el-menu-item index="/admin/activity">
+            <el-icon><Bell /></el-icon>
+            <span>非遗活动管理</span>
+          </el-menu-item>
+          <el-menu-item index="/admin/notice">
+            <el-icon><Message /></el-icon>
+            <span>公告管理</span>
           </el-menu-item>
           <el-menu-item index="/admin/user">
             <el-icon><User /></el-icon>
@@ -38,6 +46,18 @@
           <el-menu-item index="/admin/carousel">
             <el-icon><Picture /></el-icon>
             <span>轮播图管理</span>
+          </el-menu-item>
+          <el-menu-item index="/admin/activity-registration">
+            <el-icon><Ticket /></el-icon>
+            <span>活动报名管理</span>
+          </el-menu-item>
+          <el-menu-item index="/admin/comment">
+            <el-icon><ChatLineSquare /></el-icon>
+            <span>评论管理</span>
+          </el-menu-item>
+          <el-menu-item index="/admin/promotion">
+            <el-icon><Picture /></el-icon>
+            <span>非遗宣传管理</span>
           </el-menu-item>
         </el-menu>
       </nav>
@@ -62,7 +82,11 @@ import {
   UserFilled,
   Document,
   User,
-  Picture
+  Picture,
+  Bell,
+  Message,
+  Ticket,
+  ChatLineSquare
 } from '@element-plus/icons-vue'
 
 const route = useRoute()
@@ -113,16 +137,21 @@ const activeMenu = computed(() => {
 .sidebar-menu .el-menu-item {
   margin: 0 10px;
   color: #d1d5db;
+  /* 移除过渡效果 */
+  transition: none;
 }
 
 .sidebar-menu .el-menu-item:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background-color: transparent !important;
+  color: currentColor !important;
+  transition: none !important;
 }
 
 .sidebar-menu .el-menu-item.is-active {
   background-color: #3b82f6;
   color: #fff;
+  /* 移除阴影效果 */
+  box-shadow: none;
 }
 
 .sidebar-menu .el-menu-item .el-icon {

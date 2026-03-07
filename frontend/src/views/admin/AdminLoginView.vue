@@ -136,20 +136,25 @@ const handleLogin = () => {
 
 <style scoped>
 .admin-login {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: #f8f3e7 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  position: relative !important;
+  z-index: 1 !important;
 }
 
 .login-container {
-  background: white;
-  padding: 40px;
-  border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  width: 400px;
-  max-width: 90%;
+  background: white !important;
+  padding: 50px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+  width: 400px !important;
+  max-width: 90% !important;
+  border-radius: 0 !important;
+  min-height: 400px !important;
 }
 
 .login-container h1 {

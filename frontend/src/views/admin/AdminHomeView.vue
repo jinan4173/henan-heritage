@@ -23,15 +23,6 @@
         </div>
       </el-card>
     </div>
-    <div class="recent-activities">
-      <h3>最近活动</h3>
-      <el-table :data="recentActivities" style="width: 100%">
-        <el-table-column prop="id" label="ID" width="80"></el-table-column>
-        <el-table-column prop="action" label="操作"></el-table-column>
-        <el-table-column prop="user" label="操作人" width="120"></el-table-column>
-        <el-table-column prop="time" label="时间" width="180"></el-table-column>
-      </el-table>
-    </div>
   </div>
 </template>
 
@@ -44,8 +35,6 @@ const stats = ref({
   userCount: 0,
   inheritorCount: 0
 })
-
-const recentActivities = ref([])
 
 onMounted(() => {
   fetchStats()
@@ -80,6 +69,8 @@ const fetchStats = async () => {
 
 .page-header {
   margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e4e7ed;
 }
 
 .dashboard-stats {
@@ -113,14 +104,5 @@ const fetchStats = async () => {
   color: #666;
 }
 
-.recent-activities {
-  margin-top: 30px;
-}
 
-.recent-activities h3 {
-  margin-bottom: 15px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #333;
-}
 </style>

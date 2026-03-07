@@ -223,9 +223,11 @@ const loadData = async () => {
     }
 
     const heritageRes = await heritageApi.getById(id)
-    if (heritageRes.success) {
+    console.log('API响应:', heritageRes)
+    if (heritageRes && heritageRes.code === 200) {
       heritageItem.value = heritageRes.data
       console.log('加载的非遗项目数据:', heritageItem.value)
+      console.log('项目介绍:', heritageItem.value.description)
       console.log('媒体资源列表:', heritageItem.value.mediaList)
     }
 
@@ -234,7 +236,7 @@ const loadData = async () => {
       const inheritorRes = await api.get('/inheritor/list')
       console.log('传承人API响应:', inheritorRes)
       
-      if (inheritorRes.success) {
+      if (inheritorRes && inheritorRes.code === 200) {
         console.log('传承人列表:', inheritorRes.data)
         console.log('传承人数据结构:', inheritorRes.data[0] ? Object.keys(inheritorRes.data[0]) : '无数据')
         
@@ -286,7 +288,7 @@ const loadData = async () => {
           console.log('无传承人数据')
         }
       } else {
-        console.log('传承人API调用失败:', inheritorRes.message)
+        console.log('传承人API调用失败:', inheritorRes?.message)
         // 使用默认传承人数据
         relatedInheritors.value = [
           { id: 1, name: '传承人1' },
@@ -449,7 +451,7 @@ const getDefaultCover = (item) => {
 .heritage-display {
   padding: 20px;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+  background-color: var(--background-color);
 }
 
 .container {
@@ -602,13 +604,26 @@ const getDefaultCover = (item) => {
 
 .section-header h2 {
   font-size: 1.5rem;
-  color: #333;
+  color: var(--primary-color);
   margin: 0;
+  position: relative;
+  padding-bottom: 10px;
+}
+
+.section-header h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background-color: var(--accent-color);
+  border-radius: 2px;
 }
 
 .section-header .el-icon {
   font-size: 1.5rem;
-  color: #667eea;
+  color: var(--primary-color);
 }
 
 .description-text {

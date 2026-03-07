@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: 'http://localhost:8083/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json; charset=UTF-8',
@@ -30,6 +30,7 @@ api.interceptors.request.use(
 // 响应拦截器
 api.interceptors.response.use(
   response => {
+    console.log('API Response:', response)
     return response.data
   },
   error => {

@@ -112,3 +112,27 @@ public
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Maven build output
+backend/target/
+
+# Uploaded files
+uploads/
+
+# UV tools
+uv.exe
+uvw.exe
+uvx.exe
+
+# Trae IDE
+.trae/
+
+# Visual Studio
+.vs/
+
+# Scripts
+*.bat
+*.ps1
+
+# SQL files
+*.sql

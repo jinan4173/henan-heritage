@@ -40,6 +40,12 @@
         SELECT hi.*
         FROM heritage_item hi
         WHERE hi.status = #{status}
+        <if test="categoryId != null">
+            AND hi.category_id = #{categoryId}
+        </if>
+        <if test="regionId != null">
+            AND hi.region_id = #{regionId}
+        </if>
         ORDER BY hi.create_time DESC
     </select>
 

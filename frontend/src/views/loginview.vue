@@ -54,15 +54,23 @@ export default {
               password: this.loginForm.password
             })
             .then(response => {
-              // 登录成功，保存用户信息到本地存储
-              localStorage.setItem('user', JSON.stringify(response.user));
-              localStorage.setItem('token', response.token);
-              this.$message.success('登录成功');
-              // 根据用户名决定跳转路径
-              if (response.user.username === 'admin') {
-                this.$router.push('/admin');
+              console.log('登录响应:', response);
+              // 检查登录是否成功
+              if (response.success) {
+                // 登录成功，保存用户信息到本地存储
+                localStorage.setItem('user', JSON.stringify(response.user));
+                localStorage.setItem('token', response.token);
+                this.$message.success('登录成功');
+                // 根据用户名决定跳转路径
+                if (response.user.username === 'admin') {
+                  this.$router.push('/admin');
+                } else {
+                  this.$router.push('/');
+                }
               } else {
-                this.$router.push('/');
+                // 登录失败
+                console.error('登录失败:', response.message);
+                this.$message.error('登录失败: ' + response.message);
               }
             })
             .catch(error => {
@@ -78,22 +86,28 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 .login-view {
-  min-height: 80vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
+  min-height: 100vh !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  padding: 0 !important;
+  background: #f8f3e7 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  position: relative !important;
+  z-index: 1 !important;
 }
 
 .login-container {
-  width: 100%;
-  max-width: 400px;
-  background: #fff;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  width: 100% !important;
+  max-width: 400px !important;
+  background: #fff !important;
+  padding: 40px !important;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1) !important;
+  border-radius: 0 !important;
+  min-height: 400px !important;
 }
 
 .login-container h2 {

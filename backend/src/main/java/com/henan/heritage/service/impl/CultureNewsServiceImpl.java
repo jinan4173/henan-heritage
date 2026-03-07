@@ -3,8 +3,10 @@ package com.henan.heritage.service.impl;
 import com.henan.heritage.entity.CultureNews;
 import com.henan.heritage.mapper.CultureNewsMapper;
 import com.henan.heritage.service.CultureNewsService;
+import com.henan.heritage.service.ActivityRegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
@@ -12,6 +14,9 @@ public class CultureNewsServiceImpl implements CultureNewsService {
 
     @Autowired
     private CultureNewsMapper cultureNewsMapper;
+    
+    @Autowired
+    private ActivityRegistrationService activityRegistrationService;
 
     @Override
     public List<CultureNews> listAll(Integer type, Integer status) {
@@ -42,10 +47,27 @@ public class CultureNewsServiceImpl implements CultureNewsService {
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         System.out.println("删除文化资讯: " + id);
+        // 先删除相关的活动报名记录
+        activityRegistrationService.deleteByActivityId(id);
+        // 再删除文化资讯
         cultureNewsMapper.delete(id);
         System.out.println("删除文化资讯成功");
+    }
+
+    @Override
+    @Transactional
+    public void batchDelete(List<Long> ids) {
+        System.out.println("批量删除文化资讯，IDs: " + ids);
+        // 先删除相关的活动报名记录
+        for (Long id : ids) {
+            activityRegistrationService.deleteByActivityId(id);
+        }
+        // 再批量删除文化资讯
+        cultureNewsMapper.batchDelete(ids);
+        System.out.println("批量删除文化资讯成功");
     }
 
     @Override

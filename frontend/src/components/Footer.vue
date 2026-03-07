@@ -10,8 +10,9 @@
         <ul class="footer-links">
           <li><router-link to="/">首页</router-link></li>
           <li><router-link to="/heritage">非遗项目</router-link></li>
+          <li><router-link to="/inheritors">传承人</router-link></li>
           <li><router-link to="/news">文化资讯</router-link></li>
-          <li><router-link to="/activity">活动</router-link></li>
+          <li><router-link to="/activity">非遗活动</router-link></li>
           <li><router-link to="/notice">公告</router-link></li>
         </ul>
       </div>
@@ -36,10 +37,10 @@ export default {
 
 <style scoped>
 .footer {
-  background: #1F3D3A;
+  background: #C41E3A;
   color: #FFFFFF;
-  padding: 40px 0;
-  margin-top: 60px;
+  padding: 20px 0;
+  margin: 0;
 }
 
 .footer-container {
@@ -48,7 +49,7 @@ export default {
   padding: 0 20px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 40px;
+  gap: 20px;
 }
 
 .footer-section h3 {
@@ -85,8 +86,8 @@ export default {
 
 .footer-bottom {
   border-top: 1px solid rgba(255, 255, 255, 0.2);
-  margin-top: 40px;
-  padding-top: 20px;
+  margin-top: 20px;
+  padding-top: 15px;
   text-align: center;
   font-size: 0.8rem;
   color: rgba(255, 255, 255, 0.6);
@@ -95,7 +96,7 @@ export default {
 @media (max-width: 768px) {
   .footer-container {
     grid-template-columns: 1fr;
-    gap: 30px;
+    gap: 20px;
   }
 
   .footer-section {

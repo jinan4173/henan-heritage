@@ -104,4 +104,24 @@ public class CultureNewsController {
         }
         return result;
     }
+
+    @PostMapping("/batch-delete")
+    public Map<String, Object> batchDelete(@RequestBody Map<String, List<Long>> request) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            List<Long> ids = request.get("ids");
+            if (ids != null && !ids.isEmpty()) {
+                cultureNewsService.batchDelete(ids);
+                result.put("success", true);
+                result.put("message", "批量删除成功");
+            } else {
+                result.put("success", false);
+                result.put("message", "请选择要删除的记录");
+            }
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", e.getMessage());
+        }
+        return result;
+    }
 }

@@ -36,11 +36,13 @@
     <update id="update" parameterType="com.henan.heritage.entity.User">
         UPDATE user
         SET username = #{username},
-            password = #{password},
             email = #{email},
             is_admin = #{isAdmin},
             status = #{status},
             update_time = NOW()
+        <if test="password != null">
+            , password = #{password}
+        </if>
         WHERE id = #{id}
     </update>
 

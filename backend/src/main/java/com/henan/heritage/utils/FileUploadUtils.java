@@ -23,6 +23,9 @@ public class FileUploadUtils {
 
         // 生成唯一文件名
         String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null || !originalFilename.contains(".")) {
+            return null;
+        }
         String suffix = originalFilename.substring(originalFilename.lastIndexOf("."));
         String fileName = UUID.randomUUID().toString() + suffix;
 

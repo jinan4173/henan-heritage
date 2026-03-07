@@ -1,13 +1,12 @@
 package com.henan.heritage.controller;
 
+import com.henan.heritage.common.Result;
 import com.henan.heritage.entity.Inheritor;
 import com.henan.heritage.service.InheritorService;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/inheritor", produces = "application/json; charset=UTF-8")
@@ -16,110 +15,90 @@ public class InheritorController {
     @Autowired
     private InheritorService inheritorService;
 
+    /**
+     * 获取传承人列表
+     * @param page 页码
+     * @param pageSize 每页大小
+     * @return 传承人列表
+     */
     @GetMapping("/list")
-    public Map<String, Object> list(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int pageSize) {
-        Map<String, Object> result = new HashMap<>();
+    public Result<List<Inheritor>> list(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int pageSize) {
         try {
-            // 获取完整列表以计算总记录数
-            List<Inheritor> allInheritors = inheritorService.list();
-            int total = allInheritors.size();
-            
-            // 计算分页参数
+            List<Inheritor> inheritors = inheritorService.listAll();
+            int total = inheritors.size();
             List<Inheritor> pageList = new ArrayList<>();
             if (total > 0) {
                 int start = (page - 1) * pageSize;
                 if (start < total) {
                     int end = Math.min(start + pageSize, total);
-                    pageList = new ArrayList<>(allInheritors.subList(start, end));
+                    pageList = new ArrayList<>(inheritors.subList(start, end));
                 }
             }
-            
-            // 构建响应
-            result.put("success", true);
-            result.put("data", pageList);
-            result.put("total", total);
-            result.put("page", page);
-            result.put("pageSize", pageSize);
+            return Result.success(pageList, total);
         } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", "获取传承人列表失败: " + e.getMessage());
+            return Result.serverError(e.getMessage());
         }
-        return result;
     }
 
+    /**
+     * 根据ID获取传承人详情
+     * @param id 传承人ID
+     * @return 传承人详情
+     */
     @GetMapping("/get/{id}")
-    public Map<String, Object> getById(@PathVariable Long id) {
-        Map<String, Object> result = new HashMap<>();
+    public Result<Inheritor> getById(@PathVariable Long id) {
         try {
             Inheritor inheritor = inheritorService.getById(id);
-            if (inheritor != null) {
-                result.put("success", true);
-                result.put("data", inheritor);
-            } else {
-                result.put("success", false);
-                result.put("message", "传承人不存在");
-            }
+            return Result.success(inheritor);
         } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", "获取传承人详情失败: " + e.getMessage());
+            return Result.serverError(e.getMessage());
         }
-        return result;
     }
 
+    /**
+     * 保存传承人信息
+     * @param inheritor 传承人信息
+     * @return 保存结果
+     */
     @PostMapping("/save")
-    public Map<String, Object> save(@RequestBody Inheritor inheritor) {
-        Map<String, Object> result = new HashMap<>();
+    public Result<Long> save(@RequestBody Inheritor inheritor) {
         try {
-            boolean success = inheritorService.create(inheritor);
-            if (success) {
-                result.put("success", true);
-                result.put("message", "保存传承人成功");
-            } else {
-                result.put("success", false);
-                result.put("message", "保存传承人失败");
-            }
+            inheritorService.save(inheritor);
+            return Result.success(inheritor.getId());
         } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", "保存传承人失败: " + e.getMessage());
+            return Result.serverError(e.getMessage());
         }
-        return result;
     }
 
+    /**
+     * 更新传承人信息
+     * @param inheritor 传承人信息
+     * @return 更新结果
+     */
     @PostMapping("/update")
-    public Map<String, Object> update(@RequestBody Inheritor inheritor) {
-        Map<String, Object> result = new HashMap<>();
+    public Result<String> update(@RequestBody Inheritor inheritor) {
         try {
-            boolean success = inheritorService.update(inheritor);
-            if (success) {
-                result.put("success", true);
-                result.put("message", "更新传承人成功");
-            } else {
-                result.put("success", false);
-                result.put("message", "更新传承人失败");
-            }
+            inheritorService.update(inheritor);
+            return Result.success("更新成功");
         } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", "更新传承人失败: " + e.getMessage());
+            return Result.serverError(e.getMessage());
         }
-        return result;
     }
 
+    /**
+     * 删除传承人
+     * @param id 传承人ID
+     * @return 删除结果
+     */
     @DeleteMapping("/delete/{id}")
-    public Map<String, Object> delete(@PathVariable Long id) {
-        Map<String, Object> result = new HashMap<>();
+    public Result<String> delete(@PathVariable Long id) {
         try {
-            boolean success = inheritorService.delete(id);
-            if (success) {
-                result.put("success", true);
-                result.put("message", "删除传承人成功");
-            } else {
-                result.put("success", false);
-                result.put("message", "删除传承人失败");
-            }
+            inheritorService.delete(id);
+            return Result.success("删除成功");
         } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", "删除传承人失败: " + e.getMessage());
+            return Result.serverError(e.getMessage());
         }
-        return result;
     }
 }

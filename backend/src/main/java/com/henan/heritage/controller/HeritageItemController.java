@@ -1,5 +1,7 @@
 package com.henan.heritage.controller;
 
+import com.henan.heritage.common.Result;
+
 import com.henan.heritage.entity.HeritageItem;
 import com.henan.heritage.entity.HeritageMedia;
 import com.henan.heritage.entity.HeritageCategory;
@@ -10,9 +12,7 @@ import com.henan.heritage.service.RegionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/heritage", produces = "application/json; charset=UTF-8")
@@ -27,12 +27,18 @@ public class HeritageItemController {
     @Autowired
     private RegionService regionService;
 
+    /**
+     * 获取非遗项目列表
+     * @param status 状态
+     * @param page 页码
+     * @param pageSize 每页大小
+     * @return 非遗项目列表
+     */
     @GetMapping("/list")
-    public Map<String, Object> list(
+    public Result<List<HeritageItem>> list(
             @RequestParam(required = false) Integer status,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int pageSize) {
-        Map<String, Object> result = new HashMap<>();
         try {
             List<HeritageItem> items = heritageItemService.listAll(status);
             int total = items.size();
@@ -44,153 +50,174 @@ public class HeritageItemController {
                     pageList = new ArrayList<>(items.subList(start, end));
                 }
             }
-            result.put("success", true);
-            result.put("data", pageList);
-            result.put("total", total);
+            return Result.success(pageList, total);
         } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
+            return Result.serverError(e.getMessage());
         }
-        return result;
     }
 
+    /**
+     * 根据ID获取非遗项目详情
+     * @param id 项目ID
+     * @return 非遗项目详情
+     */
     @GetMapping("/get/{id}")
-    public Map<String, Object> getById(@PathVariable Long id) {
-        Map<String, Object> result = new HashMap<>();
+    public Result<HeritageItem> getById(@PathVariable Long id) {
         try {
             HeritageItem item = heritageItemService.getById(id);
-            result.put("success", true);
-            result.put("data", item);
+            return Result.success(item);
         } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
+            return Result.serverError(e.getMessage());
         }
-        return result;
     }
 
+    /**
+     * 根据分类和地区筛选非遗项目
+     * @param categoryId 分类ID
+     * @param regionId 地区ID
+     * @param status 状态
+     * @param page 页码
+     * @param pageSize 每页大小
+     * @return 筛选后的非遗项目列表
+     */
     @GetMapping("/filter")
-    public Map<String, Object> filter(
+    public Result<List<HeritageItem>> filter(
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) Long regionId,
-            @RequestParam(required = false, defaultValue = "1") Integer status) {
-        Map<String, Object> result = new HashMap<>();
+            @RequestParam(required = false, defaultValue = "1") Integer status,
+            @RequestParam(required = false, defaultValue = "1") Integer page,
+            @RequestParam(required = false, defaultValue = "10") Integer pageSize) {
         try {
             List<HeritageItem> items = heritageItemService.listByCategoryAndRegion(categoryId, regionId, status);
-            result.put("success", true);
-            result.put("data", items);
+            
+            // 计算分页
+            int total = items.size();
+            int start = (page - 1) * pageSize;
+            int end = Math.min(start + pageSize, total);
+            
+            List<HeritageItem> paginatedItems;
+            if (start >= total) {
+                paginatedItems = new ArrayList<>();
+            } else {
+                paginatedItems = items.subList(start, end);
+            }
+            
+            return Result.success(paginatedItems, total);
         } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
+            return Result.serverError(e.getMessage());
         }
-        return result;
     }
 
+    /**
+     * 保存非遗项目
+     * @param item 非遗项目信息
+     * @return 保存结果
+     */
     @PostMapping("/save")
-    public Map<String, Object> save(@RequestBody HeritageItem item) {
-        Map<String, Object> result = new HashMap<>();
+    public Result<Long> save(@RequestBody HeritageItem item) {
         try {
             heritageItemService.save(item);
-            result.put("success", true);
-            result.put("message", "保存成功");
-            result.put("id", item.getId());
+            return Result.success(item.getId());
         } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
+            return Result.serverError(e.getMessage());
         }
-        return result;
     }
 
+    /**
+     * 更新非遗项目
+     * @param item 非遗项目信息
+     * @return 更新结果
+     */
     @PostMapping("/update")
-    public Map<String, Object> update(@RequestBody HeritageItem item) {
-        Map<String, Object> result = new HashMap<>();
+    public Result<String> update(@RequestBody HeritageItem item) {
         try {
             heritageItemService.update(item);
-            result.put("success", true);
-            result.put("message", "更新成功");
+            return Result.success("更新成功");
         } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
+            return Result.serverError(e.getMessage());
         }
-        return result;
     }
 
+    /**
+     * 删除非遗项目
+     * @param id 项目ID
+     * @return 删除结果
+     */
     @DeleteMapping("/delete/{id}")
-    public Map<String, Object> delete(@PathVariable Long id) {
-        Map<String, Object> result = new HashMap<>();
+    public Result<String> delete(@PathVariable Long id) {
         try {
             heritageItemService.delete(id);
-            result.put("success", true);
-            result.put("message", "删除成功");
+            return Result.success("删除成功");
         } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
+            return Result.serverError(e.getMessage());
         }
-        return result;
     }
 
+    /**
+     * 保存媒体资源
+     * @param media 媒体资源信息
+     * @return 保存结果
+     */
     @PostMapping("/saveMedia")
-    public Map<String, Object> saveMedia(@RequestBody HeritageMedia media) {
-        Map<String, Object> result = new HashMap<>();
+    public Result<String> saveMedia(@RequestBody HeritageMedia media) {
         try {
             heritageItemService.saveMedia(media);
-            result.put("success", true);
-            result.put("message", "保存媒体资源成功");
+            return Result.success("保存媒体资源成功");
         } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
+            return Result.serverError(e.getMessage());
         }
-        return result;
     }
 
+    /**
+     * 根据项目ID删除媒体资源
+     * @param heritageId 项目ID
+     * @return 删除结果
+     */
     @DeleteMapping("/deleteMediaByHeritageId/{heritageId}")
-    public Map<String, Object> deleteMediaByHeritageId(@PathVariable Long heritageId) {
-        Map<String, Object> result = new HashMap<>();
+    public Result<String> deleteMediaByHeritageId(@PathVariable Long heritageId) {
         try {
             heritageItemService.deleteMediaByHeritageId(heritageId);
-            result.put("success", true);
-            result.put("message", "删除媒体资源成功");
+            return Result.success("删除媒体资源成功");
         } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
+            return Result.serverError(e.getMessage());
         }
-        return result;
     }
 
+    /**
+     * 获取非遗项目分类列表
+     * @return 分类列表
+     */
     @GetMapping("/categories")
-    public Map<String, Object> getCategories() {
-        Map<String, Object> result = new HashMap<>();
+    public Result<List<HeritageCategory>> getCategories() {
         try {
             List<HeritageCategory> categories = heritageCategoryService.listAll();
-            result.put("success", true);
-            result.put("data", categories);
+            return Result.success(categories);
         } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
+            return Result.serverError(e.getMessage());
         }
-        return result;
     }
 
+    /**
+     * 获取地区列表
+     * @return 地区列表
+     */
     @GetMapping("/regions")
-    public Map<String, Object> getRegions() {
-        Map<String, Object> result = new HashMap<>();
+    public Result<List<Region>> getRegions() {
         try {
             List<Region> regions = regionService.listAll();
-            result.put("success", true);
-            result.put("data", regions);
+            return Result.success(regions);
         } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
+            return Result.serverError(e.getMessage());
         }
-        return result;
     }
     
+    /**
+     * 测试接口
+     * @return 测试结果
+     */
     @GetMapping("/test")
-    public Map<String, Object> test() {
-        Map<String, Object> result = new HashMap<>();
-        result.put("success", true);
-        result.put("message", "测试成功");
-        result.put("data", "Hello, World!");
+    public Result<String> test() {
         System.out.println("测试接口被调用");
-        return result;
+        return Result.success("Hello, World!");
     }
 }

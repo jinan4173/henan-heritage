@@ -1,22 +1,23 @@
 <template>
   <div class="news-view">
-    <h2>文化资讯</h2>
-    <div class="news-list">
-      <el-card v-for="news in newsList" :key="news.id" class="news-item">
-        <div class="news-image" v-if="news.coverImage">
-          <img :src="news.coverImage" :alt="news.title" />
-        </div>
-        <template #header>
-          <div class="news-header">
-            <span>{{ news.title }}</span>
-            <span class="news-date">{{ formatDate(news.createdAt) }}</span>
+    <div class="news-container">
+      <h2>文化资讯</h2>
+      <div class="news-list">
+        <el-card v-for="(news, index) in newsList" :key="news.id" :class="['news-item', index % 2 === 0 ? 'left-image' : 'right-image']" @click="viewDetail(news.id)" style="cursor: pointer;">
+          <div class="news-content-wrapper">
+            <div class="news-image" v-if="news.coverImage">
+              <img :src="news.coverImage" :alt="news.title" />
+            </div>
+            <div class="news-text-content">
+              <div class="news-header">
+                <span>{{ news.title }}</span>
+                <span class="news-date">{{ formatDate(news.createTime) }}</span>
+              </div>
+              <div class="news-content" v-html="truncateContent(news.content)"></div>
+            </div>
           </div>
-        </template>
-        <div class="news-content">{{ truncateContent(news.content) }}</div>
-        <div class="news-footer">
-          <el-button size="small" type="primary" @click="viewDetail(news.id)">查看详情</el-button>
-        </div>
-      </el-card>
+        </el-card>
+      </div>
     </div>
   </div>
 </template>
@@ -53,7 +54,10 @@ const formatDate = (dateString) => {
 
 const truncateContent = (content) => {
   if (!content) return ''
-  return content.length > 100 ? content.substring(0, 100) + '...' : content
+  // 移除HTML标签，只保留纯文本
+  const plainText = content.replace(/<[^>]*>/g, '')
+  // 截断内容，最多显示200个字符
+  return plainText.length > 200 ? plainText.substring(0, 200) + '...' : plainText
 }
 
 const viewDetail = (id) => {
@@ -63,28 +67,58 @@ const viewDetail = (id) => {
 
 <style scoped>
 .news-view {
-  padding: 20px;
+  width: 100%;
+  padding: 0;
+  background-color: var(--background-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.news-container {
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
 }
 
 .news-view h2 {
-  font-size: 1.8rem;
-  margin-bottom: 20px;
-  color: #333;
+  font-size: 2rem;
+  margin: 0;
+  padding: 40px 0 15px;
+  color: var(--primary-color);
   text-align: center;
+  position: relative;
+}
+
+.news-view h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background-color: var(--accent-color);
+  border-radius: 2px;
 }
 
 .news-list {
-  margin-top: 20px;
+  margin: 0;
+  width: 100%;
 }
 
 .news-item {
-  margin-bottom: 30px;
-  border-radius: 10px;
+  margin: 0 0 20px;
+  border-radius: 0;
   overflow: hidden;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
+  width: 100%;
 }
 
 .news-item:hover {
@@ -92,14 +126,34 @@ const viewDetail = (id) => {
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
 }
 
+.news-content-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 15px;
+}
+
 .news-image {
-  height: 200px;
+  flex: 0 0 300px;
   overflow: hidden;
+}
+
+.left-image .news-image {
+  margin-right: 20px;
+}
+
+.right-image .news-content-wrapper {
+  flex-direction: row-reverse;
+}
+
+.right-image .news-image {
+  margin-left: 20px;
+  margin-right: 0;
 }
 
 .news-image img {
   width: 100%;
-  height: 100%;
+  height: 200px;
   object-fit: cover;
   transition: transform 0.5s ease;
 }
@@ -108,18 +162,27 @@ const viewDetail = (id) => {
   transform: scale(1.05);
 }
 
+.news-text-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
 .news-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px;
-  background: #f5f5f5;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  background: none;
+  padding: 0;
 }
 
 .news-header span:first-child {
   font-size: 1.1rem;
   font-weight: bold;
   color: #333;
+  margin-bottom: 5px;
+  line-height: 1.4;
 }
 
 .news-date {
@@ -128,13 +191,32 @@ const viewDetail = (id) => {
 }
 
 .news-content {
-  margin: 15px;
+  margin: 0;
   line-height: 1.6;
   color: #666;
+  flex: 1;
 }
 
 .news-footer {
   margin: 15px;
   text-align: right;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .news-content-wrapper {
+    flex-direction: column;
+  }
+  
+  .news-image {
+    flex: 0 0 auto;
+    margin-right: 0;
+    margin-bottom: 15px;
+  }
+  
+  .news-image img {
+    width: 100%;
+    height: auto;
+  }
 }
 </style>

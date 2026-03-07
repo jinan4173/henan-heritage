@@ -3,27 +3,36 @@
     <div class="page-header">
       <h2>公告管理</h2>
     </div>
-    
-    <!-- 操作栏 -->
+
     <div class="action-bar">
-      <el-input v-model="searchQuery" placeholder="搜索公告标题" style="width: 300px; margin-right: 10px;"></el-input>
-      <el-button type="primary" @click="handleSearch">搜索</el-button>
-      <el-button @click="resetSearch">重置</el-button>
-      <el-button type="primary" @click="dialogVisible = true" style="margin-left: auto;">新增公告</el-button>
+      <div class="search-bar">
+        <el-button type="primary" @click="dialogVisible = true">新增</el-button>
+        <el-button type="danger" @click="handleBatchDelete" :disabled="selectedNoticeIds.length === 0">批量删除</el-button>
+        <el-input v-model="searchQuery" placeholder="搜索公告标题" style="width: 300px;"></el-input>
+        <el-button type="primary" @click="handleSearch">查询</el-button>
+        <el-button @click="resetSearch">重置</el-button>
+      </div>
     </div>
-    
-    <!-- 公告列表 -->
-    <el-table :data="filteredNoticeList" style="width: 100%" border>
-      <el-table-column prop="id" label="ID" width="80"></el-table-column>
+
+    <el-table :data="filteredNoticeList" style="width: 100%" border @selection-change="handleSelectionChange">
+      <el-table-column type="selection" width="55"></el-table-column>
+      <el-table-column label="序号" width="80">
+        <template #default="scope">
+          {{ (currentPage - 1) * pageSize + scope.$index + 1 }}
+        </template>
+      </el-table-column>
       <el-table-column prop="title" label="标题"></el-table-column>
       <el-table-column prop="status" label="状态" width="100">
         <template #default="scope">
-          <el-tag :type="scope.row.status === 1 ? 'success' : 'danger'">
-            {{ scope.row.status === 1 ? '启用' : '禁用' }}
-          </el-tag>
+          <el-switch 
+            v-model="scope.row.status" 
+            :active-value="1" 
+            :inactive-value="0" 
+            @change="handleStatusChange(scope.row)"
+          />
         </template>
       </el-table-column>
-      <el-table-column prop="createdAt" label="创建时间" width="180"></el-table-column>
+      <el-table-column prop="createdAt" label="创建时间" width="180" />
       <el-table-column label="操作" width="150">
         <template #default="scope">
           <el-button size="small" @click="editNotice(scope.row)">编辑</el-button>
@@ -92,6 +101,8 @@ const form = ref({
   content: '',
   status: 1
 })
+const selectAll = ref(false)
+const selectedNoticeIds = ref([])
 
 // 过滤后的公告列表
 const filteredNoticeList = computed(() => {
@@ -191,28 +202,98 @@ const handleCurrentChange = (current) => {
   currentPage.value = current
   fetchNoticeList()
 }
+
+// 处理状态变更
+const handleStatusChange = async (notice) => {
+  try {
+    const noticeData = {
+      ...notice,
+      type: 3 // 确保类型为公告
+    }
+    const response = await api.post('/culture-news/update', noticeData)
+    if (response.success) {
+      ElMessage.success('状态更新成功')
+    } else {
+      ElMessage.error('状态更新失败')
+      // 恢复原来的状态
+      fetchNoticeList()
+    }
+  } catch (error) {
+    console.error('状态更新失败:', error)
+    ElMessage.error('状态更新失败')
+    // 恢复原来的状态
+    fetchNoticeList()
+  }
+}
+
+// 处理选择变化
+const handleSelectionChange = (selection) => {
+  selectedNoticeIds.value = selection.map(item => item.id)
+  selectAll.value = selection.length === filteredNoticeList.value.length
+}
+
+// 处理全选
+const handleSelectAll = (value) => {
+  selectAll.value = value
+  if (value) {
+    selectedNoticeIds.value = filteredNoticeList.value.map(item => item.id)
+  } else {
+    selectedNoticeIds.value = []
+  }
+}
+
+// 处理批量删除
+const handleBatchDelete = async () => {
+  if (selectedNoticeIds.value.length === 0) {
+    ElMessage.warning('请选择要删除的公告')
+    return
+  }
+  
+  try {
+    const response = await api.post('/culture-news/batch-delete', {
+      ids: selectedNoticeIds.value
+    })
+    if (response.success) {
+      ElMessage.success('批量删除成功')
+      fetchNoticeList()
+      selectedNoticeIds.value = []
+      selectAll.value = false
+    } else {
+      ElMessage.error('批量删除失败')
+    }
+  } catch (error) {
+    console.error('批量删除失败:', error)
+    ElMessage.error('批量删除失败')
+  }
+}
 </script>
 
 <style scoped>
 .admin-notice-view {
-  background: white;
   padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
 .page-header {
   margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e4e7ed;
 }
 
 .page-header h2 {
   font-size: 1.5rem;
   margin: 0;
   color: #333;
+  font-weight: 600;
 }
 
 .action-bar {
   margin-bottom: 20px;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .pagination {

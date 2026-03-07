@@ -7,23 +7,36 @@
     
     <!-- 操作栏 -->
     <div class="action-bar">
-      <el-button type="primary" @click="handleAdd">
-        <el-icon><Plus /></el-icon> 添加非遗项目
-      </el-button>
       <div class="search-bar">
+        <el-button type="primary" @click="handleAdd">新增</el-button>
+        <el-button type="danger" @click="handleBatchDelete" :disabled="selectedRows.length === 0">批量删除</el-button>
         <el-input v-model="searchQuery" placeholder="搜索项目名称" style="width: 300px;"></el-input>
-        <el-button type="primary" @click="handleSearch">搜索</el-button>
+        <el-button type="primary" @click="handleSearch">查询</el-button>
         <el-button @click="resetSearch">重置</el-button>
       </div>
     </div>
 
     <!-- 项目列表 -->
-    <el-table :data="filteredHeritageItems" style="width: 100%" border>
+    <el-table :data="filteredHeritageItems" style="width: 100%" border @selection-change="handleSelectionChange">
+      <el-table-column type="selection" width="55"></el-table-column>
       <el-table-column label="序号" width="80">
         <template #default="scope">
           {{ scope.row.serialNumber || ((currentPage - 1) * pageSize + scope.$index + 1) }}
         </template>
       </el-table-column>
+      <el-table-column prop="title" label="项目名称" min-width="250" />
+      <el-table-column prop="status" label="状态" width="100">
+        <template #default="scope">
+          <el-switch 
+            v-model="scope.row.status" 
+            :active-value="1" 
+            :inactive-value="0" 
+            @change="handleStatusChange(scope.row)"
+          />
+        </template>
+      </el-table-column>
+      <el-table-column prop="categoryName" label="类别" width="150" />
+      <el-table-column prop="regionName" label="地区" width="120" />
       <el-table-column label="封面" width="100">
         <template #default="scope">
           <el-image
@@ -34,18 +47,8 @@
           />
         </template>
       </el-table-column>
-      <el-table-column prop="regionName" label="地区" width="120" />
-      <el-table-column prop="categoryName" label="类别" width="150" />
-      <el-table-column prop="title" label="项目名称" min-width="180" />
-      <el-table-column prop="declarationRegion" label="申报地区或单位" min-width="150" />
-      <el-table-column prop="protectionUnit" label="保护单位" min-width="150" />
-      <el-table-column prop="status" label="状态" width="100">
-        <template #default="scope">
-          <el-tag :type="scope.row.status === 1 ? 'success' : 'danger'">
-            {{ scope.row.status === 1 ? '启用' : '禁用' }}
-          </el-tag>
-        </template>
-      </el-table-column>
+      <el-table-column prop="declarationRegion" label="申报地区或单位" min-width="200" />
+      <el-table-column prop="protectionUnit" label="保护单位" min-width="200" />
       <el-table-column label="操作" width="200" fixed="right">
         <template #default="scope">
           <el-button type="primary" size="small" @click="handleEdit(scope.row)">
@@ -119,24 +122,19 @@
         </el-form-item>
 
         <el-form-item label="封面图片" prop="coverImage">
-          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px">
-            <el-upload
-              class="upload-demo"
-              action=""
-              :auto-upload="false"
-              :on-change="handleCoverUpload"
-              :limit="1"
-              list-type="picture"
-            >
-              <el-button type="primary">
-                <el-icon><Upload /></el-icon> 上传封面
-              </el-button>
-            </el-upload>
-            <el-button type="success" @click="generateCover">
-              <el-icon><Picture /></el-icon> 生成封面
+          <el-upload
+            class="upload-demo"
+            action=""
+            :auto-upload="false"
+            :on-change="handleCoverUpload"
+            :limit="1"
+            list-type="picture"
+          >
+            <el-button type="primary">
+              <el-icon><Upload /></el-icon> 上传封面
             </el-button>
-          </div>
-          <!-- 预览生成的封面图片 -->
+          </el-upload>
+          <!-- 预览封面图片 -->
           <div v-if="formData.coverImage" class="cover-preview">
             <el-image
               :src="formData.coverImage"
@@ -212,11 +210,11 @@
 
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
-import { heritageApi } from '../../api/heritage'
+import { heritageApi } from '../../api/api'
 import { imageApi } from '../../api/image'
 import api from '../../api/index.js'
 import { ElTable, ElTableColumn, ElButton, ElDialog, ElForm, ElFormItem, ElInput, ElSelect, ElOption, ElUpload, ElSwitch, ElPagination, ElIcon, ElImage } from 'element-plus'
-import { Plus, Upload, Delete, Picture } from '@element-plus/icons-vue'
+import { Plus, Upload, Delete } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
 const heritageItems = ref([])
@@ -225,6 +223,7 @@ const currentPage = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
 const dialogVisible = ref(false)
+const selectedRows = ref([])
 const dialogTitle = ref('添加非遗项目')
 const formRef = ref(null)
 
@@ -271,7 +270,7 @@ onMounted(() => {
 const loadCategories = async () => {
   try {
     const response = await api.get('/heritage/categories')
-    if (response.success) {
+    if (response.code === 200) {
       categories.value = response.data || []
     }
   } catch (error) {
@@ -284,12 +283,42 @@ const loadCategories = async () => {
 const loadRegions = async () => {
   try {
     const response = await api.get('/heritage/regions')
-    if (response.success) {
+    if (response.code === 200) {
       regions.value = response.data || []
     }
   } catch (error) {
     console.error('加载地区数据失败:', error)
     regions.value = []
+  }
+}
+
+// 处理选择变化
+const handleSelectionChange = (val) => {
+  selectedRows.value = val
+}
+
+// 批量删除
+const handleBatchDelete = async () => {
+  if (selectedRows.value.length === 0) {
+    ElMessage.warning('请选择要删除的项目')
+    return
+  }
+  
+  try {
+    const ids = selectedRows.value.map(item => item.id)
+    const response = await api.delete('/heritage/delete/batch', {
+      data: { ids }
+    })
+    if (response.success) {
+      ElMessage.success('批量删除成功')
+      loadData()
+      selectedRows.value = []
+    } else {
+      ElMessage.error('批量删除失败')
+    }
+  } catch (error) {
+    console.error('批量删除失败:', error)
+    ElMessage.error('批量删除失败')
   }
 }
 
@@ -310,8 +339,8 @@ const loadHeritageItems = async () => {
     let res
     if (searchQuery.value) {
       // 当搜索时，需要获取所有数据进行过滤
-      res = await heritageApi.list(null, 1, 1000)
-      if (res.success) {
+      res = await heritageApi.list(undefined, 1, 1000)
+      if (res.code === 200) {
         let allData = res.data
         let filteredData = allData.filter(item => 
           item.title.toLowerCase().includes(searchQuery.value.toLowerCase())
@@ -324,8 +353,8 @@ const loadHeritageItems = async () => {
       }
     } else {
       // 正常分页查询
-      res = await heritageApi.list(null, currentPage.value, pageSize.value)
-      if (res.success) {
+      res = await heritageApi.list(undefined, currentPage.value, pageSize.value)
+      if (res.code === 200) {
         heritageItems.value = res.data
         total.value = res.total || 0
       }
@@ -520,33 +549,7 @@ const handleCoverUpload = async (file) => {
   }
 }
 
-// 生成封面图片
-const generateCover = async () => {
-  if (!formData.title) {
-    ElMessage.warning('请先输入项目名称')
-    return
-  }
-  
-  try {
-    ElMessage.info('正在生成封面图片，请稍候...')
-    
-    // 构建图片生成的prompt，使用更简洁的描述
-    let prompt = `traditional Chinese culture heritage ${encodeURIComponent(formData.title)} elegant artistic`
-    
-    // 构建图片生成API URL
-    const imageUrl = `https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=${prompt}&image_size=portrait_4_3`
-    
-    console.log('生成封面图片的URL:', imageUrl)
-    
-    // 直接设置图片URL，不进行fetch验证，因为fetch可能会遇到CORS问题
-    formData.coverImage = imageUrl
-    ElMessage.success('封面图片生成成功')
-    console.log('封面图片生成成功，URL:', imageUrl)
-  } catch (error) {
-    console.error('生成封面失败:', error)
-    ElMessage.error('生成封面失败，请重试')
-  }
-}
+
 
 // 为没有封面图片的项目生成独特的默认封面
 const getDefaultCover = (item) => {
@@ -574,6 +577,25 @@ const handleCurrentChange = (page) => {
   currentPage.value = page
   loadHeritageItems()
 }
+
+// 处理状态变更
+const handleStatusChange = async (heritage) => {
+  try {
+    const response = await heritageApi.update(heritage)
+    if (response.success) {
+      ElMessage.success('状态更新成功')
+    } else {
+      ElMessage.error('状态更新失败')
+      // 恢复原来的状态
+      loadHeritageItems()
+    }
+  } catch (error) {
+    console.error('状态更新失败:', error)
+    ElMessage.error('状态更新失败')
+    // 恢复原来的状态
+    loadHeritageItems()
+  }
+}
 </script>
 
 <style scoped>
@@ -595,14 +617,7 @@ const handleCurrentChange = (page) => {
 }
 
 .action-bar {
-  display: flex;
-  align-items: center;
   margin-bottom: 20px;
-  gap: 10px;
-}
-
-.action-bar .el-button:first-child {
-  margin-right: auto;
 }
 
 .search-bar {
@@ -648,5 +663,23 @@ const handleCurrentChange = (page) => {
   background: #f5f7fa;
   border-radius: 8px;
   border: 1px dashed #dcdfe6;
+}
+
+.status-active {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background-color: #f0f9eb;
+  color: #67c23a;
+  font-size: 12px;
+}
+
+.status-inactive {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background-color: #fef0f0;
+  color: #f56c6c;
+  font-size: 12px;
 }
 </style>

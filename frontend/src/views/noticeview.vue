@@ -1,19 +1,18 @@
 <template>
   <div class="notice-view">
-    <h2>公告信息</h2>
-    <div class="notice-list">
-      <el-card v-for="notice in notices" :key="notice.id" class="notice-item">
-        <template #header>
-          <div class="notice-header">
-            <span>{{ notice.title }}</span>
-            <span class="notice-date">{{ formatDate(notice.createdAt) }}</span>
-          </div>
-        </template>
-        <div class="notice-content">{{ truncateContent(notice.content) }}</div>
-        <div class="notice-footer">
-          <el-button size="small" type="primary" @click="viewDetail(notice.id)">查看详情</el-button>
-        </div>
-      </el-card>
+    <div class="notice-container">
+      <h2>公告信息</h2>
+      <div class="notice-list">
+        <el-card v-for="notice in notices" :key="notice.id" class="notice-item" @click="viewDetail(notice.id)" style="cursor: pointer;">
+          <template #header>
+            <div class="notice-header">
+              <span>{{ notice.title }}</span>
+              <span class="notice-date">{{ formatDate(notice.createTime) }}</span>
+            </div>
+          </template>
+          <div class="notice-content" v-html="truncateContent(notice.content)"></div>
+        </el-card>
+      </div>
     </div>
   </div>
 </template>
@@ -50,7 +49,10 @@ const formatDate = (dateString) => {
 
 const truncateContent = (content) => {
   if (!content) return ''
-  return content.length > 100 ? content.substring(0, 100) + '...' : content
+  // 移除HTML标签，只保留纯文本
+  const plainText = content.replace(/<[^>]*>/g, '')
+  // 截断内容，最多显示100个字符
+  return plainText.length > 100 ? plainText.substring(0, 100) + '...' : plainText
 }
 
 const viewDetail = (id) => {
@@ -60,16 +62,43 @@ const viewDetail = (id) => {
 
 <style scoped>
 .notice-view {
+  width: 100%;
   padding: 20px;
+  background-color: var(--background-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.notice-container {
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .notice-view h2 {
-  font-size: 1.8rem;
-  margin-bottom: 20px;
-  color: #333;
+  font-size: 2rem;
+  margin-bottom: 30px;
+  color: var(--primary-color);
   text-align: center;
+  position: relative;
+  padding-bottom: 15px;
+}
+
+.notice-view h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background-color: var(--accent-color);
+  border-radius: 2px;
 }
 
 .notice-list {
@@ -91,7 +120,7 @@ const viewDetail = (id) => {
 
 .notice-header {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
   padding: 15px;
   background: #f5f5f5;
@@ -101,6 +130,7 @@ const viewDetail = (id) => {
   font-size: 1.1rem;
   font-weight: bold;
   color: #333;
+  margin-bottom: 10px;
 }
 
 .notice-date {

@@ -7,41 +7,51 @@
     
     <!-- 操作栏 -->
     <div class="action-bar">
-      <el-button type="primary" @click="handleAdd">
-        <el-icon><Plus /></el-icon> 添加用户
-      </el-button>
       <div class="search-bar">
+        <el-button type="primary" @click="handleAdd">新增</el-button>
+        <el-button type="danger" @click="handleBatchDelete" :disabled="selectedRows.length === 0">批量删除</el-button>
         <el-input v-model="searchQuery" placeholder="搜索用户名或邮箱" style="width: 300px;"></el-input>
-        <el-button type="primary" @click="handleSearch">搜索</el-button>
+        <el-button type="primary" @click="handleSearch">查询</el-button>
         <el-button @click="resetSearch">重置</el-button>
       </div>
     </div>
     
     <!-- 用户列表 -->
-    <el-table :data="filteredUsers" style="width: 100%" border>
-      <el-table-column prop="id" label="ID" width="80" />
-      <el-table-column prop="username" label="用户名" />
-      <el-table-column prop="email" label="邮箱" />
+    <el-table :data="filteredUsers" style="width: 100%" border @selection-change="handleSelectionChange">
+      <el-table-column type="selection" width="55"></el-table-column>
+      <el-table-column label="序号" width="80">
+        <template #default="scope">
+          {{ (currentPage - 1) * pageSize + scope.$index + 1 }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="username" label="用户名" min-width="200" />
+      <el-table-column prop="email" label="邮箱" min-width="200" />
       <el-table-column prop="isAdmin" label="管理员" width="100">
         <template #default="scope">
-          <el-tag :type="scope.row.isAdmin === 1 ? 'warning' : 'info'">
-            {{ scope.row.isAdmin === 1 ? '是' : '否' }}
-          </el-tag>
+          <el-switch 
+            v-model="scope.row.isAdmin" 
+            :active-value="1" 
+            :inactive-value="0" 
+            @change="handleAdminChange(scope.row)"
+          />
         </template>
       </el-table-column>
       <el-table-column prop="status" label="状态" width="100">
         <template #default="scope">
-          <el-tag :type="scope.row.status === 1 ? 'success' : 'danger'">
-            {{ scope.row.status === 1 ? '启用' : '禁用' }}
-          </el-tag>
+          <el-switch 
+            v-model="scope.row.status" 
+            :active-value="1" 
+            :inactive-value="0" 
+            @change="handleStatusChange(scope.row)"
+          />
         </template>
       </el-table-column>
       <el-table-column prop="createdAt" label="创建时间" width="180" />
       <el-table-column prop="updatedAt" label="更新时间" width="180" />
-      <el-table-column label="操作" width="150" fixed="right">
+      <el-table-column label="操作" width="150">
         <template #default="scope">
-          <el-button type="primary" size="small" @click="handleEdit(scope.row)">编辑</el-button>
-          <el-button type="danger" size="small" @click="handleDelete(scope.row.id)">删除</el-button>
+          <el-button size="small" @click="handleEdit(scope.row)">编辑</el-button>
+          <el-button size="small" type="danger" @click="handleDelete(scope.row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -106,6 +116,37 @@ const searchQuery = ref('')
 const dialogVisible = ref(false)
 const dialogTitle = ref('添加用户')
 const formRef = ref(null)
+const selectedRows = ref([])
+
+// 处理选择变化
+const handleSelectionChange = (val) => {
+  selectedRows.value = val
+}
+
+// 批量删除
+const handleBatchDelete = async () => {
+  if (selectedRows.value.length === 0) {
+    ElMessage.warning('请选择要删除的用户')
+    return
+  }
+  
+  try {
+    const ids = selectedRows.value.map(item => item.id)
+    const response = await api.delete('/user/delete/batch', {
+      data: { ids }
+    })
+    if (response.success) {
+      ElMessage.success('批量删除成功')
+      loadUsers()
+      selectedRows.value = []
+    } else {
+      ElMessage.error('批量删除失败')
+    }
+  } catch (error) {
+    console.error('批量删除失败:', error)
+    ElMessage.error('批量删除失败')
+  }
+}
 
 const formData = reactive({
   id: '',
@@ -260,6 +301,44 @@ const handleSizeChange = (size) => {
   currentPage.value = 1
   // 这里可以添加分页逻辑
 }
+
+// 处理状态变更
+const handleStatusChange = async (user) => {
+  try {
+    const response = await api.post('/user/update', user)
+    if (response.success) {
+      ElMessage.success('状态更新成功')
+    } else {
+      ElMessage.error('状态更新失败')
+      // 恢复原来的状态
+      loadUsers()
+    }
+  } catch (error) {
+    console.error('状态更新失败:', error)
+    ElMessage.error('状态更新失败')
+    // 恢复原来的状态
+    loadUsers()
+  }
+}
+
+// 处理管理员状态变更
+const handleAdminChange = async (user) => {
+  try {
+    const response = await api.post('/user/update', user)
+    if (response.success) {
+      ElMessage.success('管理员状态更新成功')
+    } else {
+      ElMessage.error('管理员状态更新失败')
+      // 恢复原来的状态
+      loadUsers()
+    }
+  } catch (error) {
+    console.error('管理员状态更新失败:', error)
+    ElMessage.error('管理员状态更新失败')
+    // 恢复原来的状态
+    loadUsers()
+  }
+}
 </script>
 
 <style scoped>
@@ -281,14 +360,7 @@ const handleSizeChange = (size) => {
 }
 
 .action-bar {
-  display: flex;
-  align-items: center;
   margin-bottom: 20px;
-  gap: 10px;
-}
-
-.action-bar .el-button:first-child {
-  margin-right: auto;
 }
 
 .search-bar {
@@ -304,5 +376,41 @@ const handleSizeChange = (size) => {
 
 .dialog-footer {
   text-align: right;
+}
+
+.status-active {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background-color: #f0f9eb;
+  color: #67c23a;
+  font-size: 12px;
+}
+
+.status-inactive {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background-color: #fef0f0;
+  color: #f56c6c;
+  font-size: 12px;
+}
+
+.admin-yes {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background-color: #fdf6ec;
+  color: #e6a23c;
+  font-size: 12px;
+}
+
+.admin-no {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background-color: #ecf5ff;
+  color: #409eff;
+  font-size: 12px;
 }
 </style>

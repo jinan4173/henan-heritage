@@ -3,8 +3,8 @@ package com.henan.heritage.service.impl;
 import com.henan.heritage.entity.Inheritor;
 import com.henan.heritage.mapper.InheritorMapper;
 import com.henan.heritage.service.InheritorService;
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
@@ -14,35 +14,34 @@ public class InheritorServiceImpl implements InheritorService {
     private InheritorMapper inheritorMapper;
 
     @Override
-    public List<Inheritor> list() {
-        Inheritor inheritor = new Inheritor();
-        inheritor.setStatus(1);
-        return inheritorMapper.selectList(inheritor);
+    public List<Inheritor> listAll() {
+        return inheritorMapper.listAll();
     }
 
     @Override
     public Inheritor getById(Long id) {
-        return inheritorMapper.selectById(id);
+        return inheritorMapper.getById(id);
     }
 
     @Override
-    public boolean create(Inheritor inheritor) {
-        inheritor.setStatus(1);
-        return inheritorMapper.insert(inheritor) > 0;
+    public void save(Inheritor inheritor) {
+        inheritorMapper.insert(inheritor);
     }
 
     @Override
-    public boolean update(Inheritor inheritor) {
-        return inheritorMapper.update(inheritor) > 0;
+    public void update(Inheritor inheritor) {
+        inheritorMapper.update(inheritor);
     }
 
     @Override
-    public boolean delete(Long id) {
-        return inheritorMapper.deleteById(id) > 0;
+    public void delete(Long id) {
+        inheritorMapper.delete(id);
     }
 
     @Override
     public long count() {
-        return inheritorMapper.count();
+        // 从数据库获取
+        List<Inheritor> inheritors = inheritorMapper.listAll();
+        return inheritors.size();
     }
 }

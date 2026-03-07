@@ -9,5 +9,6 @@ public interface CultureNewsService {
     void save(CultureNews cultureNews);
     void update(CultureNews cultureNews);
     void delete(Long id);
+    void batchDelete(List<Long> ids);
     long count(Integer type, Integer status);
 }

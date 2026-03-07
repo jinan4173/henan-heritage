@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.henan.heritage.mapper.ActivityRegistrationMapper">
+    <resultMap id="ActivityRegistrationResult" type="com.henan.heritage.entity.ActivityRegistration">
+        <id property="id" column="id"/>
+        <result property="activityId" column="activity_id"/>
+        <result property="activityName" column="activity_name"/>
+        <result property="name" column="name"/>
+        <result property="phone" column="phone"/>
+        <result property="peopleCount" column="people_count"/>
+        <result property="remark" column="remark"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.henan.heritage.entity.ActivityRegistration">
+        INSERT INTO activity_registration (
+            activity_id, 
+            name, 
+            phone, 
+            people_count, 
+            remark, 
+            status, 
+            create_time, 
+            update_time
+        ) VALUES (
+            #{activityId}, 
+            #{name}, 
+            #{phone}, 
+            #{peopleCount}, 
+            #{remark}, 
+            #{status, jdbcType=INTEGER}, 
+            NOW(), 
+            NOW()
+        )
+    </insert>
+
+    <select id="selectById" resultMap="ActivityRegistrationResult" parameterType="java.lang.Long">
+        SELECT ar.*, cn.title as activity_name 
+        FROM activity_registration ar
+        LEFT JOIN culture_news cn ON ar.activity_id = cn.id
+        WHERE ar.id = #{id}
+    </select>
+
+    <select id="selectByActivityId" resultMap="ActivityRegistrationResult" parameterType="java.lang.Long">
+        SELECT ar.*, cn.title as activity_name 
+        FROM activity_registration ar
+        LEFT JOIN culture_news cn ON ar.activity_id = cn.id
+        WHERE ar.activity_id = #{activityId} 
+        ORDER BY ar.create_time DESC
+    </select>
+
+    <update id="updateStatus" parameterType="com.henan.heritage.entity.ActivityRegistration">
+        UPDATE activity_registration SET 
+            status = #{status}, 
+            update_time = NOW() 
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM activity_registration WHERE id = #{id}
+    </delete>
+
+    <select id="selectAll" resultMap="ActivityRegistrationResult">
+        SELECT ar.*, cn.title as activity_name 
+        FROM activity_registration ar
+        LEFT JOIN culture_news cn ON ar.activity_id = cn.id
+        ORDER BY ar.create_time DESC
+    </select>
+    
+    <delete id="deleteByActivityId" parameterType="java.lang.Long">
+        DELETE FROM activity_registration WHERE activity_id = #{activityId}
+    </delete>
+</mapper>

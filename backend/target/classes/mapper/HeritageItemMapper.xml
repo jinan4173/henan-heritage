@@ -3,17 +3,20 @@
 <mapper namespace="com.henan.heritage.mapper.HeritageItemMapper">
     <resultMap id="HeritageItemWithDetails" type="com.henan.heritage.entity.HeritageItem">
         <id property="id" column="id"/>
-        <result property="projectCode" column="project_code"/>
-        <result property="title" column="title"/>
+        <result property="serialNumber" column="serial_number"/>
+        <result property="regionId" column="region_id"/>
+        <result property="regionName" column="region_name"/>
+        <result property="categoryId" column="category_id"/>
         <result property="categoryName" column="category_name"/>
+        <result property="title" column="title"/>
         <result property="declarationRegion" column="declaration_region"/>
         <result property="protectionUnit" column="protection_unit"/>
+        <result property="description" column="description"/>
         <result property="coverImage" column="cover_image"/>
         <result property="videoUrl" column="video_url"/>
-        <result property="projectIntroduction" column="project_introduction"/>
         <result property="status" column="status"/>
-        <result property="createdAt" column="create_time"/>
-        <result property="updatedAt" column="update_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
     </resultMap>
 
     <select id="selectWithDetails" parameterType="java.lang.Integer" resultMap="HeritageItemWithDetails">
@@ -37,6 +40,12 @@
         SELECT hi.*
         FROM heritage_item hi
         WHERE hi.status = #{status}
+        <if test="categoryId != null">
+            AND hi.category_id = #{categoryId}
+        </if>
+        <if test="regionId != null">
+            AND hi.region_id = #{regionId}
+        </if>
         ORDER BY hi.create_time DESC
     </select>
 
@@ -45,15 +54,23 @@
     </select>
 
     <insert id="insert" parameterType="com.henan.heritage.entity.HeritageItem">
-        INSERT INTO heritage_item (title, cover_image, project_introduction, status, create_time, update_time) 
-        VALUES (#{title}, #{coverImage}, #{projectIntroduction}, #{status}, NOW(), NOW())
+        INSERT INTO heritage_item (serial_number, region_id, region_name, category_id, category_name, title, declaration_region, protection_unit, description, cover_image, video_url, status, create_time, update_time) 
+        VALUES (#{serialNumber}, #{regionId}, #{regionName}, #{categoryId}, #{categoryName}, #{title}, #{declarationRegion}, #{protectionUnit}, #{description}, #{coverImage}, #{videoUrl}, #{status}, NOW(), NOW())
     </insert>
 
     <update id="update" parameterType="com.henan.heritage.entity.HeritageItem">
         UPDATE heritage_item SET 
+            serial_number = #{serialNumber}, 
+            region_id = #{regionId}, 
+            region_name = #{regionName}, 
+            category_id = #{categoryId}, 
+            category_name = #{categoryName}, 
             title = #{title}, 
+            declaration_region = #{declarationRegion}, 
+            protection_unit = #{protectionUnit}, 
+            description = #{description}, 
             cover_image = #{coverImage}, 
-            project_introduction = #{projectIntroduction}, 
+            video_url = #{videoUrl}, 
             status = #{status}, 
             update_time = NOW() 
         WHERE id = #{id}
@@ -68,23 +85,18 @@
     </select>
     
     <select id="selectCityStatistics" resultType="java.util.Map">
-        SELECT '郑州' AS city, 25 AS count UNION ALL
-        SELECT '开封' AS city, 18 AS count UNION ALL
-        SELECT '洛阳' AS city, 32 AS count UNION ALL
-        SELECT '平顶山' AS city, 15 AS count UNION ALL
-        SELECT '安阳' AS city, 20 AS count UNION ALL
-        SELECT '鹤壁' AS city, 8 AS count UNION ALL
-        SELECT '新乡' AS city, 16 AS count UNION ALL
-        SELECT '焦作' AS city, 14 AS count UNION ALL
-        SELECT '濮阳' AS city, 12 AS count UNION ALL
-        SELECT '许昌' AS city, 10 AS count UNION ALL
-        SELECT '漯河' AS city, 7 AS count UNION ALL
-        SELECT '三门峡' AS city, 9 AS count UNION ALL
-        SELECT '南阳' AS city, 22 AS count UNION ALL
-        SELECT '商丘' AS city, 13 AS count UNION ALL
-        SELECT '信阳' AS city, 17 AS count UNION ALL
-        SELECT '周口' AS city, 19 AS count UNION ALL
-        SELECT '驻马店' AS city, 11 AS count
+        SELECT region_name AS city, COUNT(*) AS count 
+        FROM heritage_item 
+        WHERE status = 1 
+        GROUP BY region_name 
+        ORDER BY count DESC
+    </select>
+    
+    <select id="selectCategoryStatistics" resultType="java.util.Map">
+        SELECT category_name AS name, COUNT(*) AS count 
+        FROM heritage_item 
+        WHERE status = 1 
+        GROUP BY category_name 
         ORDER BY count DESC
     </select>
 </mapper>

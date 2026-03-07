@@ -172,15 +172,24 @@ const handleLogout = () => {
   line-height: 60px;
   margin: 0 10px;
   border-radius: 8px;
+  /* 移除过渡效果 */
+  transition: none;
 }
 
 .menu .el-menu-item:hover {
-  background: #34495e !important;
+  background: transparent !important;
+  color: currentColor !important;
+  /* 移除所有效果 */
+  transition: none !important;
+  box-shadow: none !important;
+  transform: none !important;
 }
 
 .menu .el-menu-item.is-active {
   background: #3498db !important;
   color: white !important;
+  /* 移除阴影效果 */
+  box-shadow: none;
 }
 
 .main-content {

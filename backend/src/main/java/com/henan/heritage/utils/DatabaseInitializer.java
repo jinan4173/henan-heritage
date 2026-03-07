@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.util.stream.Collectors;
+
 
 /**
  * 数据库初始化工具类
@@ -21,6 +21,14 @@ import java.util.stream.Collectors;
 @Component
 public class DatabaseInitializer implements InitializingBean {
 
+    static {
+        System.out.println("DatabaseInitializer class loaded!");
+    }
+
+    public DatabaseInitializer() {
+        System.out.println("DatabaseInitializer constructor called!");
+    }
+
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
@@ -28,51 +36,44 @@ public class DatabaseInitializer implements InitializingBean {
     private ResourceLoader resourceLoader;
 
     /**
-     * 应用启动时执行初始化
+     * 应用启动时执行数据库连接检查
      */
     @Override
     public void afterPropertiesSet() throws Exception {
         try {
             System.out.println("========================================");
-            System.out.println("开始数据库初始化...");
+            System.out.println("开始数据库连接检查...");
             
             // 检查数据库连接
             System.out.println("检查数据库连接...");
-            int count = jdbcTemplate.queryForObject("SELECT 1", Integer.class);
-            System.out.println("数据库连接正常!");
+            Integer result = jdbcTemplate.queryForObject("SELECT 1", Integer.class);
+            if (result != null) {
+                System.out.println("数据库连接正常!");
+            } else {
+                System.out.println("数据库连接异常!");
+            }
             
-            // 清空heritage_item表数据
-            System.out.println("清空heritage_item表数据...");
-            int deleteCount = jdbcTemplate.update("DELETE FROM heritage_item");
-            System.out.println("成功删除 " + deleteCount + " 条记录");
-            System.out.println("heritage_item表数据清空完成!");
+            // 验证数据库表是否存在
+            System.out.println("验证数据库表是否存在...");
+            Integer tableCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 'heritage_item' AND table_schema = DATABASE()", Integer.class);
+            if (tableCount != null && tableCount > 0) {
+                System.out.println("heritage_item表存在!");
+                // 验证表中是否有数据
+                Integer heritageCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM heritage_item", Integer.class);
+                if (heritageCount != null) {
+                    System.out.println("heritage_item表中共有 " + heritageCount + " 条记录");
+                } else {
+                    System.out.println("heritage_item表记录数查询异常!");
+                }
+            } else {
+                System.out.println("heritage_item表不存在，请确保数据库表结构已创建!");
+            }
             
-            // 执行表结构创建脚本
-            System.out.println("执行表结构创建脚本...");
-            executeSqlScript("classpath:data/create_tables.sql");
-            
-            // 执行初始数据脚本
-            System.out.println("执行初始数据脚本...");
-            executeSqlScript("classpath:data/init_data.sql");
-            
-            // 执行更新数据脚本
-            System.out.println("执行更新数据脚本...");
-            executeSqlScript("classpath:data/update_data.sql");
-            
-            // 执行导入数据脚本
-            System.out.println("执行导入数据脚本...");
-            executeSqlScript("classpath:data/import_heritage_items.sql");
-            
-            // 验证导入结果
-            System.out.println("验证导入结果...");
-            int heritageCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM heritage_item", Integer.class);
-            System.out.println("heritage_item表中共有 " + heritageCount + " 条记录");
-            
-            System.out.println("数据库初始化完成!");
+            System.out.println("数据库连接检查完成!");
             System.out.println("========================================");
         } catch (Exception e) {
             System.err.println("========================================");
-            System.err.println("数据库初始化失败: " + e.getMessage());
+            System.err.println("数据库连接检查失败: " + e.getMessage());
             e.printStackTrace();
             System.err.println("========================================");
         }
@@ -100,13 +101,27 @@ public class DatabaseInitializer implements InitializingBean {
             int statementCount = 0;
             
             while ((line = reader.readLine()) != null) {
-                // 跳过注释行和空行
+                // 跳过空行
                 String trimmedLine = line.trim();
-                if (trimmedLine.isEmpty() || trimmedLine.startsWith("--")) {
+                if (trimmedLine.isEmpty()) {
                     continue;
                 }
                 
-                currentStatement.append(line).append("\n");
+                // 跳过注释行（以 -- 开头的行）
+                if (trimmedLine.startsWith("--")) {
+                    continue;
+                }
+                
+                // 处理行尾注释
+                int commentIndex = trimmedLine.indexOf("--");
+                if (commentIndex != -1) {
+                    trimmedLine = trimmedLine.substring(0, commentIndex).trim();
+                    if (trimmedLine.isEmpty()) {
+                        continue;
+                    }
+                }
+                
+                currentStatement.append(trimmedLine).append(" ");
                 
                 // 如果遇到分号，执行当前语句
                 if (trimmedLine.endsWith(";")) {

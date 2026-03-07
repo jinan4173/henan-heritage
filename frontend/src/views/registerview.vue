@@ -102,20 +102,26 @@ export default {
 
 <style scoped>
 .register-view {
-  min-height: 80vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
+  min-height: 100vh !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  padding: 0 !important;
+  background: #f8f3e7 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  position: relative !important;
+  z-index: 1 !important;
 }
 
 .register-container {
-  width: 100%;
-  max-width: 400px;
-  background: #fff;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  width: 100% !important;
+  max-width: 400px !important;
+  background: #fff !important;
+  padding: 40px !important;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1) !important;
+  border-radius: 0 !important;
+  min-height: 450px !important;
 }
 
 .register-container h2 {

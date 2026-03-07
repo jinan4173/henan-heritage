@@ -1,11 +1,22 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
+  /* 字体设置 */
+  font-family: 'Noto Sans SC', 'Microsoft YaHei', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.6;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  /* 色彩方案 - 中国传统风格 */
+  --primary-color: #C8161D; /* 中国红 - 主色 */
+  --secondary-color: #D4A017; /* 宫廷金 - 辅助色 */
+  --accent-color: #C8161D; /* 中国红 - 强调色 */
+  --text-color: #333333; /* 墨黑 - 深色文字 */
+  --light-text: #666666; /* 浅灰 - 辅助文本颜色 */
+  --background-color: #F8F3E7; /* 米白色 - 背景色 */
+  --card-background: #FFFFFF; /* 白色 - 卡片背景 */
+  --border-color: #E8E0D5; /* 浅灰 - 边框颜色 */
+
+  /* 全局设置 */
+  color: var(--text-color);
+  background-color: var(--background-color);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -13,28 +24,54 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+/* 重置样式 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  overflow-x: hidden;
+  background-color: var(--background-color);
+}
+
+/* 链接样式 */
+a {
+  font-weight: 500;
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: var(--accent-color);
+}
+
+/* 标题样式 */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  color: var(--primary-color);
+  line-height: 1.3;
+  margin-bottom: 1rem;
 }
 
 h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+  font-size: 2.5rem;
 }
 
+h2 {
+  font-size: 2rem;
+}
+
+h3 {
+  font-size: 1.5rem;
+}
+
+/* 按钮样式 */
 button {
   border-radius: 8px;
   border: 1px solid transparent;
@@ -42,39 +79,93 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: var(--primary-color);
+  color: white;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: all 0.3s ease;
 }
+
 button:hover {
-  border-color: #646cff;
+  background-color: #C53030;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(229, 62, 62, 0.3);
 }
+
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: 3px solid rgba(229, 62, 62, 0.3);
+  outline-offset: 2px;
 }
 
-.card {
-  padding: 2em;
-}
-
+/* 应用容器 */
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  width: 100%;
+  min-height: 100vh;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+/* 卡片样式 */
+.card {
+  background-color: var(--card-background);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 2em;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* 通用布局类 */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.section {
+  padding: 60px 0;
+}
+
+.section-title {
+  text-align: center;
+  margin-bottom: 40px;
+  position: relative;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background-color: var(--accent-color);
+  border-radius: 2px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2rem;
   }
-  a:hover {
-    color: #747bff;
+  
+  h2 {
+    font-size: 1.5rem;
   }
-  button {
-    background-color: #f9f9f9;
+  
+  h3 {
+    font-size: 1.25rem;
+  }
+  
+  .section {
+    padding: 40px 0;
+  }
+  
+  .card {
+    padding: 1.5em;
   }
 }
 
@@ -84,29 +175,39 @@ button:focus-visible {
 .page-header {
   display: flex;
   align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #e4e7ed;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--secondary-color);
 }
 
 .page-header h2 {
   font-size: 1.5rem;
   margin: 0;
-  color: #333;
+  color: var(--primary-color);
   font-weight: 600;
 }
 
 /* 操作栏样式 */
 .action-bar {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* 搜索栏样式 */
+.search-bar {
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 /* 分页样式 */
 .pagination {
-  margin-top: 20px;
+  margin-top: 24px;
   text-align: right;
 }
 
@@ -117,168 +218,203 @@ button:focus-visible {
 
 /* 统一表格样式 */
 .el-table {
-  margin-bottom: 20px;
-  border-radius: 4px;
+  margin-bottom: 24px;
+  border-radius: 8px;
   overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .el-table th {
-  background-color: #f5f7fa;
+  background-color: var(--secondary-color);
   font-weight: 600;
-  color: #333;
+  color: var(--text-color);
 }
 
 .el-table tr:hover {
-  background-color: #f5f7fa;
+  background-color: rgba(210, 180, 140, 0.1);
 }
 
 /* 统一按钮样式 */
 .el-button {
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 14px;
   padding: 8px 16px;
+  transition: all 0.3s ease;
 }
 
 .el-button--primary {
-  background-color: #3b82f6;
-  border-color: #3b82f6;
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
 }
 
 .el-button--primary:hover {
-  background-color: #2563eb;
-  border-color: #2563eb;
+  background-color: #C53030;
+  border-color: #C53030;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(229, 62, 62, 0.3);
 }
 
 .el-button--danger {
-  background-color: #ef4444;
-  border-color: #ef4444;
+  background-color: #DC2626;
+  border-color: #DC2626;
 }
 
 .el-button--danger:hover {
-  background-color: #dc2626;
-  border-color: #dc2626;
+  background-color: #B91C1C;
+  border-color: #B91C1C;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
 }
 
 /* 统一输入框样式 */
 .el-input {
-  border-radius: 4px;
+  border-radius: 6px;
+}
+
+.el-input__wrapper {
+  border-radius: 6px !important;
 }
 
 .el-input__inner {
-  border-radius: 4px;
+  border-radius: 6px;
   padding: 8px 12px;
+  transition: all 0.3s ease;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.el-input__inner:focus {
+  border: none !important;
+  box-shadow: none !important;
 }
 
 /* 统一选择器样式 */
 .el-select {
-  border-radius: 4px;
+  border-radius: 6px;
 }
 
 .el-select .el-input__inner {
-  border-radius: 4px;
+  border-radius: 6px;
 }
 
 /* 统一标签样式 */
 .el-tag {
-  border-radius: 4px;
-  padding: 2px 8px;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
 }
 
 /* 统一卡片样式 */
 .el-card {
-  border-radius: 4px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border: none;
+  overflow: hidden;
 }
 
 /* 统一表单样式 */
 .el-form {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .el-form-item {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .el-form-item__label {
   font-weight: 500;
-  color: #333;
+  color: var(--text-color);
 }
 
 /* 统一对话框样式 */
 .el-dialog {
-  border-radius: 4px;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 }
 
 .el-dialog__header {
-  border-bottom: 1px solid #e4e7ed;
-  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color);
+  padding: 20px 24px;
+  background-color: var(--card-background);
 }
 
 .el-dialog__title {
   font-size: 16px;
   font-weight: 600;
-  color: #333;
+  color: var(--primary-color);
 }
 
 .el-dialog__body {
-  padding: 20px;
+  padding: 24px;
 }
 
 .el-dialog__footer {
-  border-top: 1px solid #e4e7ed;
-  padding: 16px 20px;
+  border-top: 1px solid var(--border-color);
+  padding: 16px 24px;
+  background-color: var(--card-background);
 }
 
 /* 统一导航菜单样式 */
 .el-menu {
-  border-radius: 4px;
+  border-radius: 8px;
+  border: none;
 }
 
 .el-menu-item {
-  border-radius: 4px;
-  margin: 0 8px;
+  border-radius: 6px;
+  margin: 8px;
   height: 48px;
   line-height: 48px;
+  /* 移除过渡效果 */
+  transition: none;
 }
 
 .el-menu-item.is-active {
-  background-color: #3b82f6 !important;
+  background-color: var(--primary-color) !important;
   color: #fff !important;
+  /* 移除阴影效果 */
+  box-shadow: none;
 }
 
+/* 鼠标悬浮时无效果 */
 .el-menu-item:hover {
-  background-color: rgba(59, 130, 246, 0.1) !important;
-  color: #3b82f6 !important;
+  background-color: transparent !important;
+  color: currentColor !important;
+  transition: none !important;
+  box-shadow: none !important;
+  transform: none !important;
 }
 
 /* 管理系统主容器样式 */
 .admin-container {
   min-height: 100vh;
   display: flex;
-  background-color: #f5f7fa;
+  background-color: var(--background-color);
 }
 
 /* 管理系统侧边栏样式 */
 .admin-sidebar {
-  width: 200px;
-  background-color: #1f2937;
+  width: 220px;
+  background-color: var(--primary-color);
   color: #fff;
   flex-shrink: 0;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 2px 0 12px rgba(26, 54, 93, 0.3);
+  transition: width 0.3s ease;
 }
 
 /* 管理系统主内容区域样式 */
 .admin-main {
   flex: 1;
-  padding: 20px;
+  padding: 24px;
   overflow-y: auto;
 }
 
 .main-content {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  min-height: calc(100vh - 40px);
+  background-color: var(--card-background);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  min-height: calc(100vh - 48px);
+  overflow: hidden;
 }
 
 /* 管理页面内容样式 */
@@ -291,21 +427,36 @@ button:focus-visible {
 .admin-activity,
 .admin-notice,
 .admin-user {
-  padding: 20px;
+  padding: 24px;
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
   .admin-sidebar {
-    width: 160px;
+    width: 180px;
+  }
+  
+  .admin-main {
+    padding: 16px;
+  }
+  
+  .admin-home,
+  .admin-category,
+  .admin-heritage,
+  .admin-region,
+  .admin-inheritor,
+  .admin-news,
+  .admin-activity,
+  .admin-notice,
+  .admin-user {
+    padding: 16px;
   }
   
   .page-header h2 {
-    font-size: 1.2rem;
+    font-size: 1.25rem;
   }
   
   .action-bar {
-    flex-wrap: wrap;
     gap: 8px;
   }
   
@@ -316,6 +467,35 @@ button:focus-visible {
   
   .el-input {
     width: 100% !important;
+  }
+  
+  .el-dialog {
+    margin: 20px;
+  }
+  
+  .el-dialog__header,
+  .el-dialog__body,
+  .el-dialog__footer {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-sidebar {
+    width: 160px;
+  }
+  
+  .page-header h2 {
+    font-size: 1.1rem;
+  }
+  
+  .action-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .el-button {
+    width: 100%;
   }
 }
 

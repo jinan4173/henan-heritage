@@ -1,29 +1,29 @@
 <template>
   <div class="user-view">
-    <h2>个人中心</h2>
-    
-    <!-- 未登录状态 -->
-    <div v-if="!isLoggedIn" class="not-logged-in">
-      <el-card>
-        <template #header>
-          <div class="card-header">
-            <span>登录提示</span>
-          </div>
-        </template>
-        <div class="login-prompt">
-          <el-empty description="请先登录" />
-          <p class="prompt-text">登录后可以查看个人信息、浏览历史和收藏的非遗项目</p>
-          <div class="login-buttons">
-            <el-button type="primary" @click="$router.push('/login')">立即登录</el-button>
-          </div>
-        </div>
-      </el-card>
-    </div>
-    
-    <!-- 登录状态 -->
-    <div v-else class="logged-in">
-      <div class="user-info">
+    <div class="user-container">
+      <h2>个人中心</h2>
+      
+      <!-- 未登录状态 -->
+      <div v-if="!isLoggedIn" class="not-logged-in">
         <el-card>
+          <template #header>
+            <div class="card-header">
+              <span>登录提示</span>
+            </div>
+          </template>
+          <div class="login-prompt">
+            <el-empty description="请先登录" />
+            <p class="prompt-text">登录后可以查看个人信息、浏览历史和收藏的非遗项目</p>
+            <div class="login-buttons">
+              <el-button type="primary" @click="$router.push('/login')">立即登录</el-button>
+            </div>
+          </div>
+        </el-card>
+      </div>
+      
+      <!-- 登录状态 -->
+      <div v-else class="logged-in">
+        <el-card class="user-card">
           <template #header>
             <div class="card-header">
               <span>用户信息</span>
@@ -46,10 +46,8 @@
             <el-button type="danger" @click="handleLogout">退出登录</el-button>
           </div>
         </el-card>
-      </div>
-      
-      <div class="user-activity">
-        <el-card>
+        
+        <el-card class="user-card">
           <template #header>
             <div class="card-header">
               <span>浏览历史</span>
@@ -63,10 +61,8 @@
             </div>
           </div>
         </el-card>
-      </div>
-      
-      <div class="user-favorites">
-        <el-card>
+        
+        <el-card class="user-card">
           <template #header>
             <div class="card-header">
               <span>我的收藏</span>
@@ -80,8 +76,49 @@
             </div>
           </div>
         </el-card>
+        
+        <el-card class="user-card">
+          <template #header>
+            <div class="card-header">
+              <span>我的评论</span>
+            </div>
+          </template>
+          <div class="comments-list">
+            <el-empty v-if="commentsList.length === 0" description="暂无评论" />
+            <div v-else v-for="comment in commentsList" :key="comment.id" class="comment-item">
+              <div class="comment-content">
+                <div class="comment-header">
+                  <span class="comment-title">{{ comment.title }}</span>
+                  <span class="comment-time">{{ comment.time }}</span>
+                </div>
+                <p class="comment-text">{{ comment.content }}</p>
+              </div>
+            </div>
+          </div>
+        </el-card>
       </div>
     </div>
+
+    <!-- 编辑资料对话框 -->
+    <el-dialog v-model="dialogVisible" title="编辑资料" width="500px">
+      <el-form :model="editForm" label-width="80px">
+        <el-form-item label="用户名">
+          <el-input v-model="editForm.username" placeholder="请输入用户名" />
+        </el-form-item>
+        <el-form-item label="邮箱">
+          <el-input v-model="editForm.email" placeholder="请输入邮箱" />
+        </el-form-item>
+        <el-form-item label="密码">
+          <el-input v-model="editForm.password" type="password" placeholder="请输入新密码（可选）" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="dialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="saveProfile">保存</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -117,8 +154,38 @@ export default {
           id: 2,
           title: '少林功夫',
           category: '传统体育'
+        },
+        {
+          id: 3,
+          title: '非遗技艺展示',
+          category: '媒体收藏'
+        },
+        {
+          id: 4,
+          title: '河南非遗传承之路',
+          category: '媒体收藏'
         }
-      ]
+      ],
+      commentsList: [
+        {
+          id: 1,
+          title: '非遗技艺展示',
+          content: '这张图片展示的非遗技艺非常精彩，希望能看到更多这样的内容！',
+          time: '2026-03-01 10:00'
+        },
+        {
+          id: 2,
+          title: '河南非遗传承之路',
+          content: '视频拍得很专业，让我对非遗有了更深入的了解。',
+          time: '2026-03-02 14:30'
+        }
+      ],
+      dialogVisible: false,
+      editForm: {
+        username: '',
+        email: '',
+        password: ''
+      }
     }
   },
   computed: {
@@ -149,7 +216,39 @@ export default {
       this.$message.success('退出登录成功');
     },
     editProfile() {
-      this.$message.info('编辑资料功能开发中');
+      // 填充表单数据
+      this.editForm.username = this.userInfo.username;
+      this.editForm.email = this.userInfo.email || '';
+      this.editForm.password = '';
+      // 打开对话框
+      this.dialogVisible = true;
+    },
+    saveProfile() {
+      // 保存用户资料
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr);
+          // 更新用户信息
+          user.username = this.editForm.username;
+          user.email = this.editForm.email;
+          if (this.editForm.password) {
+            user.password = this.editForm.password;
+          }
+          // 保存到本地存储
+          localStorage.setItem('user', JSON.stringify(user));
+          // 更新页面显示的用户信息
+          this.userInfo.username = this.editForm.username;
+          this.userInfo.email = this.editForm.email;
+          // 关闭对话框
+          this.dialogVisible = false;
+          // 显示成功消息
+          this.$message.success('资料更新成功');
+        } catch (e) {
+          console.error('保存用户信息失败:', e);
+          this.$message.error('保存失败，请重试');
+        }
+      }
     }
   }
 }
@@ -157,17 +256,56 @@ export default {
 
 <style scoped>
 .user-view {
+  width: 100%;
   padding: 20px;
+  background-color: var(--background-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.user-container {
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.user-info {
-  margin-bottom: 20px;
+.user-view h2 {
+  font-size: 2rem;
+  margin-bottom: 30px;
+  color: var(--primary-color);
+  text-align: center;
+  position: relative;
+  padding-bottom: 15px;
 }
 
-.user-activity {
-  margin-top: 20px;
+.user-view h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background-color: var(--accent-color);
+  border-radius: 2px;
+}
+
+.logged-in {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 600px;
+}
+
+.user-card {
+  width: 100%;
+  margin: 0;
 }
 
 .card-header {
@@ -229,10 +367,6 @@ export default {
   margin-top: 30px;
 }
 
-.user-favorites {
-  margin-top: 20px;
-}
-
 .favorites-list {
   margin-top: 10px;
 }
@@ -255,5 +389,37 @@ export default {
   background: #f0f0ff;
   padding: 2px 8px;
   border-radius: 10px;
+}
+
+.comments-list {
+  margin-top: 10px;
+}
+
+.comment-item {
+  padding: 15px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.comment-title {
+  font-weight: 600;
+  flex: 1;
+}
+
+.comment-time {
+  font-size: 12px;
+  color: #999;
+}
+
+.comment-text {
+  margin: 0;
+  color: #666;
+  line-height: 1.5;
+  font-size: 14px;
 }
 </style>

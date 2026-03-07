@@ -8,9 +8,10 @@
       </div>
       <div class="navbar-menu">
         <router-link to="/" class="menu-item" :class="{ active: $route.path === '/' }">首页</router-link>
-        <router-link to="/heritage" class="menu-item" :class="{ active: $route.path === '/heritage' }">非遗</router-link>
+        <router-link to="/heritage" class="menu-item" :class="{ active: $route.path === '/heritage' }">非遗项目</router-link>
+        <router-link to="/promotion" class="menu-item" :class="{ active: $route.path === '/promotion' }">非遗宣传</router-link>
         <router-link to="/news" class="menu-item" :class="{ active: $route.path === '/news' }">文化资讯</router-link>
-        <router-link to="/activity" class="menu-item" :class="{ active: $route.path === '/activity' }">活动</router-link>
+        <router-link to="/activity" class="menu-item" :class="{ active: $route.path === '/activity' }">非遗活动</router-link>
         <router-link to="/notice" class="menu-item" :class="{ active: $route.path === '/notice' }">公告</router-link>
         <router-link to="/user" class="menu-item" :class="{ active: $route.path === '/user' }">个人中心</router-link>
       </div>
@@ -31,7 +32,7 @@
           </el-dropdown>
         </div>
         <router-link to="/login" class="auth-item" v-else>登录</router-link>
-        <router-link to="/admin" class="auth-item admin-link">管理后台</router-link>
+        <router-link to="/admin" class="auth-item admin-link" v-if="isLoggedIn">管理后台</router-link>
       </div>
     </div>
   </div>
@@ -69,8 +70,8 @@ export default {
 
 <style scoped>
 .navbar {
-  background: #1F3D3A;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  background: var(--primary-color);
+  box-shadow: 0 4px 16px rgba(200, 22, 29, 0.3);
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -83,7 +84,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 70px;
+  height: 60px;
 }
 
 .navbar-logo {
@@ -97,8 +98,10 @@ export default {
 }
 
 .logo-link h1 {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   margin: 0;
+  font-weight: bold;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .navbar-menu {
@@ -112,22 +115,23 @@ export default {
   text-decoration: none;
   color: #FFFFFF;
   font-size: 1rem;
-  font-weight: 500;
-  padding: 8px 12px;
+  font-weight: 600;
+  padding: 8px 14px;
   border-radius: 4px;
   transition: all 0.3s ease;
   position: relative;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .menu-item:hover {
   color: #FFFFFF;
-  background: rgba(255, 255, 255, 0.1);
+  background: transparent;
 }
 
 .menu-item.active {
   color: #FFFFFF;
   font-weight: 600;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.25);
 }
 
 .menu-item.active::after {
@@ -153,18 +157,20 @@ export default {
   text-decoration: none;
   color: #FFFFFF;
   font-size: 0.9rem;
+  font-weight: 600;
   padding: 6px 12px;
   border-radius: 4px;
   transition: all 0.3s ease;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .auth-item:hover {
   color: #FFFFFF;
-  background: rgba(255, 255, 255, 0.1);
+  background: transparent;
 }
 
 .admin-link {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.2);
   margin-left: 10px;
 }
 
@@ -187,7 +193,7 @@ export default {
 }
 
 .avatar-container:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: transparent;
 }
 
 .avatar {
@@ -200,8 +206,10 @@ export default {
 
 .username {
   font-size: 0.9rem;
+  font-weight: 600;
   color: #FFFFFF;
   margin-right: 5px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .el-icon-arrow-down {
