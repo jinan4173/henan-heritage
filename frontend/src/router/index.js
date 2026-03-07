@@ -119,13 +119,7 @@ const router = createRouter({
           path: '',
           name: 'adminHome',
           component: () => import('../views/admin/AdminHomeView.vue'),
-          meta: { title: '后台首页' }
-        },
-        {
-          path: 'dashboard',
-          name: 'adminDashboard',
-          component: () => import('../views/admin/AdminDashboardView.vue'),
-          meta: { title: '数据看板' }
+          meta: { title: '管理后台首页' }
         },
         {
           path: 'heritage',
@@ -140,16 +134,22 @@ const router = createRouter({
           meta: { title: '传承人管理' }
         },
         {
+          path: 'promotion',
+          name: 'adminPromotion',
+          component: () => import('../views/admin/AdminPromotionView.vue'),
+          meta: { title: '非遗宣传管理' }
+        },
+        {
           path: 'news',
           name: 'adminNews',
           component: () => import('../views/admin/AdminContentManageView.vue'),
-          meta: { title: '资讯管理' }
+          meta: { title: '文化资讯管理' }
         },
         {
           path: 'activity',
           name: 'adminActivity',
           component: () => import('../views/admin/AdminActivityView.vue'),
-          meta: { title: '活动管理' }
+          meta: { title: '非遗活动管理' }
         },
         {
           path: 'notice',
@@ -180,12 +180,6 @@ const router = createRouter({
           name: 'adminComment',
           component: () => import('../views/admin/AdminCommentView.vue'),
           meta: { title: '评论管理' }
-        },
-        {
-          path: 'promotion',
-          name: 'adminPromotion',
-          component: () => import('../views/admin/AdminPromotionView.vue'),
-          meta: { title: '非遗宣传管理' }
         }
       ]
     },

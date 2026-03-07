@@ -10,6 +10,7 @@ public class HeritageComment {
     private String content;
     private Integer status;
     private Date createTime;
+    private String username; // 用户名
 
     // Getters and Setters
     public Long getId() {
@@ -66,5 +67,13 @@ public class HeritageComment {
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

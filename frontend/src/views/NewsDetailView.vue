@@ -28,6 +28,51 @@
       <div class="news-actions">
         <el-button type="primary" @click="goBack">返回列表</el-button>
         <el-button type="success" @click="openRegistrationDialog" v-if="isActivityPage">立即报名</el-button>
+        <el-button :type="isFavorite ? 'warning' : 'info'" @click="toggleFavorite">
+          <el-icon v-if="isFavorite"><StarFilled /></el-icon>
+          <el-icon v-else><Star /></el-icon>
+          {{ isFavorite ? '已收藏' : '收藏' }}
+        </el-button>
+        <el-button type="info" @click="shareContent">
+          <el-icon><Share /></el-icon>
+          分享
+        </el-button>
+      </div>
+      
+      <!-- 评论区 -->
+      <div class="comments-section">
+        <h3 class="section-title">评论 ({{ comments.length }})</h3>
+        
+        <!-- 评论输入 -->
+        <div class="comment-input-section" v-if="isLoggedIn">
+          <el-input
+            v-model="commentContent"
+            type="textarea"
+            :rows="3"
+            placeholder="写下你的评论..."
+          ></el-input>
+          <div class="comment-actions">
+            <el-button type="primary" @click="submitComment">发表评论</el-button>
+          </div>
+        </div>
+        <div class="login-prompt" v-else>
+          <el-button type="primary" @click="goToLogin">登录后评论</el-button>
+        </div>
+        
+        <!-- 评论列表 -->
+        <div class="comments-list">
+          <div class="comment-item" v-for="comment in comments" :key="comment.id">
+            <div class="comment-header">
+              <span class="comment-author">{{ comment.username || '匿名用户' }}</span>
+              <span class="comment-time">{{ formatDate(comment.createTime) }}</span>
+              <el-button type="text" size="small" @click="deleteComment(comment.id)" v-if="isCommentOwner(comment)">删除</el-button>
+            </div>
+            <div class="comment-content">{{ comment.content }}</div>
+          </div>
+          <div class="empty-comments" v-if="comments.length === 0">
+            <el-empty description="暂无评论" />
+          </div>
+        </div>
       </div>
       
       <!-- 报名对话框 -->
@@ -66,6 +111,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import api from '../api/index.js'
+import { Star, StarFilled, Share } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -77,6 +123,38 @@ const registrationForm = ref({
   email: '',
   peopleCount: 1,
   remark: ''
+})
+
+// 收藏相关
+const isFavorite = ref(false)
+const favoriteId = ref(null)
+
+// 评论相关
+const comments = ref([])
+const commentContent = ref('')
+
+// 计算属性：用户是否已登录
+const isLoggedIn = computed(() => {
+  try {
+    const userStr = localStorage.getItem('user')
+    return !!userStr
+  } catch (e) {
+    console.error('localStorage 访问失败:', e)
+    return false
+  }
+})
+
+// 计算属性：当前用户
+const currentUser = computed(() => {
+  try {
+    const userStr = localStorage.getItem('user')
+    if (userStr) {
+      return JSON.parse(userStr)
+    }
+  } catch (e) {
+    console.error('localStorage 访问失败:', e)
+  }
+  return null
 })
 
 // 计算属性：根据当前路由判断是哪个页面
@@ -120,9 +198,48 @@ const loadNewsDetail = async () => {
     if (response.success) {
       news.value = response.data
       console.log('加载详情成功:', news.value)
+      // 加载评论
+      await loadComments()
+      // 检查收藏状态
+      await checkFavoriteStatus()
     }
   } catch (error) {
     console.error('加载资讯详情失败:', error)
+  }
+}
+
+// 加载评论
+const loadComments = async () => {
+  const id = route.params.id
+  if (!id) return
+  
+  try {
+    const response = await api.get('/comment/listByMedia', { params: { mediaId: id } })
+    if (response.code === 200) {
+      comments.value = response.data || []
+    }
+  } catch (error) {
+    console.error('加载评论失败:', error)
+  }
+}
+
+// 检查收藏状态
+const checkFavoriteStatus = async () => {
+  const id = route.params.id
+  if (!id || !currentUser.value) return
+  
+  try {
+    const response = await api.get('/favorite/check', {
+      params: {
+        userId: currentUser.value.id,
+        mediaId: id
+      }
+    })
+    if (response.code === 200) {
+      isFavorite.value = response.data
+    }
+  } catch (error) {
+    console.error('检查收藏状态失败:', error)
   }
 }
 
@@ -177,6 +294,125 @@ const submitRegistration = async () => {
     console.error('报名失败:', error)
     ElMessage.error('报名失败，请稍后重试')
   }
+}
+
+// 切换收藏状态
+const toggleFavorite = async () => {
+  if (!currentUser.value) {
+    goToLogin()
+    return
+  }
+  
+  const id = route.params.id
+  if (!id) return
+  
+  try {
+    if (isFavorite.value) {
+      // 取消收藏
+      await api.delete(`/favorite/delete/${favoriteId.value}`)
+      ElMessage.success('取消收藏成功')
+    } else {
+      // 添加收藏
+      const response = await api.post('/favorite/add', {
+        userId: currentUser.value.id,
+        mediaId: id
+      })
+      if (response.code === 200) {
+        favoriteId.value = response.data
+        ElMessage.success('收藏成功')
+      }
+    }
+    isFavorite.value = !isFavorite.value
+  } catch (error) {
+    console.error('收藏操作失败:', error)
+    ElMessage.error('操作失败，请稍后重试')
+  }
+}
+
+// 分享内容
+const shareContent = () => {
+  const url = window.location.href
+  const title = news.value.title
+  
+  if (navigator.share) {
+    // 使用Web Share API
+    navigator.share({
+      title: title,
+      url: url
+    }).catch(err => {
+      console.error('分享失败:', err)
+      fallbackShare(url, title)
+    })
+  } else {
+    // 回退方案：复制链接
+    fallbackShare(url, title)
+  }
+}
+
+// 回退分享方案
+const fallbackShare = (url, title) => {
+  navigator.clipboard.writeText(url).then(() => {
+    ElMessage.success('链接已复制到剪贴板')
+  }).catch(err => {
+    console.error('复制失败:', err)
+    ElMessage.error('复制失败，请手动复制链接')
+  })
+}
+
+// 提交评论
+const submitComment = async () => {
+  if (!currentUser.value) {
+    goToLogin()
+    return
+  }
+  
+  if (!commentContent.value.trim()) {
+    ElMessage.warning('请输入评论内容')
+    return
+  }
+  
+  const id = route.params.id
+  if (!id) return
+  
+  try {
+    const response = await api.post('/comment/add', {
+      userId: currentUser.value.id,
+      mediaId: id,
+      content: commentContent.value.trim()
+    })
+    if (response.code === 200) {
+      ElMessage.success('评论发表成功')
+      commentContent.value = ''
+      await loadComments()
+    }
+  } catch (error) {
+    console.error('发表评论失败:', error)
+    ElMessage.error('发表评论失败，请稍后重试')
+  }
+}
+
+// 删除评论
+const deleteComment = async (commentId) => {
+  try {
+    const response = await api.delete(`/comment/delete/${commentId}`)
+    if (response.code === 200) {
+      ElMessage.success('评论删除成功')
+      await loadComments()
+    }
+  } catch (error) {
+    console.error('删除评论失败:', error)
+    ElMessage.error('删除评论失败，请稍后重试')
+  }
+}
+
+// 检查是否是评论的所有者
+const isCommentOwner = (comment) => {
+  return currentUser.value && comment.userId === currentUser.value.id
+}
+
+// 跳转到登录页面
+const goToLogin = () => {
+  router.push('/login')
 }
 </script>
 
@@ -353,6 +589,138 @@ const submitRegistration = async () => {
   }
 }
 
+/* 评论区样式 */
+.comments-section {
+  margin-top: 40px;
+  padding-top: 40px;
+  border-top: 1px solid #eee;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--primary-color);
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--accent-color);
+}
+
+.comment-input-section {
+  margin-bottom: 30px;
+}
+
+.comment-actions {
+  text-align: right;
+  margin-top: 10px;
+}
+
+.login-prompt {
+  text-align: center;
+  padding: 30px 0;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+
+.comments-list {
+  margin-top: 30px;
+}
+
+.comment-item {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+}
+
+.comment-item:hover {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.comment-author {
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+.comment-time {
+  color: #999;
+  font-size: 0.85rem;
+}
+
+.comment-content {
+  line-height: 1.6;
+  color: #333;
+}
+
+.empty-comments {
+  text-align: center;
+  padding: 60px 0;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .news-detail {
+    margin: 0 10px 20px;
+    padding: 20px;
+  }
+  
+  .news-title {
+    font-size: 1.8rem;
+    padding-bottom: 15px;
+  }
+  
+  .news-title::after {
+    width: 80px;
+    height: 3px;
+  }
+  
+  .news-meta {
+    gap: 10px;
+    font-size: 0.85rem;
+  }
+  
+  .news-image {
+    margin-bottom: 20px;
+  }
+  
+  .news-content {
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+  
+  .share-buttons {
+    flex-direction: column;
+  }
+  
+  .share-buttons .el-button {
+    width: 100%;
+  }
+  
+  .comments-section {
+    margin-top: 30px;
+    padding-top: 30px;
+  }
+  
+  .comment-item {
+    padding: 15px;
+  }
+  
+  .comment-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+}
+
 @media (max-width: 480px) {
   .news-title {
     font-size: 1.5rem;
@@ -366,6 +734,14 @@ const submitRegistration = async () => {
     display: block;
     width: 100%;
     margin: 10px 0;
+  }
+  
+  .comment-input-section {
+    margin-bottom: 20px;
+  }
+  
+  .comment-item {
+    padding: 12px;
   }
 }
 </style>
