@@ -210,8 +210,7 @@
 
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
-import { heritageApi } from '../../api/api'
-import { imageApi } from '../../api/image'
+import { heritageApi, imageApi } from '../../api/api'
 import api from '../../api/index.js'
 import { ElTable, ElTableColumn, ElButton, ElDialog, ElForm, ElFormItem, ElInput, ElSelect, ElOption, ElUpload, ElSwitch, ElPagination, ElIcon, ElImage } from 'element-plus'
 import { Plus, Upload, Delete } from '@element-plus/icons-vue'
@@ -309,7 +308,7 @@ const handleBatchDelete = async () => {
     const response = await api.delete('/heritage/delete/batch', {
       data: { ids }
     })
-    if (response.success) {
+    if (response.code === 200) {
       ElMessage.success('批量删除成功')
       loadData()
       selectedRows.value = []
@@ -369,8 +368,8 @@ const loadHeritageItems = async () => {
 const loadTotalCount = async () => {
   try {
     const response = await api.get('/dashboard/stats')
-    if (response.success) {
-      total.value = response.heritageCount || 0
+    if (response.code === 200) {
+      total.value = response.data?.heritageCount || 0
     }
   } catch (error) {
     console.error('获取总数失败:', error)
@@ -450,7 +449,7 @@ const handleEdit = (row) => {
 const handleDelete = async (id) => {
   try {
     const res = await heritageApi.delete(id)
-    if (res.success) {
+    if (res.code === 200) {
       ElMessage.success('删除成功')
       await loadHeritageItems()
       await loadTotalCount()
@@ -493,10 +492,10 @@ const handleSave = async () => {
         } else {
           // 添加
           res = await heritageApi.save(formData)
-          heritageId = res.id // 获取新添加的项目 ID
+          heritageId = res.data // 获取新添加的项目 ID
         }
         
-        if (res.success) {
+        if (res.code === 200) {
           // 保存媒体资源
           await saveMediaResources(heritageId)
           

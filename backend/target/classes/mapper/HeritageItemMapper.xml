@@ -93,10 +93,11 @@
     </select>
     
     <select id="selectCategoryStatistics" resultType="java.util.Map">
-        SELECT category_name AS name, COUNT(*) AS count 
-        FROM heritage_item 
-        WHERE status = 1 
-        GROUP BY category_name 
+        SELECT hc.name, COUNT(hi.id) AS count 
+        FROM heritage_item hi
+        JOIN heritage_category hc ON hi.category_id = hc.id
+        WHERE hi.status = 1 
+        GROUP BY hc.id, hc.name 
         ORDER BY count DESC
     </select>
 </mapper>

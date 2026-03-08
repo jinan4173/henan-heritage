@@ -1,184 +1,220 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
+// 路由懒加载，使用动态导入减少首屏加载时间
+const HomeView = () => import('../views/HomeView.vue')
+const HeritageView = () => import('../views/HeritageView.vue')
+const HeritageDisplayView = () => import('../views/HeritageDisplayView.vue')
+const InheritorView = () => import('../views/InheritorView.vue')
+const NewsDetailView = () => import('../views/NewsDetailView.vue')
+const ActivityView = () => import('../views/ActivityView.vue')
+const NewsView = () => import('../views/NewsView.vue')
+const NoticeView = () => import('../views/NoticeView.vue')
+const NewPromotionView = () => import('../views/NewPromotionView.vue')
+const MediaDetailView = () => import('../views/MediaDetailView.vue')
+const LoginView = () => import('../views/LoginView.vue')
+const RegisterView = () => import('../views/RegisterView.vue')
+const UserView = () => import('../views/UserView.vue')
+const AdminLayout = () => import('../views/admin/AdminLayout.vue')
+const AdminHomeView = () => import('../views/admin/AdminHomeView.vue')
+const AdminHeritageView = () => import('../views/admin/AdminHeritageView.vue')
+const AdminInheritorView = () => import('../views/admin/AdminInheritorView.vue')
+const AdminPromotionView = () => import('../views/admin/AdminPromotionView.vue')
+const AdminContentManageView = () => import('../views/admin/AdminContentManageView.vue')
+const AdminActivityView = () => import('../views/admin/AdminActivityView.vue')
+const AdminNoticeView = () => import('../views/admin/AdminNoticeView.vue')
+const AdminUserView = () => import('../views/admin/AdminUserView.vue')
+const AdminCarouselView = () => import('../views/admin/AdminCarouselView.vue')
+const AdminActivityRegistrationView = () => import('../views/admin/AdminActivityRegistrationView.vue')
+const AdminCommentView = () => import('../views/admin/AdminCommentView.vue')
+const AdminLoginView = () => import('../views/admin/AdminLoginView.vue')
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
+  // 添加滚动行为，提升用户体验
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    } else {
+      return { top: 0 }
+    }
+  },
   routes: [
     // 前台路由
     {
       path: '/',
       name: 'home',
-      component: () => import('../views/HomeView.vue'),
+      component: HomeView,
       meta: { title: '首页' }
     },
     // 非遗项目相关路由
     {
       path: '/heritage',
       name: 'heritage',
-      component: () => import('../views/HeritageView.vue'),
+      component: HeritageView,
       meta: { title: '非遗项目' }
     },
     {
       path: '/heritage/:id',
       name: 'heritageDetail',
-      component: () => import('../views/HeritageDisplayView.vue'),
+      component: HeritageDisplayView,
       meta: { title: '非遗项目详情' }
     },
     // 传承人相关路由
     {
       path: '/inheritors',
       name: 'inheritors',
-      component: () => import('../views/inheritorview.vue'),
+      component: InheritorView,
       meta: { title: '传承人' }
     },
     {
       path: '/inheritors/:id',
       name: 'inheritorDetail',
-      component: () => import('../views/NewsDetailView.vue'),
+      component: NewsDetailView,
       meta: { title: '传承人详情' }
     },
     // 活动相关路由
     {
       path: '/activity',
       name: 'activity',
-      component: () => import('../views/activityview.vue'),
+      component: ActivityView,
       meta: { title: '非遗活动' }
     },
     {
       path: '/activity/:id',
       name: 'activityDetail',
-      component: () => import('../views/NewsDetailView.vue'),
+      component: NewsDetailView,
       meta: { title: '活动详情' }
     },
     // 资讯相关路由
     {
       path: '/news',
       name: 'news',
-      component: () => import('../views/newsview.vue'),
+      component: NewsView,
       meta: { title: '文化资讯' }
     },
     {
       path: '/news/:id',
       name: 'newsDetail',
-      component: () => import('../views/NewsDetailView.vue'),
+      component: NewsDetailView,
       meta: { title: '资讯详情' }
     },
     // 公告相关路由
     {
       path: '/notice',
       name: 'notice',
-      component: () => import('../views/noticeview.vue'),
+      component: NoticeView,
       meta: { title: '公告' }
     },
     {
       path: '/notice/:id',
       name: 'noticeDetail',
-      component: () => import('../views/NewsDetailView.vue'),
+      component: NewsDetailView,
       meta: { title: '公告详情' }
     },
     // 宣传相关路由
     {
       path: '/promotion',
       name: 'promotion',
-      component: () => import('../views/NewPromotionView.vue'),
+      component: NewPromotionView,
       meta: { title: '非遗宣传' }
     },
     // 媒体详情路由
     {
       path: '/media/:type/:index',
       name: 'mediaDetail',
-      component: () => import('../views/MediaDetailView.vue'),
+      component: MediaDetailView,
       meta: { title: '媒体详情' }
     },
     // 用户相关路由
     {
       path: '/login',
       name: 'login',
-      component: () => import('../views/loginview.vue'),
+      component: LoginView,
       meta: { title: '登录' }
     },
     {
       path: '/register',
       name: 'register',
-      component: () => import('../views/registerview.vue'),
+      component: RegisterView,
       meta: { title: '注册' }
     },
     {
       path: '/user',
       name: 'user',
-      component: () => import('../views/userview.vue'),
+      component: UserView,
       meta: { title: '个人中心' }
     },
     // 后台路由
     {
       path: '/admin',
       name: 'admin',
-      component: () => import('../views/admin/AdminLayout.vue'),
+      component: AdminLayout,
       meta: { title: '管理后台' },
       children: [
         {
           path: '',
           name: 'adminHome',
-          component: () => import('../views/admin/AdminHomeView.vue'),
+          component: AdminHomeView,
           meta: { title: '管理后台首页' }
         },
         {
           path: 'heritage',
           name: 'adminHeritage',
-          component: () => import('../views/admin/AdminHeritageView.vue'),
+          component: AdminHeritageView,
           meta: { title: '非遗项目管理' }
         },
         {
           path: 'inheritor',
           name: 'adminInheritor',
-          component: () => import('../views/admin/AdminInheritorView.vue'),
+          component: AdminInheritorView,
           meta: { title: '传承人管理' }
         },
         {
           path: 'promotion',
           name: 'adminPromotion',
-          component: () => import('../views/admin/AdminPromotionView.vue'),
+          component: AdminPromotionView,
           meta: { title: '非遗宣传管理' }
         },
         {
           path: 'news',
           name: 'adminNews',
-          component: () => import('../views/admin/AdminContentManageView.vue'),
+          component: AdminContentManageView,
           meta: { title: '文化资讯管理' }
         },
         {
           path: 'activity',
           name: 'adminActivity',
-          component: () => import('../views/admin/AdminActivityView.vue'),
+          component: AdminActivityView,
           meta: { title: '非遗活动管理' }
         },
         {
           path: 'notice',
           name: 'adminNotice',
-          component: () => import('../views/admin/AdminNoticeView.vue'),
+          component: AdminNoticeView,
           meta: { title: '公告管理' }
         },
         {
           path: 'user',
           name: 'adminUser',
-          component: () => import('../views/admin/AdminUserView.vue'),
+          component: AdminUserView,
           meta: { title: '用户管理' }
         },
         {
           path: 'carousel',
           name: 'adminCarousel',
-          component: () => import('../views/admin/AdminCarouselView.vue'),
+          component: AdminCarouselView,
           meta: { title: '轮播图管理' }
         },
         {
           path: 'activity-registration',
           name: 'adminActivityRegistration',
-          component: () => import('../views/admin/AdminActivityRegistrationView.vue'),
+          component: AdminActivityRegistrationView,
           meta: { title: '活动报名管理' }
         },
         {
           path: 'comment',
           name: 'adminComment',
-          component: () => import('../views/admin/AdminCommentView.vue'),
+          component: AdminCommentView,
           meta: { title: '评论管理' }
         }
       ]
@@ -186,8 +222,15 @@ const router = createRouter({
     {
       path: '/admin/login',
       name: 'adminLogin',
-      component: () => import('../views/admin/AdminLoginView.vue'),
+      component: AdminLoginView,
       meta: { title: '后台登录' }
+    },
+    // 404路由
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'NotFound',
+      component: HomeView,
+      meta: { title: '页面不存在' }
     }
   ]
 })

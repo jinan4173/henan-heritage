@@ -81,7 +81,9 @@ onMounted(() => {
   margin-bottom: 60px;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  border: 1px solid var(--border-color);
 }
 
 .carousel-item {
@@ -93,17 +95,36 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   background-color: #f0f0f0;
+  transition: all var(--transition-normal);
+}
+
+.carousel-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(138, 26, 26, 0.1), rgba(0, 102, 204, 0.1));
+  z-index: 1;
+  transition: opacity var(--transition-normal);
+}
+
+.carousel-item:hover::before {
+  opacity: 0.3;
 }
 
 .carousel-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.8s ease;
+  transition: transform var(--transition-slow);
+  position: relative;
+  z-index: 0;
 }
 
 .carousel-item:hover .carousel-image {
-  transform: scale(1.08);
+  transform: scale(1.08) rotate(1deg);
 }
 
 .carousel-caption {
@@ -114,7 +135,15 @@ onMounted(() => {
   background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0));
   color: white;
   padding: 40px;
-  transition: all 0.3s ease;
+  transition: all var(--transition-normal);
+  z-index: 2;
+  transform: translateY(20px);
+  opacity: 0.8;
+}
+
+.carousel-item:hover .carousel-caption {
+  transform: translateY(0);
+  opacity: 1;
 }
 
 .carousel-caption h3 {
@@ -122,6 +151,26 @@ onMounted(() => {
   margin-bottom: 15px;
   color: #FFFFFF;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  position: relative;
+  display: inline-block;
+  padding-bottom: 8px;
+  animation: fadeInUp 0.6s ease;
+}
+
+.carousel-caption h3::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+  transform: scaleX(0);
+  transition: transform var(--transition-normal);
+}
+
+.carousel-item:hover .carousel-caption h3::after {
+  transform: scaleX(1);
 }
 
 .carousel-caption p {
@@ -131,6 +180,44 @@ onMounted(() => {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   max-width: 800px;
   margin: 0 auto;
+  animation: fadeInUp 0.6s ease 0.2s both;
+}
+
+/* 装饰元素 */
+.carousel-item::after {
+  content: '';
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  z-index: 2;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* 动画效果 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.6;
+  }
 }
 
 /* 响应式设计 */

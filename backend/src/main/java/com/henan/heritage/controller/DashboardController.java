@@ -1,5 +1,6 @@
 package com.henan.heritage.controller;
 
+import com.henan.heritage.common.Result;
 import com.henan.heritage.service.HeritageItemService;
 import com.henan.heritage.service.UserService;
 import com.henan.heritage.service.InheritorService;
@@ -22,23 +23,21 @@ public class DashboardController {
     private InheritorService inheritorService;
 
     @GetMapping("/stats")
-    public Map<String, Object> getStats() {
-        Map<String, Object> result = new HashMap<>();
+    public Result<Map<String, Object>> getStats() {
         try {
             // 获取各类数据的数量
             long heritageCount = heritageItemService.count();
             long userCount = userService.count();
             long inheritorCount = inheritorService.count();
 
-            result.put("success", true);
-            result.put("heritageCount", heritageCount);
-            result.put("userCount", userCount);
-            result.put("inheritorCount", inheritorCount);
-            result.put("message", "获取统计数据成功");
+            Map<String, Object> data = new HashMap<>();
+            data.put("heritageCount", heritageCount);
+            data.put("userCount", userCount);
+            data.put("inheritorCount", inheritorCount);
+
+            return Result.success(data);
         } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", "获取统计数据失败: " + e.getMessage());
+            return Result.error(500, "获取统计数据失败: " + e.getMessage());
         }
-        return result;
     }
 }

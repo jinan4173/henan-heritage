@@ -50,4 +50,8 @@
         DELETE FROM user WHERE id = #{id}
     </delete>
 
+    <select id="count" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM user
+    </select>
+
 </mapper>

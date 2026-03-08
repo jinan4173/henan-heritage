@@ -99,83 +99,205 @@ const activeMenu = computed(() => {
 <style scoped>
 /* 布局样式 */
 .admin-container {
-  display: flex;
   min-height: 100vh;
-  background: #f5f7fa;
+  display: flex;
+  background-color: var(--background-color);
 }
 
 /* 侧边导航栏 */
 .admin-sidebar {
-  width: 200px;
-  background: #1f2937;
+  width: 240px;
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
   color: #fff;
   flex-shrink: 0;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 2px 0 16px rgba(0, 0, 0, 0.2);
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-sidebar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=chinese%20traditional%20pattern%20background%20subtle&image_size=square') center/cover;
+  opacity: 0.05;
+  z-index: 1;
 }
 
 .sidebar-header {
-  padding: 20px;
-  border-bottom: 1px solid #374151;
+  padding: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  z-index: 2;
+  animation: fadeIn 0.5s ease;
 }
 
 .sidebar-logo {
-  font-size: 1.2rem;
-  font-weight: bold;
+  font-size: 1.3rem;
+  font-weight: 600;
   margin: 0;
   color: #fff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(45deg, #fff, rgba(255, 255, 255, 0.8));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .sidebar-nav {
-  padding: 20px 0;
+  padding: 24px 0;
+  position: relative;
+  z-index: 2;
 }
 
 .sidebar-menu {
   background: transparent !important;
   border-right: none !important;
+  border-radius: 8px;
+  border: none;
 }
 
 .sidebar-menu .el-menu-item {
-  margin: 0 10px;
-  color: #d1d5db;
-  /* 移除过渡效果 */
-  transition: none;
+  border-radius: 8px;
+  margin: 8px 12px;
+  height: 52px;
+  line-height: 52px;
+  color: rgba(255, 255, 255, 0.8);
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+  font-weight: 500;
+}
+
+.sidebar-menu .el-menu-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left var(--transition-slow);
+}
+
+.sidebar-menu .el-menu-item:hover::before {
+  left: 100%;
 }
 
 .sidebar-menu .el-menu-item:hover {
-  background-color: transparent !important;
-  color: currentColor !important;
-  transition: none !important;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: #fff !important;
+  transform: translateX(8px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .sidebar-menu .el-menu-item.is-active {
-  background-color: #3b82f6;
-  color: #fff;
-  /* 移除阴影效果 */
-  box-shadow: none;
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  color: #fff !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transform: translateX(8px);
+}
+
+.sidebar-menu .el-menu-item.is-active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 60%;
+  background: var(--secondary-color);
+  border-radius: 0 2px 2px 0;
 }
 
 .sidebar-menu .el-menu-item .el-icon {
-  margin-right: 12px;
+  margin-right: 16px;
+  font-size: 18px;
+  transition: all var(--transition-normal);
+}
+
+.sidebar-menu .el-menu-item:hover .el-icon {
+  transform: scale(1.1);
+  color: var(--secondary-color);
+}
+
+.sidebar-menu .el-menu-item.is-active .el-icon {
+  color: var(--secondary-color);
+  transform: scale(1.1);
 }
 
 /* 主内容区域 */
 .admin-main {
   flex: 1;
-  padding: 20px;
+  padding: 24px;
   overflow-y: auto;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
 }
 
 .main-content {
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  min-height: calc(100vh - 40px);
+  background-color: var(--card-background);
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  min-height: calc(100vh - 48px);
+  overflow: hidden;
+  animation: fadeInUp 0.8s ease;
+  border: 1px solid var(--border-color);
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* 响应式设计 */
+@media (max-width: 992px) {
+  .admin-sidebar {
+    width: 200px;
+  }
+  
+  .sidebar-logo {
+    font-size: 1.1rem;
+  }
+  
+  .sidebar-menu .el-menu-item {
+    font-size: 0.9rem;
+    height: 48px;
+    line-height: 48px;
+  }
+  
+  .sidebar-menu .el-menu-item .el-icon {
+    margin-right: 12px;
+    font-size: 16px;
+  }
+}
+
 @media (max-width: 768px) {
   .admin-sidebar {
-    width: 160px;
+    width: 180px;
+  }
+  
+  .sidebar-header {
+    padding: 20px;
   }
   
   .sidebar-logo {
@@ -183,7 +305,8 @@ const activeMenu = computed(() => {
   }
   
   .sidebar-menu .el-menu-item {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    margin: 6px 8px;
   }
   
   .sidebar-menu .el-menu-item .el-icon {
@@ -191,7 +314,28 @@ const activeMenu = computed(() => {
   }
   
   .admin-main {
-    padding: 10px;
+    padding: 16px;
+  }
+  
+  .main-content {
+    min-height: calc(100vh - 32px);
+    border-radius: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-sidebar {
+    width: 160px;
+  }
+  
+  .sidebar-menu .el-menu-item {
+    font-size: 0.8rem;
+    height: 44px;
+    line-height: 44px;
+  }
+  
+  .sidebar-menu .el-menu-item .el-icon {
+    font-size: 14px;
   }
 }
 </style>

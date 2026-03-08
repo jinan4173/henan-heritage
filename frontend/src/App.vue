@@ -37,36 +37,14 @@ export default {
 </script>
 
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
-  color: var(--text-color);
-  background-color: var(--background-color);
-}
-
 #app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: var(--background-color);
-  width: 100%;
-  margin: 0;
-  padding: 0;
 }
 
 .main-content {
   flex: 1;
-  background-color: var(--background-color);
-  width: 100%;
-  margin: 0;
-  padding: 0;
 }
 
 /* 所有页面的特殊样式 */

@@ -154,6 +154,23 @@ public class HeritageItemController {
     }
 
     /**
+     * 批量删除非遗项目
+     * @param ids 项目ID列表
+     * @return 删除结果
+     */
+    @DeleteMapping("/delete/batch")
+    public Result<String> deleteBatch(@RequestBody List<Long> ids) {
+        try {
+            for (Long id : ids) {
+                heritageItemService.delete(id);
+            }
+            return Result.success("批量删除成功");
+        } catch (Exception e) {
+            return Result.serverError(e.getMessage());
+        }
+    }
+
+    /**
      * 保存媒体资源
      * @param media 媒体资源信息
      * @return 保存结果

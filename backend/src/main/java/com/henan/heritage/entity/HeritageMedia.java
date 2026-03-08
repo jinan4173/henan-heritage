@@ -1,7 +1,7 @@
 package com.henan.heritage.entity;
 
 import lombok.Data;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
 public class HeritageMedia {
@@ -11,5 +11,5 @@ public class HeritageMedia {
     private String mediaUrl;
     private String source;
     private String description;
-    private Date createTime;
+    private LocalDateTime createTime;
 }

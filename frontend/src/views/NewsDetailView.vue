@@ -426,32 +426,45 @@ const goToLogin = () => {
 }
 
 .breadcrumb {
-  margin: 20px;
-  padding: 10px 0;
+  margin: 20px 20px 0;
+  padding: 12px 0;
+  font-size: 0.85rem;
+  background: var(--card-background);
+  padding: 12px 20px;
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+  animation: fadeIn 0.5s ease;
 }
 
 .news-detail {
-  background: #fff;
-  margin: 0 20px 40px;
+  background: var(--card-background);
+  margin: 20px;
   padding: 40px;
-  border-radius: 10px;
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-normal);
+  border: 1px solid var(--border-color);
+  animation: fadeInUp 0.8s ease;
 }
 
 .news-detail:hover {
-  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-4px);
 }
 
 .news-title {
   font-size: 2.2rem;
-  font-weight: bold;
+  font-weight: 600;
   color: var(--primary-color);
-  margin-bottom: 25px;
+  margin-bottom: 24px;
   text-align: center;
   position: relative;
   padding-bottom: 20px;
-  line-height: 1.3;
+  line-height: 1.2;
+  background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .news-title::after {
@@ -460,288 +473,375 @@ const goToLogin = () => {
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 100px;
-  height: 4px;
-  background-color: var(--accent-color);
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
   border-radius: 2px;
 }
 
 .news-meta {
   text-align: center;
-  margin-bottom: 35px;
-  color: #999;
-  font-size: 0.95rem;
+  margin-bottom: 32px;
+  color: var(--light-text);
+  font-size: 0.9rem;
   display: flex;
   justify-content: center;
   gap: 20px;
   flex-wrap: wrap;
+  padding: 16px;
+  background: rgba(0, 102, 204, 0.05);
+  border-radius: 8px;
 }
 
 .news-source {
   display: inline-block;
+  padding: 4px 12px;
+  background: var(--accent-color);
+  color: white;
+  border-radius: 12px;
+  font-size: 0.8rem;
 }
 
 .news-image {
-  margin-bottom: 40px;
+  margin-bottom: 32px;
   text-align: center;
   overflow: hidden;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-normal);
+  position: relative;
 }
 
 .news-image:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+  transform: scale(1.02);
+  box-shadow: var(--shadow-lg);
 }
 
 .news-image img {
   width: 100%;
   height: auto;
-  border-radius: 10px;
-  transition: transform 0.5s ease;
+  border-radius: 12px;
+  transition: transform var(--transition-slow);
 }
 
 .news-image:hover img {
-  transform: scale(1.02);
+  transform: scale(1.05);
 }
 
 .news-content {
   line-height: 1.8;
-  color: #333;
-  margin-bottom: 40px;
-  font-size: 1.05rem;
+  color: var(--text-color);
+  margin-bottom: 32px;
+  font-size: 1.1rem;
+  padding: 24px;
+  background: rgba(248, 245, 240, 0.8);
+  border-radius: 8px;
+  border-left: 4px solid var(--accent-color);
 }
 
 .news-content p {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
   text-align: justify;
+  animation: fadeIn 0.5s ease;
 }
 
 .news-content img {
   max-width: 100%;
   height: auto;
-  margin: 20px 0;
-  border-radius: 5px;
+  margin: 24px auto;
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  display: block;
+  transition: transform var(--transition-normal);
+}
+
+.news-content img:hover {
+  transform: scale(1.02);
+  box-shadow: var(--shadow-lg);
 }
 
 .empty-content {
   text-align: center;
   padding: 80px 0;
+  background: rgba(248, 245, 240, 0.8);
+  border-radius: 8px;
+  margin: 20px 0;
 }
 
 .news-actions {
   text-align: center;
-  margin-top: 40px;
-  margin-bottom: 30px;
-  padding-top: 20px;
-  border-top: 1px solid #eee;
+  margin-top: 32px;
+  margin-bottom: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .news-actions .el-button {
-  margin: 0 10px;
-  transition: all 0.3s ease;
+  transition: all var(--transition-normal);
+  border-radius: 20px;
+  padding: 8px 20px;
+  font-weight: 500;
 }
 
 .news-actions .el-button:hover {
-  transform: translateY(-2px);
-}
-
-
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .news-detail {
-    margin: 0 10px 20px;
-    padding: 20px;
-  }
-  
-  .news-title {
-    font-size: 1.8rem;
-    padding-bottom: 15px;
-  }
-  
-  .news-title::after {
-    width: 80px;
-    height: 3px;
-  }
-  
-  .news-meta {
-    gap: 10px;
-    font-size: 0.85rem;
-  }
-  
-  .news-image {
-    margin-bottom: 20px;
-  }
-  
-  .news-content {
-    font-size: 1rem;
-    line-height: 1.7;
-  }
-  
-  .share-buttons {
-    flex-direction: column;
-  }
-  
-  .share-buttons .el-button {
-    width: 100%;
-  }
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
 }
 
 /* 评论区样式 */
 .comments-section {
   margin-top: 40px;
-  padding-top: 40px;
-  border-top: 1px solid #eee;
+  padding-top: 32px;
+  border-top: 1px solid var(--border-color);
+  animation: fadeInUp 1s ease 0.3s both;
 }
 
 .section-title {
   font-size: 1.5rem;
-  font-weight: bold;
+  font-weight: 600;
   color: var(--primary-color);
-  margin-bottom: 20px;
-  padding-bottom: 10px;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
   border-bottom: 2px solid var(--accent-color);
+  position: relative;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background: var(--primary-color);
 }
 
 .comment-input-section {
-  margin-bottom: 30px;
+  margin-bottom: 32px;
+  background: rgba(248, 245, 240, 0.8);
+  padding: 24px;
+  border-radius: 12px;
+  transition: all var(--transition-normal);
+}
+
+.comment-input-section:hover {
+  box-shadow: var(--shadow-md);
 }
 
 .comment-actions {
   text-align: right;
-  margin-top: 10px;
+  margin-top: 16px;
+  border-top: none;
+  padding-top: 0;
+  margin-bottom: 0;
 }
 
 .login-prompt {
   text-align: center;
-  padding: 30px 0;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  margin-bottom: 30px;
+  padding: 40px 0;
+  background: rgba(248, 245, 240, 0.8);
+  border-radius: 12px;
+  margin-bottom: 32px;
+  transition: all var(--transition-normal);
+}
+
+.login-prompt:hover {
+  box-shadow: var(--shadow-md);
 }
 
 .comments-list {
-  margin-top: 30px;
+  margin-top: 32px;
 }
 
 .comment-item {
-  background-color: #f9f9f9;
-  padding: 20px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  transition: all 0.3s ease;
+  background: var(--card-background);
+  padding: 24px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  transition: all var(--transition-normal);
+  border: 1px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
+}
+
+.comment-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--primary-color), var(--accent-color));
 }
 
 .comment-item:hover {
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-4px);
+  border-color: var(--accent-color);
 }
 
 .comment-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .comment-author {
-  font-weight: bold;
-  color: var(--primary-color);
+  font-weight: 600;
+  color: var(--accent-color);
+  font-size: 1rem;
 }
 
 .comment-time {
-  color: #999;
-  font-size: 0.85rem;
+  color: var(--light-text);
+  font-size: 0.8rem;
+  background: rgba(0, 102, 204, 0.05);
+  padding: 2px 8px;
+  border-radius: 10px;
 }
 
 .comment-content {
   line-height: 1.6;
-  color: #333;
+  color: var(--text-color);
+  margin-top: 12px;
+  font-size: 1rem;
 }
 
 .empty-comments {
   text-align: center;
   padding: 60px 0;
+  background: rgba(248, 245, 240, 0.8);
+  border-radius: 12px;
+  margin: 20px 0;
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
   .news-detail {
-    margin: 0 10px 20px;
-    padding: 20px;
+    margin: 16px;
+    padding: 32px 20px;
   }
   
   .news-title {
     font-size: 1.8rem;
-    padding-bottom: 15px;
+    padding-bottom: 16px;
   }
   
   .news-title::after {
-    width: 80px;
-    height: 3px;
+    width: 60px;
+    height: 2px;
   }
   
   .news-meta {
-    gap: 10px;
+    gap: 12px;
     font-size: 0.85rem;
+    padding: 12px;
   }
   
   .news-image {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
   }
   
   .news-content {
     font-size: 1rem;
     line-height: 1.7;
+    padding: 16px;
   }
   
-  .share-buttons {
+  .news-actions {
     flex-direction: column;
+    align-items: center;
   }
   
-  .share-buttons .el-button {
-    width: 100%;
+  .news-actions .el-button {
+    width: 200px;
   }
   
   .comments-section {
-    margin-top: 30px;
-    padding-top: 30px;
+    margin-top: 32px;
+    padding-top: 24px;
   }
   
   .comment-item {
-    padding: 15px;
+    padding: 20px;
   }
   
   .comment-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 5px;
+    gap: 8px;
   }
 }
 
 @media (max-width: 480px) {
-  .news-title {
-    font-size: 1.5rem;
+  .breadcrumb {
+    margin: 12px;
+    padding: 10px 16px;
   }
   
   .news-detail {
-    padding: 15px;
+    margin: 12px;
+    padding: 24px 16px;
+  }
+  
+  .news-title {
+    font-size: 1.5rem;
+    padding-bottom: 12px;
+  }
+  
+  .news-meta {
+    gap: 8px;
+    font-size: 0.8rem;
+  }
+  
+  .news-content {
+    font-size: 0.95rem;
+    padding: 12px;
   }
   
   .news-actions .el-button {
-    display: block;
     width: 100%;
-    margin: 10px 0;
+    margin: 8px 0;
   }
   
   .comment-input-section {
-    margin-bottom: 20px;
+    padding: 16px;
+    margin-bottom: 24px;
   }
   
   .comment-item {
-    padding: 12px;
+    padding: 16px;
+  }
+  
+  .comments-section {
+    margin-top: 24px;
+    padding-top: 20px;
   }
 }
 </style>

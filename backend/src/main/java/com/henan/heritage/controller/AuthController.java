@@ -4,7 +4,10 @@ import com.henan.heritage.entity.User;
 import com.henan.heritage.service.UserService;
 import com.henan.heritage.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,38 +15,55 @@ import java.util.Map;
 @RequestMapping("/auth")
 public class AuthController {
 
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
     public Map<String, Object> login(@RequestBody Map<String, Object> loginData) {
         Map<String, Object> result = new HashMap<>();
         try {
-            System.out.println("登录请求开始，接收到的数据: " + loginData);
+            logger.info("登录请求开始，接收到的数据: {}", loginData);
             
             String username = (String) loginData.get("username");
             String password = (String) loginData.get("password");
             
-            System.out.println("用户名: " + username + ", 密码: " + password);
+            logger.info("用户登录: {}", username);
 
             // 验证用户名和密码
-            System.out.println("调用userService.getByUsername方法");
             User user = userService.getByUsername(username);
-            System.out.println("获取用户结果: " + user);
+            logger.info("获取用户结果: {}", user);
             
             if (user == null) {
                 result.put("success", false);
                 result.put("message", "用户不存在");
-                System.out.println("登录失败: 用户不存在");
+                logger.warn("登录失败: 用户不存在 - {}", username);
                 return result;
             }
 
-            // 简单的密码验证（实际项目中应该使用加密密码）
-            System.out.println("验证密码");
-            if (!password.equals(user.getPassword())) {
+            // 验证密码（支持明文密码）
+            boolean passwordMatch = false;
+            
+            // 检查密码是否是BCrypt格式
+            String userPassword = user.getPassword();
+            if (userPassword != null && userPassword.startsWith("$2a$")) {
+                // 使用密码加密器验证（适用于加密的密码）
+                passwordMatch = passwordEncoder.matches(password, userPassword);
+                logger.info("使用BCrypt密码验证: {}", passwordMatch);
+            } else {
+                // 直接比较明文（适用于未加密的密码）
+                passwordMatch = password.equals(userPassword);
+                logger.info("使用明文密码验证: {}", passwordMatch);
+            }
+            
+            if (!passwordMatch) {
                 result.put("success", false);
                 result.put("message", "密码错误");
-                System.out.println("登录失败: 密码错误");
+                logger.warn("登录失败: 密码错误 - {}", username);
                 return result;
             }
 
@@ -51,18 +71,16 @@ public class AuthController {
             user.setPassword(null);
 
             // 生成 token
-            System.out.println("生成JWT token");
             String token = JwtUtils.generateToken(username);
-            System.out.println("生成的token: " + token);
+            logger.info("登录成功，生成token: {}", token);
 
             result.put("success", true);
             result.put("user", user);
             result.put("token", token);
             result.put("message", "登录成功");
-            System.out.println("登录成功，返回结果: " + result);
+            logger.info("登录成功: {}", username);
         } catch (Exception e) {
-            System.out.println("登录异常: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("登录异常: {}", e.getMessage(), e);
             result.put("success", false);
             result.put("message", "登录失败: " + e.getMessage());
         }
@@ -75,7 +93,9 @@ public class AuthController {
         try {
             result.put("success", true);
             result.put("message", "认证测试成功");
+            logger.info("认证测试成功");
         } catch (Exception e) {
+            logger.error("认证测试异常: {}", e.getMessage(), e);
             result.put("success", false);
             result.put("message", "认证测试失败: " + e.getMessage());
         }
@@ -86,13 +106,13 @@ public class AuthController {
     public Map<String, Object> testPost(@RequestBody Map<String, Object> data) {
         Map<String, Object> result = new HashMap<>();
         try {
-            System.out.println("接收到POST请求数据: " + data);
+            logger.info("接收到POST请求数据: {}", data);
             result.put("success", true);
             result.put("message", "POST测试成功");
             result.put("data", data);
+            logger.info("POST测试成功");
         } catch (Exception e) {
-            System.out.println("POST测试异常: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("POST测试异常: {}", e.getMessage(), e);
             result.put("success", false);
             result.put("message", "POST测试失败: " + e.getMessage());
         }
@@ -103,46 +123,41 @@ public class AuthController {
     public Map<String, Object> register(@RequestBody Map<String, Object> registerData) {
         Map<String, Object> result = new HashMap<>();
         try {
-            System.out.println("注册请求开始，接收到的数据: " + registerData);
+            logger.info("注册请求开始，接收到的数据: {}", registerData);
             
             String username = (String) registerData.get("username");
             String password = (String) registerData.get("password");
             String email = (String) registerData.get("email");
             
-            System.out.println("用户名: " + username + ", 邮箱: " + email);
+            logger.info("用户注册: {}, {}", username, email);
 
             // 检查用户名是否已存在
-            System.out.println("检查用户名是否已存在");
             User existingUser = userService.getByUsername(username);
-            System.out.println("检查结果: " + existingUser);
+            logger.info("检查用户名是否已存在: {}", existingUser);
             
             if (existingUser != null) {
                 result.put("success", false);
                 result.put("message", "用户名已存在");
-                System.out.println("注册失败: 用户名已存在");
+                logger.warn("注册失败: 用户名已存在 - {}", username);
                 return result;
             }
 
             // 创建新用户
-            System.out.println("创建新用户");
             User newUser = new User();
             newUser.setUsername(username);
-            newUser.setPassword(password); // 实际项目中应该使用加密密码
+            newUser.setPassword(passwordEncoder.encode(password)); // 使用加密密码
             newUser.setEmail(email);
             newUser.setIsAdmin(0); // 默认为普通用户
             newUser.setStatus(1); // 1表示正常
 
             // 保存用户到数据库
-            System.out.println("保存用户到数据库");
             userService.save(newUser);
-            System.out.println("用户保存成功");
+            logger.info("用户注册成功: {}", username);
 
             result.put("success", true);
             result.put("message", "注册成功");
-            System.out.println("注册成功，返回结果: " + result);
         } catch (Exception e) {
-            System.out.println("注册异常: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("注册异常: {}", e.getMessage(), e);
             result.put("success", false);
             result.put("message", "注册失败: " + e.getMessage());
         }
