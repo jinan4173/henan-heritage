@@ -1,5 +1,6 @@
 package com.henan.heritage.controller;
 
+import com.henan.heritage.common.Result;
 import com.henan.heritage.entity.HeritageImage;
 import com.henan.heritage.service.HeritageImageService;
 import com.henan.heritage.utils.FileUploadUtils;
@@ -18,72 +19,39 @@ public class HeritageImageController {
     private HeritageImageService heritageImageService;
 
     @GetMapping("/list/{heritageId}")
-    public Map<String, Object> listByHeritageId(@PathVariable Long heritageId) {
-        Map<String, Object> result = new HashMap<>();
-        try {
-            List<HeritageImage> images = heritageImageService.listByHeritageId(heritageId);
-            result.put("success", true);
-            result.put("data", images);
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
-        }
-        return result;
+    public Result<List<HeritageImage>> listByHeritageId(@PathVariable Long heritageId) {
+        List<HeritageImage> images = heritageImageService.listByHeritageId(heritageId);
+        return Result.success(images);
     }
 
     @PostMapping("/upload")
-    public Map<String, Object> upload(@RequestParam MultipartFile file) {
-        Map<String, Object> result = new HashMap<>();
+    public Result<Map<String, String>> upload(@RequestParam MultipartFile file) {
         try {
             String filePath = FileUploadUtils.uploadFile(file);
-            result.put("success", true);
-            result.put("filePath", filePath);
+            Map<String, String> data = new HashMap<>();
+            data.put("filePath", filePath);
+            return Result.success(data);
         } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
+            e.printStackTrace();
+            return Result.serverError("文件上传失败: " + e.getMessage());
         }
-        return result;
     }
 
     @PostMapping("/save")
-    public Map<String, Object> save(@RequestBody HeritageImage image) {
-        Map<String, Object> result = new HashMap<>();
-        try {
-            heritageImageService.save(image);
-            result.put("success", true);
-            result.put("message", "保存成功");
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
-        }
-        return result;
+    public Result<String> save(@RequestBody HeritageImage image) {
+        heritageImageService.save(image);
+        return Result.success("保存成功");
     }
 
     @DeleteMapping("/delete/{id}")
-    public Map<String, Object> delete(@PathVariable Long id) {
-        Map<String, Object> result = new HashMap<>();
-        try {
-            heritageImageService.delete(id);
-            result.put("success", true);
-            result.put("message", "删除成功");
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
-        }
-        return result;
+    public Result<String> delete(@PathVariable Long id) {
+        heritageImageService.delete(id);
+        return Result.success("删除成功");
     }
 
     @DeleteMapping("/deleteByHeritageId/{heritageId}")
-    public Map<String, Object> deleteByHeritageId(@PathVariable Long heritageId) {
-        Map<String, Object> result = new HashMap<>();
-        try {
-            heritageImageService.deleteByHeritageId(heritageId);
-            result.put("success", true);
-            result.put("message", "删除成功");
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
-        }
-        return result;
+    public Result<String> deleteByHeritageId(@PathVariable Long heritageId) {
+        heritageImageService.deleteByHeritageId(heritageId);
+        return Result.success("删除成功");
     }
 }

@@ -31,11 +31,6 @@ export default defineConfig({
         changeOrigin: true,
         secure: false
       },
-      '/promotion': {
-        target: 'http://localhost:8083/api',
-        changeOrigin: true,
-        secure: false
-      },
       '/carousel': {
         target: 'http://localhost:8083/api',
         changeOrigin: true,
@@ -71,7 +66,7 @@ export default defineConfig({
         changeOrigin: true,
         secure: false
       },
-      '/user': {
+      '/user/': {
         target: 'http://localhost:8083/api',
         changeOrigin: true,
         secure: false

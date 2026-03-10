@@ -229,14 +229,28 @@ const checkFavoriteStatus = async () => {
   if (!id || !currentUser.value) return
   
   try {
+    // 先检查是否已收藏
     const response = await api.get('/favorite/check', {
       params: {
         userId: currentUser.value.id,
         mediaId: id
       }
     })
-    if (response.code === 200) {
+    if (response.success) {
       isFavorite.value = response.data
+      
+      // 如果已收藏，获取收藏ID
+      if (isFavorite.value) {
+        const favoritesResponse = await api.get('/favorite/listByUser', {
+          params: { userId: currentUser.value.id }
+        })
+        if (favoritesResponse.success) {
+          const favorite = favoritesResponse.data.find(fav => fav.mediaId === id)
+          if (favorite) {
+            favoriteId.value = favorite.id
+          }
+        }
+      }
     }
   } catch (error) {
     console.error('检查收藏状态失败:', error)
@@ -246,7 +260,7 @@ const checkFavoriteStatus = async () => {
 const formatDate = (dateString) => {
   if (!dateString) return ''
   const date = new Date(dateString)
-  return date.toLocaleDateString('zh-CN')
+  return date.toLocaleString('zh-CN')
 }
 
 const goBack = () => {
@@ -313,13 +327,21 @@ const toggleFavorite = async () => {
       ElMessage.success('取消收藏成功')
     } else {
       // 添加收藏
+      console.log('开始添加收藏，用户ID:', currentUser.value.id, '媒体ID:', id)
       const response = await api.post('/favorite/add', {
         userId: currentUser.value.id,
         mediaId: id
       })
-      if (response.code === 200) {
-        favoriteId.value = response.data
+      console.log('收藏 API 响应:', response)
+      if (response.success) {
+        console.log('收藏成功，返回数据:', response.data)
+        if (response.data) {
+          favoriteId.value = response.data
+        }
         ElMessage.success('收藏成功')
+      } else {
+        console.log('收藏失败，响应:', response)
+        ElMessage.error('收藏失败，请稍后重试')
       }
     }
     isFavorite.value = !isFavorite.value

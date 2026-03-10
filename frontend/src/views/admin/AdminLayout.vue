@@ -27,10 +27,6 @@
             <el-icon><UserFilled /></el-icon>
             <span>传承人管理</span>
           </el-menu-item>
-          <el-menu-item index="/admin/promotion">
-            <el-icon><Picture /></el-icon>
-            <span>非遗宣传管理</span>
-          </el-menu-item>
           <el-menu-item index="/admin/news">
             <el-icon><Document /></el-icon>
             <span>文化资讯管理</span>

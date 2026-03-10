@@ -1,5 +1,6 @@
 package com.henan.heritage.controller;
 
+import com.henan.heritage.common.Result;
 import com.henan.heritage.entity.Carousel;
 import com.henan.heritage.service.CarouselService;
 import org.springframework.web.bind.annotation.*;
@@ -22,9 +23,9 @@ public class CarouselController {
      * @return 轮播图列表
      */
     @GetMapping("/list")
-    public Map<String, Object> list() {
+    public Result<List<Carousel>> list() {
         List<Carousel> carouselList = carouselService.list();
-        return Map.of("success", true, "data", carouselList);
+        return Result.success(carouselList);
     }
     
     /**
@@ -32,9 +33,9 @@ public class CarouselController {
      * @return 启用的轮播图列表
      */
     @GetMapping("/enabled-list")
-    public Map<String, Object> getEnabledList() {
+    public Result<List<Carousel>> getEnabledList() {
         List<Carousel> enabledList = carouselService.getEnabledList();
-        return Map.of("success", true, "data", enabledList);
+        return Result.success(enabledList);
     }
     
     /**
@@ -43,9 +44,9 @@ public class CarouselController {
      * @return 轮播图对象
      */
     @GetMapping("/get/{id}")
-    public Map<String, Object> getById(@PathVariable Long id) {
+    public Result<Carousel> getById(@PathVariable Long id) {
         Carousel carousel = carouselService.getById(id);
-        return Map.of("success", true, "data", carousel);
+        return Result.success(carousel);
     }
     
     /**
@@ -54,9 +55,9 @@ public class CarouselController {
      * @return 是否添加成功
      */
     @PostMapping("/add")
-    public Map<String, Object> add(@RequestBody Carousel carousel) {
+    public Result<Boolean> add(@RequestBody Carousel carousel) {
         boolean success = carouselService.add(carousel);
-        return Map.of("success", success);
+        return success ? Result.success(Boolean.TRUE) : Result.error(500, "添加轮播图失败");
     }
     
     /**
@@ -65,9 +66,9 @@ public class CarouselController {
      * @return 是否更新成功
      */
     @PutMapping("/update")
-    public Map<String, Object> update(@RequestBody Carousel carousel) {
+    public Result<Boolean> update(@RequestBody Carousel carousel) {
         boolean success = carouselService.update(carousel);
-        return Map.of("success", success);
+        return success ? Result.success(Boolean.TRUE) : Result.error(500, "更新轮播图失败");
     }
     
     /**
@@ -76,8 +77,8 @@ public class CarouselController {
      * @return 是否删除成功
      */
     @DeleteMapping("/delete/{id}")
-    public Map<String, Object> delete(@PathVariable Long id) {
+    public Result<Boolean> delete(@PathVariable Long id) {
         boolean success = carouselService.delete(id);
-        return Map.of("success", success);
+        return success ? Result.success(Boolean.TRUE) : Result.error(500, "删除轮播图失败");
     }
 }

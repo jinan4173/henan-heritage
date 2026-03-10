@@ -1,47 +1,49 @@
 <template>
   <div class="news-section">
     <h2>最新动态</h2>
-    
+
     <div class="news-list">
-      <div 
-        v-for="news in newsList" 
+      <el-card
+        v-for="(news, index) in newsList"
         :key="news.id"
-        class="news-item"
+        class="news-card"
+        :class="index % 2 === 0 ? 'left-image' : 'right-image'"
         @click="goToNewsDetail(news.id)"
       >
-        <div class="news-image">
-          <img :src="news.coverImage || getDefaultNewsCover(news)" :alt="news.title" />
-        </div>
-        <div class="news-content">
-          <div class="news-header">
-            <h3>{{ news.title }}</h3>
-            <span :class="['news-tag', news.type === 2 ? 'activity-tag' : news.type === 3 ? 'announcement-tag' : 'news-tag']">
-              {{ news.type === 1 ? '资讯' : news.type === 2 ? '活动' : '公告' }}
-            </span>
+        <div class="news-card-wrapper">
+          <div class="news-image" v-if="news.coverImage || getDefaultNewsCover(news)">
+            <img :src="news.coverImage || getDefaultNewsCover(news)" :alt="news.title" />
           </div>
-          <p class="news-description">{{ getNewsDescription(news) }}</p>
-          <div class="news-meta">
-            <span class="news-date">{{ formatDate(news.createTime).full }}</span>
-            <el-button 
-              v-if="news.type === 2" 
-              type="primary" 
-              size="small" 
-              class="register-button"
-              @click.stop="showRegisterDialog(news)"
-            >
-              立即报名
-            </el-button>
+          <div class="news-text-content">
+            <div class="news-header">
+              <span class="news-title">{{ news.title }}</span>
+              <span :class="['news-tag', news.type === 2 ? 'activity-tag' : news.type === 3 ? 'announcement-tag' : 'news-tag']">
+                {{ news.type === 1 ? '资讯' : news.type === 2 ? '活动' : '公告' }}
+              </span>
+            </div>
+            <div class="news-description" v-html="getNewsDescription(news)"></div>
+            <div class="news-footer">
+              <span class="news-date">{{ formatDate(news.createTime).full }}</span>
+              <el-button 
+                v-if="news.type === 2" 
+                type="success" 
+                size="small"
+                @click.stop="showRegisterDialog(news)"
+              >
+                立即报名
+              </el-button>
+            </div>
           </div>
         </div>
-      </div>
+      </el-card>
     </div>
-    
+
     <div class="news-more">
       <el-button type="primary" @click="goToNewsList">查看更多</el-button>
     </div>
     
     <!-- 报名弹窗 -->
-    <el-dialog
+      <el-dialog
       v-model="registerDialogVisible"
       title="活动报名"
       width="500px"
@@ -175,10 +177,10 @@ const getNewsDescription = (news) => {
   if (news.summary) {
     return news.summary
   } else if (news.content) {
-    // 移除HTML标签，只保留纯文本
+    // 保留基础富文本排版，首页只截断长度
     const plainText = news.content.replace(/<[^>]*>/g, '')
-    // 截断内容，最多显示100个字符
-    return plainText.length > 100 ? plainText.substring(0, 100) + '...' : plainText
+    const shortText = plainText.length > 120 ? plainText.substring(0, 120) + '...' : plainText
+    return shortText
   } else {
     return '暂无内容'
   }
@@ -269,73 +271,70 @@ const submitRegister = async () => {
 }
 
 .news-list {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
   margin-bottom: 40px;
 }
 
-.news-item {
-  display: flex;
-  gap: 20px;
-  padding: 24px;
-  background: #f9f9f9;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  cursor: pointer;
+.news-card {
+  margin-bottom: 20px;
+  border-radius: 0;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
-  align-items: flex-start;
+  min-height: 240px;
+  display: flex;
+  flex-direction: column;
 }
 
-.news-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-  background: white;
+.news-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+.news-card-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 15px;
+  flex: 1;
 }
 
 .news-image {
-  width: 220px;
-  height: 140px;
-  border-radius: 8px;
+  flex: 0 0 300px;
   overflow: hidden;
-  flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .news-image img {
   width: 100%;
-  height: 100%;
+  height: 200px;
   object-fit: cover;
-  transition: transform 0.8s ease;
+  transition: transform 0.5s ease;
 }
 
-.news-item:hover .news-image img {
-  transform: scale(1.1);
+.news-card:hover .news-image img {
+  transform: scale(1.05);
 }
 
-.news-content {
+.news-text-content {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  padding-left: 20px;
+  min-height: 0;
 }
 
 .news-header {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: flex-start;
-  gap: 15px;
-  flex-wrap: wrap;
+  margin-bottom: 10px;
 }
 
-.news-header h3 {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: var(--primary-color);
+.news-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5px;
   line-height: 1.4;
-  flex: 1;
-  margin: 0;
-  min-width: 200px;
 }
 
 .news-tag {
@@ -363,12 +362,14 @@ const submitRegister = async () => {
 }
 
 .news-description {
-  font-size: 0.95rem;
-  color: var(--light-text);
-  line-height: 1.6;
   margin: 0;
+  line-height: 1.6;
+  color: #666;
+  flex: 1;
+  margin-bottom: 15px;
+  min-height: 60px;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -462,16 +463,44 @@ const submitRegister = async () => {
   box-shadow: 0 4px 12px rgba(229, 62, 62, 0.3);
 }
 
+/* 左右图片布局 */
+.left-image .news-card-wrapper .news-image {
+  margin-right: 20px;
+}
+
+.right-image .news-card-wrapper {
+  flex-direction: row-reverse;
+}
+
+.right-image .news-card-wrapper .news-image {
+  margin-left: 20px;
+  margin-right: 0;
+}
+
 /* 响应式设计 */
 @media (max-width: 992px) {
-  .news-item {
+  .news-card-wrapper {
     flex-direction: column;
-    align-items: stretch;
   }
   
   .news-image {
+    flex: 0 0 auto;
+    margin-right: 0;
+    margin-bottom: 15px;
+  }
+  
+  .news-image img {
     width: 100%;
     height: 200px;
+    object-fit: cover;
+  }
+  
+  .news-text-content {
+    padding-left: 0;
+  }
+  
+  .news-card {
+    min-height: 320px;
   }
 }
 
@@ -483,27 +512,39 @@ const submitRegister = async () => {
   .news-section h2 {
     font-size: 1.8rem;
   }
+  
+  .news-image img {
+    height: 180px;
+  }
+  
+  .news-card {
+    min-height: 300px;
+  }
 }
 
 @media (max-width: 576px) {
-  .news-content h3 {
-    font-size: 1.1rem;
-  }
-  
-  .news-description {
-    font-size: 0.85rem;
-  }
-  
   .news-section {
     padding: 16px;
   }
   
-  .news-item {
-    padding: 16px;
+  .news-card-wrapper {
+    padding: 12px;
   }
   
-  .news-image {
-    height: 160px;
+  .news-image img {
+    height: 150px;
+  }
+  
+  .news-card {
+    min-height: 280px;
+  }
+  
+  .news-title {
+    font-size: 1rem;
+  }
+  
+  .news-description {
+    min-height: 50px;
   }
 }
 </style>

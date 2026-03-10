@@ -9,16 +9,15 @@ const NewsDetailView = () => import('../views/NewsDetailView.vue')
 const ActivityView = () => import('../views/ActivityView.vue')
 const NewsView = () => import('../views/NewsView.vue')
 const NoticeView = () => import('../views/NoticeView.vue')
-const NewPromotionView = () => import('../views/NewPromotionView.vue')
 const MediaDetailView = () => import('../views/MediaDetailView.vue')
 const LoginView = () => import('../views/LoginView.vue')
 const RegisterView = () => import('../views/RegisterView.vue')
 const UserView = () => import('../views/UserView.vue')
+const SearchView = () => import('../views/SearchView.vue')
 const AdminLayout = () => import('../views/admin/AdminLayout.vue')
 const AdminHomeView = () => import('../views/admin/AdminHomeView.vue')
 const AdminHeritageView = () => import('../views/admin/AdminHeritageView.vue')
 const AdminInheritorView = () => import('../views/admin/AdminInheritorView.vue')
-const AdminPromotionView = () => import('../views/admin/AdminPromotionView.vue')
 const AdminContentManageView = () => import('../views/admin/AdminContentManageView.vue')
 const AdminActivityView = () => import('../views/admin/AdminActivityView.vue')
 const AdminNoticeView = () => import('../views/admin/AdminNoticeView.vue')
@@ -111,13 +110,6 @@ const router = createRouter({
       component: NewsDetailView,
       meta: { title: '公告详情' }
     },
-    // 宣传相关路由
-    {
-      path: '/promotion',
-      name: 'promotion',
-      component: NewPromotionView,
-      meta: { title: '非遗宣传' }
-    },
     // 媒体详情路由
     {
       path: '/media/:type/:index',
@@ -144,6 +136,12 @@ const router = createRouter({
       component: UserView,
       meta: { title: '个人中心' }
     },
+    {
+      path: '/search',
+      name: 'search',
+      component: SearchView,
+      meta: { title: '搜索结果' }
+    },
     // 后台路由
     {
       path: '/admin',
@@ -168,12 +166,6 @@ const router = createRouter({
           name: 'adminInheritor',
           component: AdminInheritorView,
           meta: { title: '传承人管理' }
-        },
-        {
-          path: 'promotion',
-          name: 'adminPromotion',
-          component: AdminPromotionView,
-          meta: { title: '非遗宣传管理' }
         },
         {
           path: 'news',

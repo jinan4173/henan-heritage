@@ -108,43 +108,10 @@ export const imageApi = {
   }
 }
 
-// 宣传API
-export const promotionApi = {
-  // 获取宣传列表
-  list: (page = 1, limit = 10, keyword = '') => {
-    return api.get('/promotion/list', { params: { page, limit, keyword } })
-  },
-  // 获取宣传总数
-  count: () => {
-    return api.get('/promotion/count')
-  },
-  // 根据ID获取宣传
-  getById: (id) => {
-    return api.get(`/promotion/get/${id}`)
-  },
-  // 保存宣传
-  save: (data) => {
-    return api.post('/promotion/save', data)
-  },
-  // 更新宣传
-  update: (data) => {
-    return api.put('/promotion/update', data)
-  },
-  // 删除宣传
-  delete: (id) => {
-    return api.delete(`/promotion/delete/${id}`)
-  },
-  // 批量删除宣传
-  deleteBatch: (ids) => {
-    return api.delete('/promotion/delete/batch', { data: { ids } })
-  }
-}
-
 // 导出所有API
 export default {
   heritage: heritageApi,
   inheritor: inheritorApi,
   auth: authApi,
-  image: imageApi,
-  promotion: promotionApi
+  image: imageApi
 }

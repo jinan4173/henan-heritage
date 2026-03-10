@@ -104,52 +104,56 @@ const mediaIndex = ref(0)
 const mediaItem = ref(null)
 const loading = ref(true)
 const isFavorite = ref(false)
+const favoriteId = ref(null)
 const newComment = ref('')
 const comments = ref([])
-const userId = ref(1) // 模拟用户ID，实际应从登录状态获取
+const currentUser = ref(null)
 
-// 宣传媒体数据
-const promotionMedia = ref([])
-
-// 从后端获取宣传媒体数据
-const loadPromotionMedia = async () => {
+onMounted(async () => {
   try {
-    const response = await api.get('/promotion/list', {
-      params: { page: 1, limit: 10 }
-    })
-    if (response && response.code === 200) {
-      promotionMedia.value = response.data || []
+    const storedUser = localStorage.getItem('user')
+    if (storedUser) {
+      currentUser.value = JSON.parse(storedUser)
     }
-  } catch (error) {
-    console.error('加载宣传媒体数据失败:', error)
+  } catch (e) {
+    console.error('读取用户信息失败:', e)
   }
-}
-
-onMounted(() => {
-  loadMediaDetail()
-  loadComments()
-  checkFavoriteStatus()
+  await loadMediaDetail()
+  await loadComments()
+  await checkFavoriteStatus()
 })
 
 const loadMediaDetail = async () => {
   loading.value = true
   try {
-    // 先加载宣传媒体数据
-    await loadPromotionMedia()
-    
-    const { type, index } = route.params
-    mediaType.value = type
-    mediaIndex.value = parseInt(index)
-    
-    // 从后端数据中获取媒体信息
-    if (promotionMedia.value.length > mediaIndex.value) {
-      const media = promotionMedia.value[mediaIndex.value]
-      mediaItem.value = {
-        id: media.id,
-        url: media.cover_image,
-        title: media.title,
-        description: media.content,
-        videoUrl: media.link_url
+    const mediaIdFromQuery = route.query.mediaId
+
+    if (mediaIdFromQuery) {
+      // 通过媒体ID直接获取媒体详情（用于个人中心收藏跳转）
+      // 尝试从不同的媒体类型中获取信息
+      const mediaTypes = [
+        { url: `/culture-news/get/${mediaIdFromQuery}`, type: 'news' },
+        { url: `/activity/get/${mediaIdFromQuery}`, type: 'activity' }
+      ]
+      
+      for (const item of mediaTypes) {
+        try {
+          const res = await api.get(item.url)
+          if (res.code === 200 && res.data) {
+            const media = res.data
+            mediaItem.value = {
+              id: media.id,
+              url: media.coverImage || media.cover_image,
+              title: media.title,
+              description: media.content,
+              videoUrl: media.videoUrl || media.link_url
+            }
+            mediaType.value = mediaItem.value.videoUrl ? 'video' : 'image'
+            break
+          }
+        } catch (error) {
+          // 忽略错误，尝试下一个类型
+        }
       }
     }
   } catch (error) {
@@ -161,6 +165,10 @@ const loadMediaDetail = async () => {
 
 const loadComments = async () => {
   try {
+    if (!mediaItem.value || !mediaItem.value.id) {
+      comments.value = []
+      return
+    }
     // 从后端获取评论
     const response = await api.get('/comment/listByMedia', {
       params: { mediaId: mediaItem.value.id }
@@ -184,10 +192,14 @@ const loadComments = async () => {
 
 const checkFavoriteStatus = async () => {
   try {
+    if (!currentUser.value || !mediaItem.value || !mediaItem.value.id) {
+      isFavorite.value = false
+      return
+    }
     // 从后端检查收藏状态
     const response = await api.get('/favorite/check', {
       params: {
-        userId: userId.value,
+        userId: currentUser.value.id,
         mediaId: mediaItem.value.id
       }
     })
@@ -200,7 +212,7 @@ const checkFavoriteStatus = async () => {
 }
 
 const goBack = () => {
-  router.push('/promotion')
+  router.push('/')
 }
 
 const handleShare = () => {
@@ -218,17 +230,23 @@ const handleShare = () => {
 
 const handleFavorite = async () => {
   try {
+    if (!currentUser.value) {
+      ElMessage.warning('请先登录')
+      router.push('/login')
+      return
+    }
     if (isFavorite.value) {
       // 取消收藏
-      await api.delete(`/favorite/delete/${mediaItem.value.id}`)
+      await api.delete(`/favorite/delete/${favoriteId.value}`)
       ElMessage.success('取消收藏成功')
     } else {
       // 添加收藏
       const response = await api.post('/favorite/add', {
-        userId: userId.value,
+        userId: currentUser.value.id,
         mediaId: mediaItem.value.id
       })
       if (response.code === 200) {
+        favoriteId.value = response.data
         ElMessage.success('收藏成功')
       } else {
         ElMessage.error('收藏失败')
@@ -246,11 +264,16 @@ const submitComment = async () => {
     ElMessage.warning('请输入评论内容')
     return
   }
+  if (!currentUser.value) {
+    ElMessage.warning('请先登录')
+    router.push('/login')
+    return
+  }
   
   try {
     // 实际提交评论到后端
     const response = await api.post('/comment/add', {
-      userId: userId.value,
+      userId: currentUser.value.id,
       mediaId: mediaItem.value.id,
       content: newComment.value,
       status: 1

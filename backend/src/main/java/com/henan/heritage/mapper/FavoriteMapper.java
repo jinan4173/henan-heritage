@@ -3,6 +3,7 @@ package com.henan.heritage.mapper;
 import com.henan.heritage.entity.HeritageFavorite;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
 import java.util.List;
 
@@ -20,6 +21,7 @@ public interface FavoriteMapper {
     HeritageFavorite selectByUserAndMedia(Long userId, Long mediaId);
 
     @Insert("INSERT INTO heritage_favorite (user_id, heritage_id, media_id, create_time) VALUES (#{userId}, #{heritageId}, #{mediaId}, NOW())")
+    @Options(useGeneratedKeys = true, keyProperty = "id")
     void insert(HeritageFavorite favorite);
 
     @Delete("DELETE FROM heritage_favorite WHERE id = #{id}")

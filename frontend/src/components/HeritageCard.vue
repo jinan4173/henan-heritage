@@ -41,6 +41,9 @@ export default {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  min-height: 400px;
 }
 
 .heritage-card:hover {
@@ -66,6 +69,10 @@ export default {
 
 .card-content {
   padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .card-title {
@@ -104,6 +111,8 @@ export default {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  flex: 1;
+  min-height: 60px;
 }
 
 .card-actions {

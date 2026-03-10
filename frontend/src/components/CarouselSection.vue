@@ -1,6 +1,6 @@
 <template>
   <div class="carousel-section">
-    <el-carousel :interval="5000" height="500px" indicator-position="outside" :autoplay="true">
+    <el-carousel :interval="5000" :height="carouselHeight" indicator-position="outside" :autoplay="true">
       <el-carousel-item v-for="item in carouselList" :key="item.id">
         <div class="carousel-item">
           <img :src="item.imageUrl" :alt="item.title" class="carousel-image">
@@ -14,7 +14,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed, onUnmounted } from 'vue'
 import api from '../api/index.js'
 
 const carouselList = ref([
@@ -47,6 +47,35 @@ const carouselList = ref([
     status: 1
   }
 ])
+
+// 计算轮播图高度
+const carouselHeight = computed(() => {
+  const width = window.innerWidth
+  if (width <= 576) {
+    return '250px'
+  } else if (width <= 768) {
+    return '300px'
+  } else if (width <= 1200) {
+    return '350px'
+  } else {
+    return '400px'
+  }
+})
+
+// 监听窗口大小变化
+const handleResize = () => {
+  // 触发计算属性重新计算
+  carouselHeight.value
+}
+
+onMounted(() => {
+  loadCarouselData()
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
 
 // 加载轮播图数据
 const loadCarouselData = async () => {
@@ -88,7 +117,6 @@ onMounted(() => {
 
 .carousel-item {
   position: relative;
-  height: 500px;
   cursor: pointer;
   overflow: hidden;
   display: flex;
@@ -96,6 +124,8 @@ onMounted(() => {
   align-items: center;
   background-color: #f0f0f0;
   transition: all var(--transition-normal);
+  width: 100%;
+  height: 100%;
 }
 
 .carousel-item::before {
@@ -223,13 +253,13 @@ onMounted(() => {
 /* 响应式设计 */
 @media (max-width: 1200px) {
   .carousel-item {
-    height: 450px;
+    height: 350px;
   }
 }
 
 @media (max-width: 768px) {
   .carousel-item {
-    height: 350px;
+    height: 300px;
   }
   
   .carousel-caption {
@@ -243,7 +273,7 @@ onMounted(() => {
 
 @media (max-width: 576px) {
   .carousel-item {
-    height: 280px;
+    height: 250px;
   }
   
   .carousel-caption {

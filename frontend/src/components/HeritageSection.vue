@@ -99,6 +99,10 @@ onMounted(() => {
   .heritage-list {
     grid-template-columns: repeat(2, 1fr);
   }
+  
+  .hot-heritage {
+    padding: 30px 0;
+  }
 }
 
 @media (max-width: 768px) {
@@ -109,6 +113,24 @@ onMounted(() => {
   
   .hot-heritage h2 {
     font-size: 1.8rem;
+  }
+  
+  .hot-heritage {
+    padding: 24px 0;
+  }
+}
+
+@media (max-width: 576px) {
+  .heritage-list {
+    gap: 16px;
+  }
+  
+  .hot-heritage h2 {
+    font-size: 1.6rem;
+  }
+  
+  .hot-heritage {
+    padding: 20px 0;
   }
 }
 </style>

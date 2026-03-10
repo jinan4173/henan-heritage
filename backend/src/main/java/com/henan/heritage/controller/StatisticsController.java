@@ -19,23 +19,13 @@ public class StatisticsController {
 
     @GetMapping("/city")
     public Result<List<Map<String, Object>>> cityStatistics() {
-        try {
-            List<Map<String, Object>> statistics = heritageItemService.getCityStatistics();
-            return Result.success(statistics);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Result.serverError("获取地市统计数据失败: " + e.getMessage());
-        }
+        List<Map<String, Object>> statistics = heritageItemService.getCityStatistics();
+        return Result.success(statistics);
     }
 
     @GetMapping("/category")
     public Result<List<Map<String, Object>>> categoryStatistics() {
-        try {
-            List<Map<String, Object>> statistics = heritageItemService.getCategoryStatistics();
-            return Result.success(statistics);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Result.serverError("获取分类统计数据失败: " + e.getMessage());
-        }
+        List<Map<String, Object>> statistics = heritageItemService.getCategoryStatistics();
+        return Result.success(statistics);
     }
 }

@@ -152,7 +152,9 @@
             <el-icon><Share /></el-icon> 分享
           </el-button>
           <el-button type="success" @click="handleFavorite">
-            <el-icon><Star /></el-icon> 收藏
+            <el-icon v-if="isFavorite"><StarFilled /></el-icon>
+            <el-icon v-else><Star /></el-icon>
+            {{ isFavorite ? '已收藏' : '收藏' }}
           </el-button>
         </div>
       </div>
@@ -186,6 +188,7 @@ import {
   UserFilled,
   Share,
   Star,
+  StarFilled,
   Timer,
   List,
   Key,
@@ -197,6 +200,9 @@ const route = useRoute()
 const heritageItem = ref(null)
 const relatedInheritors = ref([])
 const loading = ref(true)
+const isFavorite = ref(false)
+const favoriteId = ref(null)
+const currentUser = ref(JSON.parse(localStorage.getItem('user')))
 
 // 计算属性：从 mediaList 中过滤出图片
 const images = computed(() => {
@@ -308,30 +314,19 @@ const loadData = async () => {
         }
       } else {
         console.log('传承人API调用失败:', inheritorRes?.message)
-        // 使用默认传承人数据
-        relatedInheritors.value = [
-          { id: 1, name: '传承人1' },
-          { id: 2, name: '传承人2' },
-          { id: 3, name: '传承人3' },
-          { id: 4, name: '传承人4' }
-        ]
+        relatedInheritors.value = []
       }
     } catch (error) {
       console.error('传承人API调用异常:', error)
-      // 使用默认传承人数据
-      relatedInheritors.value = [
-        { id: 1, name: '传承人1' },
-        { id: 2, name: '传承人2' },
-        { id: 3, name: '传承人3' },
-        { id: 4, name: '传承人4' }
-      ]
-      console.log('使用默认传承人数据:', relatedInheritors.value)
+      relatedInheritors.value = []
     }
   } catch (error) {
     console.error('加载详情失败:', error)
   } finally {
-    loading.value = false
-  }
+        loading.value = false
+        // 检查收藏状态
+        checkFavoriteStatus()
+      }
 }
 
 const formatDate = (date) => {
@@ -364,8 +359,59 @@ const handleShare = () => {
   }
 }
 
-const handleFavorite = () => {
-  ElMessage.success('收藏成功')
+// 检查收藏状态
+const checkFavoriteStatus = async () => {
+  const id = route.params.id
+  if (!id || !currentUser.value) return
+  
+  try {
+    const response = await api.get('/favorite/check', {
+      params: {
+        userId: currentUser.value.id,
+        heritageId: id
+      }
+    })
+    if (response.code === 200) {
+      isFavorite.value = response.data
+    }
+  } catch (error) {
+    console.error('检查收藏状态失败:', error)
+  }
+}
+
+const handleFavorite = async () => {
+  if (!currentUser.value) {
+    ElMessage.warning('请先登录')
+    router.push('/login')
+    return
+  }
+  
+  const id = route.params.id
+  if (!id) return
+  
+  try {
+    if (isFavorite.value) {
+      // 取消收藏
+      await api.delete(`/favorite/delete/${favoriteId.value}`)
+      ElMessage.success('取消收藏成功')
+    } else {
+      // 添加收藏
+      const response = await api.post('/favorite/add', {
+        userId: currentUser.value.id,
+        heritageId: id
+      })
+      if (response.success) {
+        if (response.data) {
+          favoriteId.value = response.data
+        }
+        ElMessage.success('收藏成功')
+      }
+    }
+    isFavorite.value = !isFavorite.value
+  } catch (error) {
+    console.error('收藏操作失败:', error)
+    ElMessage.error('操作失败，请重试')
+  }
 }
 
 // 检查是否是第三方视频平台链接

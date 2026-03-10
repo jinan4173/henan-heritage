@@ -13,7 +13,7 @@
           </template>
           <div class="login-prompt">
             <el-empty description="请先登录" />
-            <p class="prompt-text">登录后可以查看个人信息、浏览历史和收藏的非遗项目</p>
+            <p class="prompt-text">登录后可以查看个人信息和收藏的非遗项目</p>
             <div class="login-buttons">
               <el-button type="primary" @click="$router.push('/login')">立即登录</el-button>
             </div>
@@ -47,20 +47,7 @@
           </div>
         </el-card>
         
-        <el-card class="user-card">
-          <template #header>
-            <div class="card-header">
-              <span>浏览历史</span>
-            </div>
-          </template>
-          <div class="history-list">
-            <el-empty v-if="historyList.length === 0" description="暂无浏览历史" />
-            <div v-else v-for="item in historyList" :key="item.id" class="history-item">
-              <span class="history-title">{{ item.title }}</span>
-              <span class="history-date">{{ item.date }}</span>
-            </div>
-          </div>
-        </el-card>
+
         
         <el-card class="user-card">
           <template #header>
@@ -71,8 +58,13 @@
           <div class="favorites-list">
             <el-empty v-if="favoritesList.length === 0" description="暂无收藏项目" />
             <div v-else v-for="item in favoritesList" :key="item.id" class="favorite-item">
-              <span class="favorite-title">{{ item.title }}</span>
-              <span class="favorite-category">{{ item.category }}</span>
+              <span class="favorite-title" @click="viewFavorite(item)">{{ item.title }}</span>
+              <div class="favorite-actions">
+                <span class="favorite-category">{{ item.category }}</span>
+                <el-button type="text" size="small" @click.stop="removeFavorite(item.id)" style="color: #f56c6c;">
+                  取消收藏
+                </el-button>
+              </div>
             </div>
           </div>
         </el-card>
@@ -88,8 +80,15 @@
             <div v-else v-for="comment in commentsList" :key="comment.id" class="comment-item">
               <div class="comment-content">
                 <div class="comment-header">
-                  <span class="comment-title">{{ comment.title }}</span>
-                  <span class="comment-time">{{ comment.time }}</span>
+                  <span class="comment-title">
+                    {{ comment.username }} 对「{{ comment.title }}」的评价
+                  </span>
+                  <div class="comment-actions">
+                    <span class="comment-time">{{ comment.time }}</span>
+                    <el-button type="text" size="small" @click="removeComment(comment.id)" style="color: #f56c6c;">
+                      删除
+                    </el-button>
+                  </div>
                 </div>
                 <p class="comment-text">{{ comment.content }}</p>
               </div>
@@ -123,6 +122,8 @@
 </template>
 
 <script>
+import api from '../api/index'
+
 export default {
   name: 'UserView',
   data() {
@@ -132,54 +133,8 @@ export default {
         email: '',
         loginTime: ''
       },
-      historyList: [
-        {
-          id: 1,
-          title: '豫剧',
-          date: '2024-01-29 10:00'
-        },
-        {
-          id: 2,
-          title: '少林功夫',
-          date: '2024-01-29 09:30'
-        }
-      ],
-      favoritesList: [
-        {
-          id: 1,
-          title: '豫剧',
-          category: '传统戏剧'
-        },
-        {
-          id: 2,
-          title: '少林功夫',
-          category: '传统体育'
-        },
-        {
-          id: 3,
-          title: '非遗技艺展示',
-          category: '媒体收藏'
-        },
-        {
-          id: 4,
-          title: '河南非遗传承之路',
-          category: '媒体收藏'
-        }
-      ],
-      commentsList: [
-        {
-          id: 1,
-          title: '非遗技艺展示',
-          content: '这张图片展示的非遗技艺非常精彩，希望能看到更多这样的内容！',
-          time: '2026-03-01 10:00'
-        },
-        {
-          id: 2,
-          title: '河南非遗传承之路',
-          content: '视频拍得很专业，让我对非遗有了更深入的了解。',
-          time: '2026-03-02 14:30'
-        }
-      ],
+      favoritesList: [],
+      commentsList: [],
       dialogVisible: false,
       editForm: {
         username: '',
@@ -195,6 +150,10 @@ export default {
   },
   mounted() {
     this.loadUserInfo();
+    if (this.isLoggedIn) {
+      this.loadFavorites();
+      this.loadComments();
+    }
   },
   methods: {
     loadUserInfo() {
@@ -249,10 +208,182 @@ export default {
           this.$message.error('保存失败，请重试');
         }
       }
+    },
+    async loadFavorites() {
+      const userStr = localStorage.getItem('user');
+      if (!userStr) return;
+      
+      try {
+        const user = JSON.parse(userStr);
+        const response = await api.get('/favorite/listByUser', {
+          params: { userId: user.id }
+        });
+        
+        if (response.success) {
+          this.favoritesList = await this.processFavorites(response.data);
+        }
+      } catch (error) {
+        console.error('获取收藏列表失败:', error);
+        this.$message.error('获取收藏列表失败，请重试');
+      }
+    },
+    async processFavorites(favorites) {
+      const processedFavorites = [];
+      
+      for (const favorite of favorites) {
+        let title = '未知';
+        let category = '其他';
+        
+        if (favorite.heritageId) {
+          // 非遗项目收藏
+          try {
+            const heritageResponse = await api.get(`/heritage/get/${favorite.heritageId}`);
+            if (heritageResponse.success) {
+              title = heritageResponse.data.title || '未知非遗项目';
+              category = heritageResponse.data.category_name || '传统技艺';
+            }
+          } catch (error) {
+            console.error('获取非遗项目信息失败:', error);
+          }
+        } else if (favorite.mediaId) {
+          // 媒体资源收藏
+          try {
+            // 尝试从不同的媒体类型中获取信息
+            const mediaTypes = [
+              { url: `/culture-news/get/${favorite.mediaId}`, type: 'news', label: '资讯' },
+              { url: `/activity/get/${favorite.mediaId}`, type: 'activity', label: '活动' }
+            ];
+            
+            for (const item of mediaTypes) {
+              try {
+                const mediaResponse = await api.get(item.url);
+                if (mediaResponse.success) {
+                  title = mediaResponse.data.title || '未知媒体';
+                  category = item.label + '收藏';
+                  favorite.mediaType = item.type;
+                  break;
+                }
+              } catch (error) {
+                // 忽略错误，尝试下一个类型
+              }
+            }
+          } catch (error) {
+            console.error('获取媒体信息失败:', error);
+          }
+        }
+        
+        processedFavorites.push({
+          id: favorite.id,
+          title,
+          category,
+          heritageId: favorite.heritageId,
+          mediaId: favorite.mediaId,
+          mediaType: favorite.mediaType || 'news'
+        });
+      }
+      
+      return processedFavorites;
+    },
+    async removeFavorite(id) {
+      try {
+        await api.delete(`/favorite/delete/${id}`);
+        this.$message.success('取消收藏成功');
+        // 重新加载收藏列表
+        this.loadFavorites();
+      } catch (error) {
+        console.error('取消收藏失败:', error);
+        this.$message.error('取消收藏失败，请重试');
+      }
+    },
+    viewFavorite(item) {
+      if (item.heritageId) {
+        // 跳转到非遗项目详情页
+        this.$router.push(`/heritage/${item.heritageId}`);
+      } else if (item.mediaId) {
+        // 跳转到媒体详情页，根据媒体类型选择正确的路由
+        if (item.mediaType === 'news') {
+          this.$router.push(`/news/${item.mediaId}`);
+        } else if (item.mediaType === 'activity') {
+          this.$router.push(`/activity/${item.mediaId}`);
+        } else {
+          // 默认为资讯详情
+          this.$router.push(`/news/${item.mediaId}`);
+        }
+      }
+    },
+    async loadComments() {
+      const userStr = localStorage.getItem('user');
+      if (!userStr) return;
+      
+      try {
+        const user = JSON.parse(userStr);
+        const response = await api.get('/comment/listByUser', {
+          params: { userId: user.id }
+        });
+        
+        if (response.code === 200) {
+          this.commentsList = await this.processComments(response.data);
+        }
+      } catch (error) {
+        console.error('获取评论列表失败:', error);
+        this.$message.error('获取评论列表失败，请重试');
+      }
+    },
+    async processComments(comments) {
+      const processedComments = [];
+      
+      for (const comment of comments) {
+        let title = '未知';
+        
+        // 尝试获取评论相关的内容标题
+        if (comment.mediaId) {
+          try {
+            // 尝试从不同的媒体类型中获取信息
+            const mediaTypes = [
+              `/culture-news/get/${comment.mediaId}`,
+              `/activity/get/${comment.mediaId}`
+            ];
+            
+            for (const url of mediaTypes) {
+              try {
+                const mediaResponse = await api.get(url);
+                if (mediaResponse.code === 200) {
+                  title = mediaResponse.data.title || '未知媒体';
+                  break;
+                }
+              } catch (error) {
+                // 忽略错误，尝试下一个类型
+              }
+            }
+          } catch (error) {
+            console.error('获取评论相关媒体信息失败:', error);
+          }
+        }
+        
+        processedComments.push({
+          id: comment.id,
+          title,
+          content: comment.content,
+          time: comment.createTime ? new Date(comment.createTime).toLocaleString('zh-CN') : new Date().toLocaleString('zh-CN'),
+          username: this.userInfo.username || '游客'
+        });
+      }
+      
+      return processedComments;
+    },
+    async removeComment(id) {
+      try {
+        await api.delete(`/comment/delete/${id}`);
+        this.$message.success('删除评论成功');
+        // 重新加载评论列表
+        this.loadComments();
+      } catch (error) {
+        console.error('删除评论失败:', error);
+        this.$message.error('删除评论失败，请重试');
+      }
     }
   }
-}
-</script>
+}</script>
 
 <style scoped>
 .user-view {
@@ -331,26 +462,7 @@ export default {
   margin-top: 20px;
 }
 
-.history-list {
-  margin-top: 10px;
-}
 
-.history-item {
-  padding: 10px 0;
-  border-bottom: 1px solid #f0f0f0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.history-title {
-  flex: 1;
-}
-
-.history-date {
-  font-size: 12px;
-  color: #999;
-}
 
 .login-prompt {
   text-align: center;
@@ -381,6 +493,19 @@ export default {
 
 .favorite-title {
   flex: 1;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.favorite-title:hover {
+  color: #667eea;
+  text-decoration: underline;
+}
+
+.favorite-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .favorite-category {
@@ -403,12 +528,19 @@ export default {
 .comment-header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 10px;
 }
 
 .comment-title {
   font-weight: 600;
   flex: 1;
+}
+
+.comment-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .comment-time {

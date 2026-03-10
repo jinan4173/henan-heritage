@@ -55,14 +55,14 @@ export default {
             })
             .then(response => {
               console.log('登录响应:', response);
-              // 检查登录是否成功
-              if (response.success) {
+              // 统一 Result 返回：code + success + data
+              if (response.code === 200 && response.data) {
                 // 登录成功，保存用户信息到本地存储
-                localStorage.setItem('user', JSON.stringify(response.user));
-                localStorage.setItem('token', response.token);
+                localStorage.setItem('user', JSON.stringify(response.data.user));
+                localStorage.setItem('token', response.data.token);
                 this.$message.success('登录成功');
                 // 根据用户名决定跳转路径
-                if (response.user.username === 'admin') {
+                if (response.data.user.username === 'admin') {
                   this.$router.push('/admin');
                 } else {
                   this.$router.push('/');
@@ -70,7 +70,7 @@ export default {
               } else {
                 // 登录失败
                 console.error('登录失败:', response.message);
-                this.$message.error('登录失败: ' + response.message);
+                this.$message.error('登录失败: ' + (response.message || '请检查用户名或密码'));
               }
             })
             .catch(error => {

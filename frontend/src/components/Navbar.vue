@@ -11,11 +11,25 @@
       <div class="navbar-menu">
         <router-link to="/" class="menu-item" :class="{ active: $route.path === '/' }">首页</router-link>
         <router-link to="/heritage" class="menu-item" :class="{ active: $route.path === '/heritage' }">非遗项目</router-link>
-        <router-link to="/promotion" class="menu-item" :class="{ active: $route.path === '/promotion' }">非遗宣传</router-link>
         <router-link to="/news" class="menu-item" :class="{ active: $route.path === '/news' }">文化资讯</router-link>
         <router-link to="/activity" class="menu-item" :class="{ active: $route.path === '/activity' }">非遗活动</router-link>
         <router-link to="/notice" class="menu-item" :class="{ active: $route.path === '/notice' }">公告</router-link>
         <router-link to="/user" class="menu-item" :class="{ active: $route.path === '/user' }">个人中心</router-link>
+      </div>
+
+      <!-- 桌面端搜索框 -->
+      <div class="navbar-search">
+        <el-input
+          v-model="searchKeyword"
+          placeholder="搜索非遗项目 / 活动 / 资讯"
+          size="small"
+          clearable
+          @keyup.enter.native="handleSearch"
+        >
+          <template #suffix>
+            <i class="el-icon-search search-icon" @click="handleSearch"></i>
+          </template>
+        </el-input>
       </div>
       
       <!-- 移动端汉堡菜单按钮 -->
@@ -44,12 +58,24 @@
       </div>
     </div>
     
-    <!-- 移动端导航菜单 -->
+      <!-- 移动端导航菜单 -->
     <div class="mobile-menu" :class="{ open: mobileMenuOpen }">
       <div class="mobile-menu-content">
+          <div class="mobile-search">
+            <el-input
+              v-model="searchKeyword"
+              placeholder="搜索非遗项目 / 活动 / 资讯"
+              size="small"
+              clearable
+              @keyup.enter.native="handleSearchAndClose"
+            >
+              <template #suffix>
+                <i class="el-icon-search search-icon" @click="handleSearchAndClose"></i>
+              </template>
+            </el-input>
+          </div>
         <router-link to="/" class="mobile-menu-item" @click="closeMobileMenu">首页</router-link>
         <router-link to="/heritage" class="mobile-menu-item" @click="closeMobileMenu">非遗项目</router-link>
-        <router-link to="/promotion" class="mobile-menu-item" @click="closeMobileMenu">非遗宣传</router-link>
         <router-link to="/news" class="mobile-menu-item" @click="closeMobileMenu">文化资讯</router-link>
         <router-link to="/activity" class="mobile-menu-item" @click="closeMobileMenu">非遗活动</router-link>
         <router-link to="/notice" class="mobile-menu-item" @click="closeMobileMenu">公告</router-link>
@@ -65,7 +91,8 @@ export default {
   name: 'Navbar',
   data() {
     return {
-      mobileMenuOpen: false
+      mobileMenuOpen: false,
+      searchKeyword: ''
     };
   },
   computed: {
@@ -120,6 +147,18 @@ export default {
         this.mobileMenuOpen = false;
         document.body.style.overflow = 'auto';
       }
+    },
+    handleSearch() {
+      const keyword = (this.searchKeyword || '').trim();
+      if (!keyword) return;
+      this.$router.push({
+        name: 'search',
+        query: { keyword }
+      });
+    },
+    handleSearchAndClose() {
+      this.handleSearch();
+      this.closeMobileMenu();
     }
   },
   mounted() {
@@ -194,6 +233,25 @@ export default {
   display: flex;
   justify-content: center;
   gap: 24px;
+}
+
+.navbar-search {
+  flex: 0 0 200px;
+  margin-left: 16px;
+}
+
+.navbar-search .el-input {
+  width: 100%;
+}
+
+.search-icon {
+  cursor: pointer;
+  color: var(--light-text);
+  transition: color var(--transition-normal);
+}
+
+.search-icon:hover {
+  color: var(--accent-color);
 }
 
 .menu-item {
@@ -299,6 +357,14 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.mobile-search {
+  margin-bottom: 8px;
+}
+
+.mobile-search .el-input {
+  width: 100%;
 }
 
 .mobile-menu-item {

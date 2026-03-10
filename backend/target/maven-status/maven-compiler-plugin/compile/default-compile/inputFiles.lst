@@ -1,11 +1,11 @@
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\controller\FavoriteController.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\controller\CarouselController.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\config\WebMvcConfig.java
+D:\henan-heritage\backend\src\main\java\com\henan\heritage\common\GlobalExceptionHandler.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\entity\Carousel.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\entity\HeritageInheritor.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\controller\DashboardController.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\utils\FileUploadUtils.java
-D:\henan-heritage\backend\src\main\java\com\henan\heritage\controller\PromotionController.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\mapper\AdminUserMapper.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\service\impl\CarouselServiceImpl.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\controller\StatisticsController.java
@@ -33,7 +33,6 @@ D:\henan-heritage\backend\src\main\java\com\henan\heritage\entity\CultureNews.ja
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\service\ActivityRegistrationService.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\mapper\CultureNewsMapper.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\service\CarouselService.java
-D:\henan-heritage\backend\src\main\java\com\henan\heritage\service\PromotionService.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\mapper\RegionMapper.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\service\impl\FavoriteServiceImpl.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\entity\HeritageFavorite.java
@@ -43,10 +42,8 @@ D:\henan-heritage\backend\src\main\java\com\henan\heritage\service\FavoriteServi
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\dto\HeritageItemDTO.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\service\impl\CommentServiceImpl.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\service\impl\CultureNewsServiceImpl.java
-D:\henan-heritage\backend\src\main\java\com\henan\heritage\service\impl\PromotionServiceImpl.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\controller\InheritorController.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\entity\HeritageComment.java
-D:\henan-heritage\backend\src\main\java\com\henan\heritage\entity\Promotion.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\mapper\CommentMapper.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\controller\HeritageItemController.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\entity\User.java
@@ -65,7 +62,6 @@ D:\henan-heritage\backend\src\main\java\com\henan\heritage\controller\HeritageIm
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\controller\CommentController.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\service\AuthService.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\mapper\HeritageMediaMapper.java
-D:\henan-heritage\backend\src\main\java\com\henan\heritage\mapper\PromotionMapper.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\service\HeritageItemService.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\entity\AdminUser.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\entity\HeritageCategory.java

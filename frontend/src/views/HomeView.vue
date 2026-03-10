@@ -2,17 +2,28 @@
   <div class="home">
     <!-- 头部横幅 -->
     <div class="banner">
-      <div class="banner-content">
-        <p>{{ welcomeMessage }}</p>
-        <div class="banner-actions">
-          <router-link to="/heritage" class="hero-btn hero-btn-primary">探索非遗项目</router-link>
-          <router-link to="/news" class="hero-btn hero-btn-secondary">了解文化资讯</router-link>
+      <div class="container">
+        <div class="banner-content">
+          <p>{{ welcomeMessage }}</p>
+          <div class="banner-actions">
+            <router-link to="/heritage" class="hero-btn hero-btn-primary">探索非遗项目</router-link>
+            <router-link to="/news" class="hero-btn hero-btn-secondary">了解文化资讯</router-link>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- 轮播图 -->
-    <CarouselSection />
+    <div class="container">
+      <CarouselSection />
+    </div>
+
+    <!-- 热门非遗项目 -->
+    <section class="section heritage-section">
+      <div class="container">
+        <HeritageSection />
+      </div>
+    </section>
 
     <!-- 最新动态/新闻 -->
     <section class="section">
@@ -21,20 +32,21 @@
       </div>
     </section>
 
-    <!-- 热门非遗项目 -->
-    <section class="section heritage-section">
+    <!-- 最新活动 -->
+    <section class="section">
       <div class="container">
-        <HeritageSection />
+        <ActivityPreviewSection />
       </div>
     </section>
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, onUnmounted } from 'vue'
 import CarouselSection from '../components/CarouselSection.vue'
 import NewsSection from '../components/NewsSection.vue'
 import HeritageSection from '../components/HeritageSection.vue'
+import ActivityPreviewSection from '../components/ActivityPreviewSection.vue'
 
 const welcomeMessage = computed(() => {
   try {
@@ -76,12 +88,52 @@ const initLazyLoad = () => {
   }
 }
 
+// 滚动动画实现
+const initScrollAnimation = () => {
+  if ('IntersectionObserver' in window) {
+    const sectionObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-in')
+          observer.unobserve(entry.target)
+        }
+      })
+    }, {
+      threshold: 0.1
+    })
+
+    document.querySelectorAll('.section').forEach(section => {
+      sectionObserver.observe(section)
+    })
+  }
+}
+
+// 监听窗口滚动，添加视差效果
+const handleScroll = () => {
+  const scrollY = window.scrollY
+  const banner = document.querySelector('.banner')
+  if (banner) {
+    banner.style.transform = `translateY(${scrollY * 0.5}px)`
+  }
+}
+
 onMounted(() => {
   // 初始化图片懒加载
   initLazyLoad()
   
+  // 初始化滚动动画
+  initScrollAnimation()
+  
   // 添加页面加载完成动画
   document.body.classList.add('loaded')
+  
+  // 添加滚动事件监听
+  window.addEventListener('scroll', handleScroll)
+})
+
+onUnmounted(() => {
+  // 移除滚动事件监听
+  window.removeEventListener('scroll', handleScroll)
 })
 </script>
 
@@ -93,6 +145,15 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
+  box-sizing: border-box;
+}
+
+/* 容器样式 */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
   box-sizing: border-box;
 }
 
@@ -141,6 +202,7 @@ onMounted(() => {
   z-index: 2;
   max-width: 800px;
   margin: 0 auto;
+  text-align: center;
 }
 
 .logo-container {
@@ -165,8 +227,6 @@ onMounted(() => {
     transform: translateY(-10px);
   }
 }
-
-
 
 .banner p {
   font-size: 1.3rem;
@@ -335,11 +395,36 @@ img.lazy.loaded {
   }
 }
 
+/* 滚动动画 */
+.section {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.section.animate-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 视差效果 */
+.banner {
+  transition: transform 0.1s ease-out;
+}
+
 /* 响应式设计 */
 @media (max-width: 1200px) {
   .logo {
     width: 180px;
     height: 180px;
+  }
+  
+  .container {
+    padding: 0 15px;
+  }
+  
+  .section {
+    padding: 70px 0;
   }
 }
 
@@ -371,6 +456,10 @@ img.lazy.loaded {
   .section {
     padding: 60px 0;
   }
+  
+  .container {
+    padding: 0 15px;
+  }
 }
 
 @media (max-width: 576px) {
@@ -395,6 +484,19 @@ img.lazy.loaded {
   
   .section {
     padding: 40px 0;
+  }
+  
+  .container {
+    padding: 0 10px;
+  }
+  
+  .banner-actions {
+    gap: 15px;
+  }
+  
+  .hero-btn {
+    padding: 10px 24px;
+    font-size: 1rem;
   }
 }
 </style>

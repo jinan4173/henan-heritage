@@ -70,20 +70,20 @@ export default {
       handleRegister() {
         this.$refs.registerForm.validate((valid) => {
           if (valid) {
-            // 调用后端注册API
+            // 调用后端注册API（统一 Result 返回）
             this.$axios.post('/auth/register', {
               username: this.registerForm.username,
               password: this.registerForm.password,
               email: this.registerForm.email
             })
             .then(response => {
-              if (response.success) {
+              if (response.code === 200) {
                 // 注册成功，跳转到登录页
                 this.$message.success('注册成功，请登录');
                 this.$router.push('/login');
               } else {
                 // 注册失败，显示错误信息
-                this.$message.error(response.message);
+                this.$message.error(response.message || '注册失败');
               }
             })
             .catch(error => {

@@ -30,6 +30,11 @@ public class Result<T> {
     private Integer total;
     
     /**
+     * 是否成功（便于前端兼容判断）
+     */
+    private boolean success;
+    
+    /**
      * 构造方法
      * @param code 状态码
      * @param message 提示信息
@@ -39,6 +44,7 @@ public class Result<T> {
         this.code = code;
         this.message = message;
         this.data = data;
+        this.success = (code == 200);
     }
     
     /**
@@ -53,6 +59,7 @@ public class Result<T> {
         this.message = message;
         this.data = data;
         this.total = total;
+        this.success = (code == 200);
     }
     
     /**
@@ -141,5 +148,9 @@ public class Result<T> {
     
     public Integer getTotal() {
         return total;
+    }
+    
+    public boolean isSuccess() {
+        return success;
     }
 }

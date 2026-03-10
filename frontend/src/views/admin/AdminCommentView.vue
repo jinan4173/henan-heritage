@@ -23,10 +23,9 @@
           {{ (currentPage - 1) * pageSize + scope.$index + 1 }}
         </template>
       </el-table-column>
-      <el-table-column prop="id" label="评论ID" width="100" />
-      <el-table-column prop="userId" label="用户ID" width="100" />
-      <el-table-column prop="mediaId" label="媒体ID" width="100" />
-      <el-table-column prop="content" label="评论内容" min-width="300" />
+      <el-table-column prop="username" label="用户名" width="140" />
+      <el-table-column prop="targetTitle" label="评论标题" min-width="220" />
+      <el-table-column prop="content" label="评论文本" min-width="300" />
       <el-table-column prop="createTime" label="评论时间" width="180" />
       <el-table-column label="操作" width="150">
         <template #default="scope">
@@ -98,7 +97,9 @@ const filteredComments = computed(() => {
     return comments.value
   }
   return comments.value.filter(comment => 
-    comment.content.toLowerCase().includes(searchQuery.value.toLowerCase())
+    (comment.content || '').toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+    (comment.username || '').toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+    (comment.targetTitle || '').toLowerCase().includes(searchQuery.value.toLowerCase())
   )
 })
 
@@ -112,7 +113,12 @@ const loadComments = async () => {
     const res = await api.get('/comment/list')
     console.log('获取评论列表响应:', res)
     if (res.code === 200) {
-      comments.value = res.data
+      const list = res.data || []
+      comments.value = list.map(item => ({
+        ...item,
+        createTime: item.createTime ? new Date(item.createTime).toLocaleString('zh-CN') : ''
+      }))
+      await enrichCommentTargets()
       total.value = comments.value.length
       console.log('获取评论列表成功:', comments.value)
     } else {
@@ -123,6 +129,60 @@ const loadComments = async () => {
     console.error('获取评论列表失败:', error)
     ElMessage.error('获取评论列表失败')
   }
+}
+
+// 为每条评论补充评论目标标题（非遗项目标题或宣传标题）
+const targetCache = reactive({})
+
+const resolveTargetTitle = async (comment) => {
+  let key = ''
+  let url = ''
+  if (comment.heritageId) {
+    key = `heritage-${comment.heritageId}`
+    url = `/heritage/get/${comment.heritageId}`
+  } else if (comment.mediaId) {
+    // 尝试从不同的媒体类型中获取信息
+    const mediaTypes = [
+      { url: `/culture-news/get/${comment.mediaId}`, type: 'news' },
+      { url: `/activity/get/${comment.mediaId}`, type: 'activity' }
+    ]
+    
+    for (const item of mediaTypes) {
+      try {
+        const res = await api.get(item.url)
+        if (res.code === 200 && res.data) {
+          const title = res.data.title || ''
+          targetCache[key] = title
+          return title
+        }
+      } catch (error) {
+        // 忽略错误，尝试下一个类型
+      }
+    }
+    return ''
+  } else {
+    return ''
+  }
+  if (targetCache[key]) return targetCache[key]
+  try {
+    const res = await api.get(url)
+    if (res.code === 200 && res.data) {
+      const title = res.data.title || ''
+      targetCache[key] = title
+      return title
+    }
+  } catch (e) {
+    console.error('加载评论目标标题失败:', e)
+  }
+  return ''
+}
+
+const enrichCommentTargets = async () => {
+  const tasks = comments.value.map(async (c) => {
+    const title = await resolveTargetTitle(c)
+    c.targetTitle = title
+  })
+  await Promise.all(tasks)
 }
 
 // 搜索方法

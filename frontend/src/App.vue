@@ -48,7 +48,7 @@ export default {
 }
 
 /* 所有页面的特殊样式 */
-.login-view, .register-view, .home, .heritage-view, .inheritor-view, .userview, .noticeview, .activityview, .newsview, .PromotionView, .NewsDetailView, .NewPromotionView, .HeritageDisplayView {
+.login-view, .register-view, .home, .heritage-view, .inheritor-view, .userview, .noticeview, .activityview, .newsview, .NewsDetailView, .HeritageDisplayView {
   margin: 0 !important;
   padding: 0 !important;
 }
@@ -63,9 +63,7 @@ body:has(.userview) .main-content,
 body:has(.noticeview) .main-content,
 body:has(.activityview) .main-content,
 body:has(.newsview) .main-content,
-body:has(.PromotionView) .main-content,
 body:has(.NewsDetailView) .main-content,
-body:has(.NewPromotionView) .main-content,
 body:has(.HeritageDisplayView) .main-content {
   background-color: transparent !important;
   border-radius: 0 !important;
