@@ -6,12 +6,15 @@
       <router-view />
     </main>
     <Footer v-if="!isAdminRoute" />
+    <!-- AI悬浮助手 -->
+    <AiFloatingAssistant v-if="!isAdminRoute" />
   </div>
 </template>
 
 <script>
 import Navbar from './components/Navbar.vue'
 import Footer from './components/Footer.vue'
+import AiFloatingAssistant from './components/AiFloatingAssistant.vue'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -19,7 +22,8 @@ export default {
   name: 'App',
   components: {
     Navbar,
-    Footer
+    Footer,
+    AiFloatingAssistant
   },
   setup() {
     const route = useRoute()

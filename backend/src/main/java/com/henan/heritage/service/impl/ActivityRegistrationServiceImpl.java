@@ -58,4 +58,9 @@ public class ActivityRegistrationServiceImpl implements ActivityRegistrationServ
         activityRegistrationMapper.deleteByActivityId(activityId);
         System.out.println("根据活动ID删除报名记录成功");
     }
+
+    @Override
+    public long count() {
+        return activityRegistrationMapper.count();
+    }
 }

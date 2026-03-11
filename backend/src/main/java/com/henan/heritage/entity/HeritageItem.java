@@ -21,6 +21,8 @@ public class HeritageItem {
     private Integer status; // 状态: 1-启用, 0-禁用
     private LocalDateTime createTime; // 创建时间
     private LocalDateTime updateTime; // 更新时间
+    private Integer viewCount; // 访问量
+    private Integer favoriteCount; // 收藏数
     // 关联属性
     private HeritageCategory category;
     private Region region;

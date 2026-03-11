@@ -3,7 +3,6 @@ D:\henan-heritage\backend\src\main\java\com\henan\heritage\controller\CarouselCo
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\config\WebMvcConfig.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\common\GlobalExceptionHandler.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\entity\Carousel.java
-D:\henan-heritage\backend\src\main\java\com\henan\heritage\entity\HeritageInheritor.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\controller\DashboardController.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\utils\FileUploadUtils.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\mapper\AdminUserMapper.java
@@ -12,10 +11,12 @@ D:\henan-heritage\backend\src\main\java\com\henan\heritage\controller\Statistics
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\service\CultureNewsService.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\entity\HeritageItem.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\service\UserService.java
+D:\henan-heritage\backend\src\main\java\com\henan\heritage\dto\ai\AiMessage.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\service\impl\AuthServiceImpl.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\mapper\UserMapper.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\mapper\HeritageCategoryMapper.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\service\CommentService.java
+D:\henan-heritage\backend\src\main\java\com\henan\heritage\controller\AiController.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\entity\HeritageMedia.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\dto\HeritageImageDTO.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\controller\CultureNewsController.java
@@ -25,6 +26,7 @@ D:\henan-heritage\backend\src\main\java\com\henan\heritage\service\HeritageCateg
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\entity\HeritageImage.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\config\SecurityConfig.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\common\Result.java
+D:\henan-heritage\backend\src\main\java\com\henan\heritage\dto\ai\AiChatRequest.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\mapper\InheritorMapper.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\service\impl\RegionServiceImpl.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\service\impl\ActivityRegistrationServiceImpl.java
@@ -41,6 +43,7 @@ D:\henan-heritage\backend\src\main\java\com\henan\heritage\entity\Inheritor.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\service\FavoriteService.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\dto\HeritageItemDTO.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\service\impl\CommentServiceImpl.java
+D:\henan-heritage\backend\src\main\java\com\henan\heritage\service\AiService.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\service\impl\CultureNewsServiceImpl.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\controller\InheritorController.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\entity\HeritageComment.java
@@ -51,6 +54,7 @@ D:\henan-heritage\backend\src\main\java\com\henan\heritage\mapper\CarouselMapper
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\mapper\FavoriteMapper.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\controller\ActivityRegistrationController.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\entity\Region.java
+D:\henan-heritage\backend\src\main\java\com\henan\heritage\service\impl\AiServiceImpl.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\service\impl\HeritageItemServiceImpl.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\service\impl\HeritageMediaServiceImpl.java
 D:\henan-heritage\backend\src\main\java\com\henan\heritage\service\impl\UserServiceImpl.java

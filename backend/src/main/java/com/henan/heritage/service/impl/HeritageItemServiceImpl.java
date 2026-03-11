@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * 非遗项目服务实现类
@@ -200,5 +201,76 @@ public class HeritageItemServiceImpl implements HeritageItemService {
         System.out.println("根据非遗项目ID删除媒体资源: " + heritageItemId);
         heritageMediaService.deleteByHeritageItemId(heritageItemId);
         System.out.println("删除媒体资源成功");
+    }
+
+    /**
+     * 获取热门非遗项目排行
+     * @param limit 限制返回数量
+     * @return 热门非遗项目列表
+     */
+    @Override
+    public List<Map<String, Object>> getPopularHeritage(int limit) {
+        System.out.println("获取热门非遗项目排行，限制: " + limit);
+        try {
+            // 按照访问量和收藏数的综合得分来排序
+            List<HeritageItem> items = heritageItemMapper.selectPopular(limit);
+            List<Map<String, Object>> result = new ArrayList<>();
+            
+            for (HeritageItem item : items) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", item.getId());
+                map.put("title", item.getTitle());
+                map.put("categoryName", item.getCategoryName());
+                map.put("regionName", item.getRegionName());
+                map.put("description", item.getDescription());
+                map.put("coverImage", item.getCoverImage());
+                // 计算热度值（访问量 + 收藏数 * 2）
+                int viewCount = item.getViewCount() != null ? item.getViewCount() : 0;
+                int favoriteCount = item.getFavoriteCount() != null ? item.getFavoriteCount() : 0;
+                int popularity = viewCount + favoriteCount * 2;
+                map.put("popularity", popularity);
+                result.add(map);
+            }
+            
+            System.out.println("获取到 " + result.size() + " 个热门非遗项目");
+            return result;
+        } catch (Exception e) {
+            System.out.println("获取热门非遗项目失败: " + e.getMessage());
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
+    public void incrementViewCount(Long id) {
+        try {
+            heritageItemMapper.incrementViewCount(id);
+            System.out.println("增加非遗项目访问量，ID: " + id);
+        } catch (Exception e) {
+            System.out.println("增加访问量失败: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void incrementFavoriteCount(Long id) {
+        try {
+            heritageItemMapper.incrementFavoriteCount(id);
+            System.out.println("增加非遗项目收藏数，ID: " + id);
+        } catch (Exception e) {
+            System.out.println("增加收藏数失败: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void decrementFavoriteCount(Long id) {
+        try {
+            heritageItemMapper.decrementFavoriteCount(id);
+            System.out.println("减少非遗项目收藏数，ID: " + id);
+        } catch (Exception e) {
+            System.out.println("减少收藏数失败: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

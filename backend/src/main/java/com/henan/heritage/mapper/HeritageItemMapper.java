@@ -13,6 +13,12 @@ public interface HeritageItemMapper {
     void update(HeritageItem item);
     void delete(Long id);
     long count();
+    long countByCategoryId(Long categoryId);
+    long countByRegionId(Long regionId);
     List<Map<String, Object>> selectCityStatistics();
     List<Map<String, Object>> selectCategoryStatistics();
+    List<HeritageItem> selectPopular(int limit);
+    void incrementViewCount(Long id);
+    void incrementFavoriteCount(Long id);
+    void decrementFavoriteCount(Long id);
 }

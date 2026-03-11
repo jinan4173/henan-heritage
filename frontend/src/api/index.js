@@ -2,7 +2,7 @@ import axios from 'axios'
 import { ElMessage } from 'element-plus'
 
 const api = axios.create({
-  baseURL: import.meta.env.DEV ? 'http://localhost:8083/api' : 'http://localhost:8083/api',
+  baseURL: import.meta.env.DEV ? '/' : '/',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json; charset=UTF-8',
@@ -24,7 +24,8 @@ api.interceptors.request.use(
     return config
   },
   error => {
-    ElMessage.error('请求发送失败，请稍后重试')
+    // 静默处理请求拦截器错误，不显示错误消息
+    console.error('请求拦截器错误:', error)
     return Promise.reject(error)
   }
 )
@@ -44,30 +45,51 @@ api.interceptors.response.use(
       console.error('API Error:', error)
     }
     
+    // 检查是否是AI助手相关的API调用
+    const isAiApi = error.config && error.config.url && error.config.url.includes('/ai/chat')
+    
     // 统一错误处理
     if (error.response) {
       switch (error.response.status) {
         case 401:
-          ElMessage.error('未登录或登录已过期，请重新登录')
-          // 跳转到登录页面
-          window.location.href = '/login'
+          if (!isAiApi) {
+            ElMessage.error('未登录或登录已过期，请重新登录')
+            // 跳转到登录页面
+            window.location.href = '/login'
+          }
           break
         case 403:
-          ElMessage.error('没有权限执行此操作')
+          if (!isAiApi) {
+            ElMessage.error('没有权限执行此操作')
+          }
           break
         case 404:
-          ElMessage.error('请求的资源不存在')
+          if (isAiApi) {
+            ElMessage.error('AI接口不存在，请检查后端配置')
+          } else {
+            // 静默处理其他404错误，避免影响页面显示
+          }
           break
         case 500:
-          ElMessage.error('服务器内部错误，请稍后重试')
+          if (isAiApi) {
+            ElMessage.error('AI调用失败，请稍后重试（或检查后端AI配置）')
+          } else {
+            // 静默处理其他500错误，避免影响页面显示
+          }
           break
         default:
-          ElMessage.error(`请求失败: ${error.response.data.message || '未知错误'}`)
+          if (isAiApi) {
+            ElMessage.error(`AI请求失败: ${error.response.data.message || '未知错误'}`)
+          }
       }
     } else if (error.request) {
-      ElMessage.error('网络连接失败，请检查网络设置')
+      if (isAiApi) {
+        ElMessage.error('网络连接失败，请检查网络设置')
+      }
     } else {
-      ElMessage.error('请求配置错误')
+      if (isAiApi) {
+        ElMessage.error('请求配置错误')
+      }
     }
     return Promise.reject(error)
   }

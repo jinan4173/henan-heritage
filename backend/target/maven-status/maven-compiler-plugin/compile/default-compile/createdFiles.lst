@@ -4,11 +4,13 @@ com\henan\heritage\config\WebMvcConfig.class
 com\henan\heritage\utils\CheckHeritageResourcesUtil.class
 com\henan\heritage\service\impl\HeritageImageServiceImpl.class
 com\henan\heritage\mapper\UserMapper.class
+com\henan\heritage\dto\ai\AiChatRequest.class
 com\henan\heritage\entity\User.class
 com\henan\heritage\mapper\CarouselMapper.class
 com\henan\heritage\entity\Carousel.class
 com\henan\heritage\mapper\CommentMapper.class
 com\henan\heritage\entity\CultureNews.class
+com\henan\heritage\controller\AiController.class
 com\henan\heritage\service\HeritageMediaService.class
 com\henan\heritage\service\UserService.class
 com\henan\heritage\mapper\CultureNewsMapper.class
@@ -60,8 +62,10 @@ com\henan\heritage\service\impl\HeritageItemServiceImpl.class
 com\henan\heritage\service\HeritageCategoryService.class
 com\henan\heritage\service\impl\RegionServiceImpl.class
 com\henan\heritage\entity\Region.class
+com\henan\heritage\dto\ai\AiMessage.class
 com\henan\heritage\service\CultureNewsService.class
 com\henan\heritage\utils\JwtUtils.class
+com\henan\heritage\service\impl\AiServiceImpl.class
 com\henan\heritage\service\impl\CultureNewsServiceImpl.class
 com\henan\heritage\entity\ActivityRegistration.class
 com\henan\heritage\config\SecurityConfig.class
@@ -74,7 +78,7 @@ com\henan\heritage\controller\StatisticsController.class
 com\henan\heritage\controller\UserController.class
 com\henan\heritage\common\Result.class
 com\henan\heritage\controller\FavoriteController.class
-com\henan\heritage\entity\HeritageInheritor.class
 com\henan\heritage\mapper\AdminUserMapper.class
 com\henan\heritage\mapper\InheritorMapper.class
 com\henan\heritage\controller\CultureNewsController.class
+com\henan\heritage\service\AiService.class

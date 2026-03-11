@@ -16,8 +16,14 @@ public interface HeritageItemService {
     long count();
     List<Map<String, Object>> getCityStatistics();
     List<Map<String, Object>> getCategoryStatistics();
+    List<Map<String, Object>> getPopularHeritage(int limit);
     
     // 媒体资源相关方法
     void saveMedia(HeritageMedia media);
     void deleteMediaByHeritageId(Long heritageItemId);
+    
+    // 访问量和收藏数相关方法
+    void incrementViewCount(Long id);
+    void incrementFavoriteCount(Long id);
+    void decrementFavoriteCount(Long id);
 }

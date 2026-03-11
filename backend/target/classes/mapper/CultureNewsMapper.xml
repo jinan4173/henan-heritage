@@ -5,6 +5,7 @@
         <id property="id" column="id"/>
         <result property="title" column="title"/>
         <result property="content" column="content"/>
+        <result property="summary" column="summary"/>
         <result property="coverImage" column="cover_image"/>
         <result property="date" column="date"/>
         <result property="type" column="type"/>
@@ -30,14 +31,15 @@
     </select>
 
     <insert id="insert" parameterType="com.henan.heritage.entity.CultureNews">
-        INSERT INTO culture_news (title, content, cover_image, date, type, status, create_time, update_time) 
-        VALUES (#{title}, #{content}, #{coverImage}, #{date}, #{type}, #{status}, NOW(), NOW())
+        INSERT INTO culture_news (title, content, summary, cover_image, date, type, status, create_time, update_time) 
+        VALUES (#{title}, #{content}, #{summary}, #{coverImage}, #{date}, #{type}, #{status}, NOW(), NOW())
     </insert>
 
     <update id="update" parameterType="com.henan.heritage.entity.CultureNews">
         UPDATE culture_news SET 
             title = #{title}, 
             content = #{content}, 
+            summary = #{summary}, 
             cover_image = #{coverImage}, 
             date = #{date}, 
             type = #{type}, 

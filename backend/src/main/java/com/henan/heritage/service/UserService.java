@@ -11,4 +11,5 @@ public interface UserService {
     void update(User user);
     void delete(Long id);
     long count();
+    java.util.Map<String, Long> getUserRegistrationTrend();
 }

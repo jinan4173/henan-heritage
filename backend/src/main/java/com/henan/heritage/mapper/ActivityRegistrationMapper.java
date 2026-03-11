@@ -50,4 +50,10 @@ public interface ActivityRegistrationMapper {
      * @param activityId 活动ID
      */
     void deleteByActivityId(Long activityId);
+    
+    /**
+     * 获取活动报名总数
+     * @return 活动报名总数
+     */
+    long count();
 }

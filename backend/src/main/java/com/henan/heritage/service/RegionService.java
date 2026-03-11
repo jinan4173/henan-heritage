@@ -2,6 +2,7 @@ package com.henan.heritage.service;
 
 import com.henan.heritage.entity.Region;
 import java.util.List;
+import java.util.Map;
 
 public interface RegionService {
     List<Region> listAll();
@@ -9,4 +10,5 @@ public interface RegionService {
     void save(Region region);
     void update(Region region);
     void delete(Long id);
+    Map<String, Long> getRegionStats();
 }

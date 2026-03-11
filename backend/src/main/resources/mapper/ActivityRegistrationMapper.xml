@@ -72,4 +72,8 @@
     <delete id="deleteByActivityId" parameterType="java.lang.Long">
         DELETE FROM activity_registration WHERE activity_id = #{activityId}
     </delete>
+    
+    <select id="count" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM activity_registration
+    </select>
 </mapper>

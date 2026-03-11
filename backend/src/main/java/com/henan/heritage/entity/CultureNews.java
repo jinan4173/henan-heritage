@@ -6,6 +6,7 @@ public class CultureNews {
     private Long id;
     private String title;
     private String content;
+    private String summary;
     private String coverImage;
     private String date; // 活动日期
     private Integer type; // 1: 新闻, 2: 活动, 3: 公告
@@ -44,6 +45,14 @@ public class CultureNews {
 
     public void setCoverImage(String coverImage) {
         this.coverImage = coverImage;
+    }
+
+    public String getSummary() {
+        return summary;
+    }
+
+    public void setSummary(String summary) {
+        this.summary = summary;
     }
 
     public String getDate() {

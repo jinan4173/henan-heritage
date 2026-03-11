@@ -3,6 +3,7 @@ package com.henan.heritage.service.impl;
 import com.henan.heritage.entity.HeritageFavorite;
 import com.henan.heritage.mapper.FavoriteMapper;
 import com.henan.heritage.service.FavoriteService;
+import com.henan.heritage.service.HeritageItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -12,6 +13,9 @@ public class FavoriteServiceImpl implements FavoriteService {
 
     @Autowired
     private FavoriteMapper favoriteMapper;
+    
+    @Autowired
+    private HeritageItemService heritageItemService;
 
     @Override
     public List<HeritageFavorite> listByUserId(Long userId) {
@@ -21,11 +25,21 @@ public class FavoriteServiceImpl implements FavoriteService {
     @Override
     public Long add(HeritageFavorite favorite) {
         favoriteMapper.insert(favorite);
+        // 如果是收藏非遗项目，增加收藏数
+        if (favorite.getHeritageId() != null) {
+            heritageItemService.incrementFavoriteCount(favorite.getHeritageId());
+        }
         return favorite.getId();
     }
 
     @Override
     public void delete(Long id) {
+        // 先查询收藏信息
+        HeritageFavorite favorite = favoriteMapper.selectById(id);
+        if (favorite != null && favorite.getHeritageId() != null) {
+            // 如果是收藏非遗项目，减少收藏数
+            heritageItemService.decrementFavoriteCount(favorite.getHeritageId());
+        }
         favoriteMapper.delete(id);
     }
 

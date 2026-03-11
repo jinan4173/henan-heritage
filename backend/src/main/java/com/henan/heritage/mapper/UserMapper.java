@@ -2,6 +2,7 @@ package com.henan.heritage.mapper;
 
 import com.henan.heritage.entity.User;
 import java.util.List;
+import java.util.Map;
 
 public interface UserMapper {
     List<User> selectList();
@@ -11,4 +12,5 @@ public interface UserMapper {
     void update(User user);
     void delete(Long id);
     long count();
+    Map<String, Long> getUserRegistrationTrend();
 }

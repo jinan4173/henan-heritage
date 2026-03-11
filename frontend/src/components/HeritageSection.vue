@@ -14,43 +14,29 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { heritageApi } from '../api/api'
+import api from '../api/index'
 import HeritageCard from './HeritageCard.vue'
 
 const heritageItems = ref([])
 
-// 分页相关
-const currentPage = ref(1)
-const pageSize = ref(6) // 每页6项，两行三列
-const total = ref(0)
-
-// 筛选相关
-const selectedCategoryId = ref(null)
-const selectedRegionId = ref(null)
-
 const loadData = async () => {
   try {
-    // 加载热门非遗项目（带分页和筛选）
+    // 加载热门非遗项目，与后台管理系统使用相同的API
     console.log('开始加载热门非遗项目...')
-    console.log('currentPage:', currentPage.value)
-    console.log('pageSize:', pageSize.value)
-    console.log('筛选条件:', { categoryId: selectedCategoryId.value, regionId: selectedRegionId.value })
     
-    const heritageRes = await heritageApi.filter(selectedCategoryId.value, selectedRegionId.value, 1, currentPage.value, pageSize.value)
-    console.log('heritageRes:', heritageRes)
-    if (heritageRes && (heritageRes.success === true || heritageRes.code === 200)) {
-      console.log('heritageRes.data:', heritageRes.data)
-      heritageItems.value = heritageRes.data || []
-      total.value = heritageRes.total || heritageItems.value.length || 0
+    const response = await api.get('/dashboard/popular-heritage')
+    console.log('popular-heritage response:', response)
+    if (response && response.success) {
+      // 只取前6个热度最高的项目
+      heritageItems.value = response.data.slice(0, 6) || []
+      console.log('加载到的热门项目:', heritageItems.value)
     } else {
       console.log('API 调用失败或返回的数据结构不正确')
       heritageItems.value = []
-      total.value = 0
     }
   } catch (error) {
     console.error('加载数据失败:', error)
     heritageItems.value = []
-    total.value = 0
   }
 }
 
@@ -71,20 +57,6 @@ onMounted(() => {
   margin-bottom: 30px;
   color: var(--primary-color);
   text-align: center;
-  position: relative;
-  padding-bottom: 15px;
-}
-
-.hot-heritage h2::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80px;
-  height: 3px;
-  background-color: var(--accent-color);
-  border-radius: 2px;
 }
 
 .heritage-list {

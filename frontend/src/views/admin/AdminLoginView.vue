@@ -69,7 +69,7 @@ const handleLogin = () => {
       console.log('密码:', loginForm.password)
       
       // 配置axios
-      axios.defaults.baseURL = 'http://localhost:8080/api'
+      axios.defaults.baseURL = 'http://localhost:8083/api'
       
       debugMessage.value = '发送登录请求'
       
@@ -108,8 +108,8 @@ const handleLogin = () => {
           // 延迟跳转，以便查看调试信息
           setTimeout(() => {
             console.log('开始跳转')
-            // 跳转到一个简单的页面，测试跳转功能
-            router.push('/admin/dashboard')
+            // 跳转到后台管理首页
+            router.push('/admin')
           }, 2000)
         } else {
           debugMessage.value = '登录失败: ' + data.message

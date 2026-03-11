@@ -26,4 +26,7 @@ public interface FavoriteMapper {
 
     @Delete("DELETE FROM heritage_favorite WHERE id = #{id}")
     void delete(Long id);
+    
+    @Select("SELECT * FROM heritage_favorite WHERE id = #{id}")
+    HeritageFavorite selectById(Long id);
 }

@@ -1,0 +1,23 @@
+{
+  "skill_name": "heritage-data-manager",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "搜索河南少林功夫非遗项目信息并添加到数据库，包括相关图片和视频",
+      "expected_output": "成功搜索并添加少林功夫非遗项目，返回项目ID和媒体资源数量",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "搜索2026年河南非遗文化节相关信息并添加到数据库",
+      "expected_output": "成功搜索并添加2026河南非遗文化节活动，返回活动ID",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "搜索河南豫剧传承人信息并添加到数据库",
+      "expected_output": "成功搜索并添加豫剧传承人信息，返回传承人ID",
+      "files": []
+    }
+  ]
+}

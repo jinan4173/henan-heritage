@@ -1,0 +1,29 @@
+{
+  "skill_name": "heritage-ai-assistant",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "检查后端服务是否运行",
+      "expected_output": "后端服务状态报告，包括端口监听情况和API响应状态",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "测试前端到后端的API调用",
+      "expected_output": "连接测试结果，包括响应状态和数据",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "修复AI助手页面的网络连接失败问题",
+      "expected_output": "修复步骤和验证结果",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "修复AI助手的调用失败问题",
+      "expected_output": "修复步骤和验证结果",
+      "files": []
+    }
+  ]
+}

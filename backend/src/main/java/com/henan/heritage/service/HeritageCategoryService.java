@@ -2,6 +2,7 @@ package com.henan.heritage.service;
 
 import com.henan.heritage.entity.HeritageCategory;
 import java.util.List;
+import java.util.Map;
 
 public interface HeritageCategoryService {
     List<HeritageCategory> listAll();
@@ -9,4 +10,5 @@ public interface HeritageCategoryService {
     void save(HeritageCategory category);
     void update(HeritageCategory category);
     void delete(Long id);
+    Map<String, Long> getCategoryStats();
 }

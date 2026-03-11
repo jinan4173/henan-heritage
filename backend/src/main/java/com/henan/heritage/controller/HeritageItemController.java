@@ -64,6 +64,9 @@ public class HeritageItemController {
     @GetMapping("/get/{id}")
     public Result<HeritageItem> getById(@PathVariable Long id) {
         try {
+            // 增加访问量
+            heritageItemService.incrementViewCount(id);
+            // 获取项目详情
             HeritageItem item = heritageItemService.getById(id);
             return Result.success(item);
         } catch (Exception e) {

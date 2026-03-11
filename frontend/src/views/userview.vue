@@ -149,11 +149,15 @@ export default {
     }
   },
   mounted() {
-    this.loadUserInfo();
-    if (this.isLoggedIn) {
-      this.loadFavorites();
-      this.loadComments();
+    if (!this.isLoggedIn) {
+      // 如果未登录，直接跳转到登录页面
+      this.$router.push('/login');
+      this.$message.info('请先登录');
+      return;
     }
+    this.loadUserInfo();
+    this.loadFavorites();
+    this.loadComments();
   },
   methods: {
     loadUserInfo() {

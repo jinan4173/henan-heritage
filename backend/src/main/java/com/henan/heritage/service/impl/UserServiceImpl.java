@@ -74,4 +74,12 @@ public class UserServiceImpl implements UserService {
         logger.info("用户数量: {}", count);
         return count;
     }
+
+    @Override
+    public java.util.Map<String, Long> getUserRegistrationTrend() {
+        logger.info("获取用户注册趋势");
+        java.util.Map<String, Long> trend = userMapper.getUserRegistrationTrend();
+        logger.info("用户注册趋势: {}", trend);
+        return trend;
+    }
 }
