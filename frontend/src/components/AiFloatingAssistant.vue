@@ -352,7 +352,17 @@ const send = async () => {
 }
 
 .chat-actions .el-button {
-  color: #fff;
+  color: #fff !important;
+  font-size: 16px;
+}
+
+.chat-actions .el-button:hover {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.chat-actions .el-button .el-icon {
+  color: #fff !important;
 }
 
 .chat-messages {

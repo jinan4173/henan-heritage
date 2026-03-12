@@ -46,7 +46,7 @@
       </div>
       
       <div class="navbar-auth">
-        <div v-if="isLoggedIn" class="user-avatar">
+        <div v-if="loginStatus" class="user-avatar">
           <el-dropdown>
             <div class="avatar-container">
               <span class="username">{{ getUsername() }}</span>
@@ -121,7 +121,9 @@ export default {
   },
   computed: {
     isLoggedIn() {
-      return !!localStorage.getItem('user');
+      const user = localStorage.getItem('user');
+      console.log('isLoggedIn check:', !!user);
+      return !!user;
     },
     isAdmin() {
       const userStr = localStorage.getItem('user');
@@ -136,21 +138,45 @@ export default {
       return false;
     }
   },
+  data() {
+    return {
+      mobileMenuOpen: false,
+      searchKeyword: '',
+      isScrolled: false,
+      loginStatus: !!localStorage.getItem('user')
+    };
+  },
+  watch: {
+    // 监听路由变化，检查登录状态
+    $route() {
+      this.checkLoginStatus();
+    }
+  },
   methods: {
+    checkLoginStatus() {
+      this.loginStatus = !!localStorage.getItem('user');
+      console.log('Login status checked:', this.loginStatus);
+    },
     getUsername() {
       const userStr = localStorage.getItem('user');
+      console.log('localStorage user:', userStr);
       if (userStr) {
         try {
           const user = JSON.parse(userStr);
+          console.log('Parsed user:', user);
+          console.log('User username:', user.username);
           return user.username || '用户';
         } catch (e) {
+          console.error('Error parsing user:', e);
           return '用户';
         }
       }
+      console.log('No user in localStorage');
       return '用户';
     },
     handleLogout() {
       localStorage.removeItem('user');
+      this.checkLoginStatus();
       this.$router.push('/');
       this.$message.success('退出登录成功');
     },
@@ -206,7 +232,6 @@ export default {
   position: sticky;
   top: 0;
   z-index: 1000;
-  border-bottom: 1px solid #e0e0e0;
   transition: all 0.3s ease;
   height: 72px;
 }
@@ -266,11 +291,35 @@ export default {
 
 .search-input {
   border-radius: 25px !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .search-input .el-input__wrapper {
   border-radius: 25px !important;
-  border: 1px solid #e0e0e0;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  background-color: transparent !important;
+}
+
+.search-input .el-input__inner {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  outline: none !important;
+  color: var(--text-color) !important;
+}
+
+/* 确保Element Plus的默认边框被覆盖 */
+.search-input .el-input__wrapper.is-focus {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.search-input .el-input__wrapper:hover {
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .search-icon {
@@ -288,20 +337,17 @@ export default {
   border-radius: 30px;
   transition: all 0.3s ease;
   background: rgba(255, 255, 255, 0.8);
-  border: 1px solid transparent;
 }
 
 .menu-item:hover {
   color: #9d2932;
   background: rgba(157, 41, 50, 0.05);
-  border-color: rgba(157, 41, 50, 0.2);
 }
 
 .menu-item.active {
   color: white;
   background: #9d2932;
   font-weight: 600;
-  border-color: #9d2932;
 }
 
 /* 移动端汉堡菜单按钮 */
@@ -311,7 +357,6 @@ export default {
   padding: 10px;
   border-radius: 10px;
   background: rgba(0, 102, 204, 0.05);
-  border: 1px solid #e0e0e0;
 }
 
 .menu-icon {
@@ -333,7 +378,6 @@ export default {
   visibility: hidden;
   transition: all 0.35s ease;
   z-index: 999;
-  border-top: 1px solid #e0e0e0;
 }
 
 .navbar.scrolled .mobile-menu {
@@ -373,26 +417,22 @@ export default {
   border-radius: 12px;
   transition: all 0.3s ease;
   background: rgba(0, 0, 0, 0.02);
-  border: 1px solid #e0e0e0;
 }
 
 .mobile-menu-item:hover {
   color: #0066cc;
   background: rgba(0, 102, 204, 0.05);
-  border-color: #0066cc;
 }
 
 .admin-menu-item {
   background: rgba(138, 26, 26, 0.1);
   color: #9d2932;
   margin-top: 16px;
-  border-color: rgba(138, 26, 26, 0.2);
 }
 
 .admin-menu-item:hover {
   background: rgba(138, 26, 26, 0.2);
   color: #9d2932;
-  border-color: #9d2932;
 }
 
 /* 认证区域 */
@@ -411,7 +451,6 @@ export default {
   padding: 10px 20px;
   border-radius: 25px;
   transition: all 0.3s ease;
-  border: 1px solid #e0e0e0;
   display: flex;
   align-items: center;
   background: rgba(255, 255, 255, 0.9);
@@ -420,18 +459,15 @@ export default {
 .auth-item:hover {
   color: #9d2932;
   background: rgba(157, 41, 50, 0.05);
-  border-color: #9d2932;
 }
 
 .admin-link {
   background: #9d2932;
   color: white;
-  border-color: #9d2932;
 }
 
 .admin-link:hover {
   background: #8a1a1a;
-  border-color: #8a1a1a;
   color: white;
 }
 
@@ -446,13 +482,11 @@ export default {
   padding: 10px 20px;
   border-radius: 25px;
   transition: all 0.3s ease;
-  border: 1px solid #e0e0e0;
   background: rgba(255, 255, 255, 0.9);
 }
 
 .avatar-container:hover {
   background: rgba(157, 41, 50, 0.05);
-  border-color: #9d2932;
 }
 
 .username {
@@ -481,7 +515,6 @@ export default {
   min-width: 150px;
   border-radius: 10px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-  border: 1px solid #e0e0e0;
   background: #fff;
 }
 

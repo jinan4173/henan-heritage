@@ -51,7 +51,7 @@ export default defineConfig({
         changeOrigin: true,
         secure: false
       },
-      '/activity': {
+      '/activity/registration': {
         target: 'http://localhost:8083/api',
         changeOrigin: true,
         secure: false

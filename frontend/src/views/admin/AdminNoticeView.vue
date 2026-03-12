@@ -8,7 +8,7 @@
       <div class="search-bar">
         <el-button type="primary" @click="dialogVisible = true">新增</el-button>
         <el-button type="danger" @click="handleBatchDelete" :disabled="selectedNoticeIds.length === 0">批量删除</el-button>
-        <el-input v-model="searchQuery" placeholder="搜索公告标题" style="width: 300px;"></el-input>
+        <el-input v-model="searchQuery" placeholder="搜索公告标题" style="width: 300px;" class="no-border-input"></el-input>
         <el-button type="primary" @click="handleSearch">查询</el-button>
         <el-button @click="resetSearch">重置</el-button>
       </div>
@@ -303,5 +303,37 @@ const handleBatchDelete = async () => {
 
 .dialog-footer {
   text-align: right;
+}
+
+/* 无边框输入框 */
+.no-border-input {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.no-border-input .el-input__wrapper {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  background-color: transparent !important;
+}
+
+.no-border-input .el-input__inner {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  outline: none !important;
+  color: var(--text-color) !important;
+}
+
+/* 确保Element Plus的默认边框被覆盖 */
+.no-border-input .el-input__wrapper.is-focus {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.no-border-input .el-input__wrapper:hover {
+  border: none !important;
+  box-shadow: none !important;
 }
 </style>

@@ -60,6 +60,7 @@ export default {
                 // 登录成功，保存用户信息到本地存储
                 localStorage.setItem('user', JSON.stringify(response.data.user));
                 localStorage.setItem('token', response.data.token);
+                console.log('保存的用户信息:', response.data.user);
                 this.$message.success('登录成功');
                 // 根据用户名决定跳转路径
                 if (response.data.user.username === 'admin') {

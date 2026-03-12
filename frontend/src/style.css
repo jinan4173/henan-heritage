@@ -131,13 +131,11 @@ h6 {
   box-shadow: var(--shadow-md);
   padding: 1.5em;
   transition: all var(--transition-normal);
-  border: 1px solid var(--border-color);
 }
 
 .card:hover {
   transform: translateY(-6px) scale(1.02);
   box-shadow: var(--shadow-hover);
-  border-color: var(--primary-color);
 }
 
 /* 按钮样式 */
@@ -214,7 +212,7 @@ button.large {
 
 /* 表单元素 */
 input, textarea, select {
-  border: 1px solid var(--border-color);
+  border: none;
   border-radius: 8px;
   padding: 0.65em 1em;
   font-size: 1em;
@@ -226,7 +224,6 @@ input, textarea, select {
 
 input:focus, textarea:focus, select:focus {
   outline: none;
-  border-color: var(--accent-color);
   box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
   transform: translateY(-2px);
 }
@@ -261,7 +258,6 @@ input:focus, textarea:focus, select:focus {
   align-items: center;
   margin-bottom: 20px;
   padding-bottom: 12px;
-  border-bottom: 1px solid var(--border-color);
 }
 
 .page-header h2 {

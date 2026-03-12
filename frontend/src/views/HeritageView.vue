@@ -1,16 +1,6 @@
 <template>
   <div class="heritage-view">
-    <!-- 顶部横幅 -->
-    <div class="hero-section">
-      <div class="hero-content">
-        <h1>河南省非物质文化遗产</h1>
-        <p>探索河南丰富的非物质文化遗产资源，感受传统文化的魅力</p>
-        <div class="hero-actions">
-          <router-link to="/heritage?tab=heritage" class="hero-btn hero-btn-primary">浏览项目</router-link>
-          <router-link to="/heritage?tab=inheritor" class="hero-btn hero-btn-secondary">了解传承人</router-link>
-        </div>
-      </div>
-    </div>
+
 
     <div class="container">
       <!-- 河南非遗地图分布 -->
@@ -706,269 +696,7 @@ const handleResize = () => {
   box-sizing: border-box;
 }
 
-/* 顶部横幅 */
-.hero-section {
-  width: 100%;
-  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-  color: white;
-  padding: 120px 20px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-  margin-bottom: 40px;
-}
 
-.hero-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: url('https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=henan%20chinese%20traditional%20pattern%20background%20subtle%20cultural%20heritage&image_size=landscape_16_9') center/cover;
-  opacity: 0.1;
-  z-index: 1;
-  animation: backgroundMove 20s ease-in-out infinite;
-}
-
-/* 装饰元素 */
-.hero-section::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: 
-    radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 20%),
-    radial-gradient(circle at 90% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 20%),
-    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 30%);
-  z-index: 1;
-}
-
-.hero-content {
-  position: relative;
-  z-index: 2;
-  max-width: 800px;
-  margin: 0 auto;
-  animation: fadeInUp 1s ease;
-}
-
-.hero-content h1 {
-  font-size: 3.5rem;
-  margin-bottom: 20px;
-  font-weight: 600;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  background: linear-gradient(45deg, #fff, rgba(255, 255, 255, 0.8));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: textGlow 3s ease-in-out infinite alternate;
-  position: relative;
-  display: inline-block;
-  padding: 0 20px;
-}
-
-.hero-content h1::before,
-.hero-content h1::after {
-  content: '❖';
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 1.5rem;
-  color: rgba(255, 255, 255, 0.8);
-  animation: pulse 2s ease-in-out infinite;
-}
-
-.hero-content h1::before {
-  left: -30px;
-}
-
-.hero-content h1::after {
-  right: -30px;
-}
-
-.hero-content p {
-  font-size: 1.3rem;
-  opacity: 0.9;
-  margin-bottom: 30px;
-  animation: fadeInUp 1s ease 0.2s both;
-  position: relative;
-  padding: 0 40px;
-}
-
-.hero-content p::before,
-.hero-content p::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 30px;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
-}
-
-.hero-content p::before {
-  left: 0;
-}
-
-.hero-content p::after {
-  right: 0;
-}
-
-/* 按钮容器 */
-.hero-actions {
-  margin-top: 40px;
-  display: flex;
-  gap: 20px;
-  justify-content: center;
-  flex-wrap: wrap;
-  animation: fadeInUp 1s ease 0.4s both;
-}
-
-.hero-btn {
-  padding: 12px 30px;
-  border-radius: 30px;
-  font-size: 1.1rem;
-  font-weight: 500;
-  text-decoration: none;
-  transition: all var(--transition-normal);
-  position: relative;
-  overflow: hidden;
-  z-index: 1;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.hero-btn-primary {
-  background: white;
-  color: var(--primary-color);
-}
-
-.hero-btn-secondary {
-  background: transparent;
-  color: white;
-  border: 2px solid white;
-}
-
-.hero-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  transition: left var(--transition-slow);
-  z-index: -1;
-}
-
-.hero-btn:hover::before {
-  left: 100%;
-}
-
-.hero-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-}
-
-.hero-btn-primary:hover {
-  background: #f8f9fa;
-  color: var(--accent-color);
-}
-
-.hero-btn-secondary:hover {
-  background: white;
-  color: var(--primary-color);
-}
-
-/* 动画效果 */
-@keyframes backgroundMove {
-  0%, 100% {
-    transform: scale(1) translate(0, 0);
-  }
-  50% {
-    transform: scale(1.05) translate(0, 5px);
-  }
-}
-
-@keyframes textGlow {
-  0% {
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 255, 255, 0.2);
-  }
-  100% {
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 30px rgba(255, 255, 255, 0.4);
-  }
-}
-
-@keyframes pulse {
-  0%, 100% {
-    transform: translateY(-50%) scale(1);
-    opacity: 0.8;
-  }
-  50% {
-    transform: translateY(-50%) scale(1.2);
-    opacity: 1;
-  }
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .hero-section {
-    padding: 80px 20px;
-  }
-  
-  .hero-content h1 {
-    font-size: 2.5rem;
-    padding: 0 10px;
-  }
-  
-  .hero-content h1::before,
-  .hero-content h1::after {
-    font-size: 1.2rem;
-    left: -20px;
-    right: -20px;
-  }
-  
-  .hero-content p {
-    font-size: 1.1rem;
-    padding: 0 20px;
-  }
-  
-  .hero-actions {
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .hero-btn {
-    width: 200px;
-    text-align: center;
-  }
-}
-
-@media (max-width: 576px) {
-  .hero-section {
-    padding: 60px 15px;
-  }
-  
-  .hero-content h1 {
-    font-size: 2rem;
-  }
-  
-  .hero-content h1::before,
-  .hero-content h1::after {
-    display: none;
-  }
-  
-  .hero-content p {
-    font-size: 1rem;
-    padding: 0 10px;
-  }
-  
-  .hero-content p::before,
-  .hero-content p::after {
-    width: 20px;
-  }
-}
 
 /* 容器 */
 .container {
@@ -1087,15 +815,15 @@ const handleResize = () => {
 }
 
 .stats-container {
-  width: 320px;
+  width: 300px;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  padding: 24px;
+  gap: 12px;
+  padding: 16px;
   background: rgba(0, 102, 204, 0.05);
   border-radius: 16px;
-  overflow-y: auto;
-  max-height: 500px;
+  overflow: hidden;
+  max-height: 480px;
   box-shadow: var(--shadow-sm);
   border: 1px solid rgba(0, 102, 204, 0.1);
   position: relative;
@@ -1113,12 +841,12 @@ const handleResize = () => {
 
 .stat-card {
   background: white;
-  padding: 20px;
-  border-radius: 12px;
+  padding: 12px;
+  border-radius: 10px;
   box-shadow: var(--shadow-sm);
   text-align: center;
   transition: all var(--transition-normal);
-  height: 100px;
+  height: 80px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -1152,10 +880,10 @@ const handleResize = () => {
 }
 
 .stat-number {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: bold;
   color: var(--accent-color);
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   transition: color var(--transition-normal);
   font-family: 'Arial', sans-serif;
 }
@@ -1167,11 +895,12 @@ const handleResize = () => {
 }
 
 .stat-name {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   color: var(--text-color);
-  line-height: 1.3;
+  line-height: 1.2;
   font-weight: 500;
   transition: color var(--transition-normal);
+  word-break: break-word;
 }
 
 .stat-card:hover .stat-name {
@@ -1772,24 +1501,32 @@ const handleResize = () => {
     grid-template-columns: repeat(2, 1fr);
   }
   
-  .hero-content h1 {
-    font-size: 2.5rem;
+  .map-and-stats {
+    flex-direction: row;
   }
   
-  .map-and-stats {
-    flex-direction: column;
+  .map-container {
+    flex: 1;
   }
   
   .stats-container {
-    width: 100%;
-    flex-direction: row;
-    flex-wrap: wrap;
-    max-height: none;
+    width: 280px;
+    gap: 10px;
+    padding: 14px;
+    max-height: 450px;
   }
   
   .stat-card {
-    flex: 1;
-    min-width: 140px;
+    padding: 10px;
+    height: 75px;
+  }
+  
+  .stat-number {
+    font-size: 1.4rem;
+  }
+  
+  .stat-name {
+    font-size: 0.75rem;
   }
 }
 
@@ -1798,12 +1535,35 @@ const handleResize = () => {
     max-width: 750px;
   }
   
-  .hero-section {
-    padding: 80px 20px;
+  .map-and-stats {
+    flex-direction: row;
+    gap: 20px;
   }
   
-  .hero-content h1 {
-    font-size: 2.2rem;
+  .map-container {
+    flex: 1;
+    height: 400px;
+    min-height: 400px;
+  }
+  
+  .stats-container {
+    width: 260px;
+    gap: 8px;
+    padding: 12px;
+    max-height: 380px;
+  }
+  
+  .stat-card {
+    padding: 8px;
+    height: 70px;
+  }
+  
+  .stat-number {
+    font-size: 1.3rem;
+  }
+  
+  .stat-name {
+    font-size: 0.7rem;
   }
   
   .nav-content-wrapper {
@@ -1827,27 +1587,40 @@ const handleResize = () => {
     padding: 0 15px;
   }
   
-  .hero-section {
-    padding: 60px 15px;
-    margin-bottom: 30px;
-  }
-  
-  .hero-content h1 {
-    font-size: 1.8rem;
-  }
-  
-  .hero-content p {
-    font-size: 1rem;
-  }
-  
   .map-section {
     padding: 20px;
     margin-bottom: 40px;
   }
   
+  .map-and-stats {
+    flex-direction: row;
+    gap: 15px;
+  }
+  
   .map-container {
-    height: 400px;
-    min-height: 400px;
+    flex: 1;
+    height: 300px;
+    min-height: 300px;
+  }
+  
+  .stats-container {
+    width: 220px;
+    max-height: 300px;
+    padding: 15px;
+    gap: 10px;
+  }
+  
+  .stat-card {
+    padding: 12px;
+    height: 80px;
+  }
+  
+  .stat-number {
+    font-size: 1.5rem;
+  }
+  
+  .stat-name {
+    font-size: 0.8rem;
   }
   
   .heritage-grid {
@@ -1863,8 +1636,6 @@ const handleResize = () => {
     padding: 20px;
   }
   
-
-  
   .section {
     padding: 20px;
   }
@@ -1875,12 +1646,39 @@ const handleResize = () => {
 }
 
 @media (max-width: 576px) {
-  .hero-content h1 {
-    font-size: 1.6rem;
-  }
-  
   .map-section .section-header h2 {
     font-size: 1.5rem;
+  }
+  
+  .map-and-stats {
+    flex-direction: row;
+    gap: 10px;
+  }
+  
+  .map-container {
+    flex: 1;
+    height: 250px;
+    min-height: 250px;
+  }
+  
+  .stats-container {
+    width: 180px;
+    max-height: 250px;
+    padding: 10px;
+    gap: 8px;
+  }
+  
+  .stat-card {
+    padding: 10px;
+    height: 70px;
+  }
+  
+  .stat-number {
+    font-size: 1.2rem;
+  }
+  
+  .stat-name {
+    font-size: 0.7rem;
   }
   
   .card-header h3 {
