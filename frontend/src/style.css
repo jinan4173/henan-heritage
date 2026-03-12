@@ -212,7 +212,7 @@ button.large {
 
 /* 表单元素 */
 input, textarea, select {
-  border: none;
+  border: none !important;
   border-radius: 8px;
   padding: 0.65em 1em;
   font-size: 1em;
@@ -220,12 +220,46 @@ input, textarea, select {
   transition: all var(--transition-normal);
   background-color: var(--card-background);
   color: var(--text-color);
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 input:focus, textarea:focus, select:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1) !important;
   transform: translateY(-2px);
+}
+
+/* Element Plus 输入框样式覆盖 */
+.el-input {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.el-input__wrapper {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  background-color: transparent !important;
+}
+
+.el-input__inner {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  outline: none !important;
+  color: var(--text-color) !important;
+}
+
+/* 确保Element Plus的默认边框被覆盖 */
+.el-input__wrapper.is-focus {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.el-input__wrapper:hover {
+  border: none !important;
+  box-shadow: none !important;
 }
 
 /* 分页样式 */
